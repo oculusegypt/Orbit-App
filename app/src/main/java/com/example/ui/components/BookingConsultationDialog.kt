@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.data.models.ConsultationBooking
 import com.example.data.repository.OrbitRepository
 import com.example.ui.theme.OrbitEmerald
 import com.example.ui.theme.OrbitGold
@@ -28,6 +29,9 @@ import com.example.ui.theme.OrbitIndigo
 
 @Composable
 fun BookingConsultationDialog(
+    currentUserId: String = "guest",
+    currentUserName: String = "زائر",
+    onBookingSaved: (ConsultationBooking) -> Unit = {},
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
@@ -37,6 +41,8 @@ fun BookingConsultationDialog(
     var phone by remember { mutableStateOf("") }
     var selectedService by remember { mutableStateOf("دبلوم الحساب الذهني والسوروبان") }
     var bookedSuccess by remember { mutableStateOf(false) }
+    var savedBooking by remember { mutableStateOf<ConsultationBooking?>(null) }
+    var validationError by remember { mutableStateOf<String?>(null) }
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -91,6 +97,15 @@ fun BookingConsultationDialog(
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(64.dp))
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("تم تسجيل طلب الحجز بنجاح! 🌟", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        savedBooking?.let { bk ->
+                            Text(
+                                text = "رقم مرجع الحجز: ${bk.id}",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = OrbitIndigo,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                         Text(
                             text = "شكراً يا أ/ $parentName، ستتواصل مس سارة معك على الهاتف $phone لتحديد موعد اختبار تحديد المستوى للبطل $childName.",
                             fontSize = 13.sp,
@@ -173,13 +188,47 @@ fun BookingConsultationDialog(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    validationError?.let { msg ->
+                        Text(
+                            text = msg,
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(bottom = 6.dp)
+                        )
+                    }
+
                     Button(
                         onClick = {
-                            if (parentName.isNotBlank() && phone.isNotBlank()) {
-                                bookedSuccess = true
+                            // Real validation: parent name, child name, and an
+                            // Egyptian mobile number (11 digits starting with 01).
+                            val trimmedPhone = phone.filter { it.isDigit() }
+                            when {
+                                parentName.isBlank() ->
+                                    validationError = "من فضلك اكتب اسم ولي الأمر"
+                                childName.isBlank() ->
+                                    validationError = "من فضلك اكتب اسم الطفل"
+                                trimmedPhone.length < 11 || !trimmedPhone.startsWith("01") ->
+                                    validationError = "رقم الهاتف غير صحيح — مثال: 01028340042"
+                                else -> {
+                                    validationError = null
+                                    // Persist the booking through the repository so it
+                                    // reaches the instructor/admin dashboards + audit log.
+                                    val booking = OrbitRepository.bookConsultation(
+                                        parentName = parentName,
+                                        childName = childName,
+                                        childAge = childAge,
+                                        phone = trimmedPhone,
+                                        service = selectedService,
+                                        actorUserId = currentUserId,
+                                        actorName = currentUserName
+                                    )
+                                    savedBooking = booking
+                                    bookedSuccess = true
+                                    onBookingSaved(booking)
+                                }
                             }
                         },
-                        enabled = parentName.isNotBlank() && phone.isNotBlank(),
+                        enabled = parentName.isNotBlank() && childName.isNotBlank() && phone.isNotBlank(),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                         modifier = Modifier.fillMaxWidth().height(48.dp)

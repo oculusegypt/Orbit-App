@@ -1,10 +1,10 @@
 package com.example.data.repository
+import com.example.core.OrbitTimeFormatter
 
 import com.example.data.models.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -666,6 +666,73 @@ object OrbitRepository {
     private val _classroomMessages = MutableStateFlow<List<ClassroomMessage>>(initialClassroomMessages)
     val classroomMessages: StateFlow<List<ClassroomMessage>> = _classroomMessages.asStateFlow()
 
+    private val _consultationBookings = MutableStateFlow<List<ConsultationBooking>>(emptyList())
+    val consultationBookings: StateFlow<List<ConsultationBooking>> = _consultationBookings.asStateFlow()
+
+    /**
+     * Persists a real consultation booking request submitted from the booking
+     * funnel, records an audit trail event, and returns the stored booking so
+     * callers can display its reference id. Surfaced to instructor/admin portals.
+     */
+    fun bookConsultation(
+        parentName: String,
+        childName: String,
+        childAge: String,
+        phone: String,
+        service: String,
+        actorUserId: String = "guest",
+        actorName: String = "زائر"
+    ): ConsultationBooking {
+        val booking = ConsultationBooking(
+            id = "bkg-" + System.currentTimeMillis(),
+            parentName = parentName.trim(),
+            childName = childName.trim(),
+            childAge = childAge.trim(),
+            phone = phone.trim(),
+            service = service,
+            status = "PENDING",
+            createdAt = OrbitTimeFormatter.currentDateTime()
+        )
+        _consultationBookings.value = listOf(booking) + _consultationBookings.value
+        addAudit(
+            actorUserId = actorUserId,
+            actorName = actorName,
+            action = "CONSULTATION_BOOKED",
+            resourceType = "booking",
+            resourceId = booking.id,
+            reason = "ولي أمر: ${booking.parentName} | طفل: ${booking.childName} (${booking.childAge}) | هاتف: ${booking.phone} | برنامج: ${booking.service}",
+            correlationId = booking.id
+        )
+        return booking
+    }
+
+    /**
+     * Merges bookings rehydrated from the durable Room store into the live
+     * pipeline (e.g. after process death), preserving status transitions.
+     */
+    fun mergePersistedBookings(persisted: List<ConsultationBooking>) {
+        val current = _consultationBookings.value.associateBy { it.id }
+        val merged = persisted.map { p -> current[p.id] ?: p } +
+            current.values.filter { c -> persisted.none { it.id == c.id } }
+        _consultationBookings.value = merged.sortedByDescending { it.createdAt }
+    }
+
+    /** Instructor-side workflow: advance a booking's status with an audit record. */
+    fun updateBookingStatus(bookingId: String, newStatus: String, actorName: String) {
+        if (_consultationBookings.value.none { it.id == bookingId }) return
+        _consultationBookings.value = _consultationBookings.value.map {
+            if (it.id == bookingId) it.copy(status = newStatus) else it
+        }
+        addAudit(
+            actorUserId = "inst-sara-elarby",
+            actorName = actorName,
+            action = "BOOKING_STATUS_$newStatus",
+            resourceType = "booking",
+            resourceId = bookingId,
+            correlationId = bookingId
+        )
+    }
+
     // Helper functions
     fun enrollCourse(userId: String, courseId: String, source: String): Enrollment {
         val existing = _enrollments.value.find { it.userId == userId && it.courseId == courseId }
@@ -677,7 +744,7 @@ object OrbitRepository {
             courseId = courseId,
             status = "active",
             source = source,
-            enrolledAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            enrolledAt = OrbitTimeFormatter.currentDate()
         )
         _enrollments.value = listOf(newEnrollment) + _enrollments.value
 
@@ -693,7 +760,7 @@ object OrbitRepository {
     }
 
     fun completeLesson(userId: String, lessonId: String, courseId: String) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val updated = _progressMap.value.toMutableMap()
         updated[lessonId] = LessonProgress(
             userId = userId,
@@ -719,7 +786,7 @@ object OrbitRepository {
             userName = userName,
             instructorName = INSTRUCTOR_SARA.name,
             verificationCode = code,
-            issuedAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            issuedAt = OrbitTimeFormatter.currentDate(),
             gradePercentage = grade,
             skillsVerified = skills
         )
@@ -744,7 +811,7 @@ object OrbitRepository {
             assignmentTitle = assignmentTitle,
             studentId = studentId,
             studentName = studentName,
-            submittedAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date()),
+            submittedAt = OrbitTimeFormatter.currentDateTime(),
             textSubmission = text,
             repoUrl = repoUrl,
             status = "submitted"
@@ -780,7 +847,7 @@ object OrbitRepository {
     }
 
     fun sendClassroomMessage(senderId: String, senderName: String, role: String, text: String, isQuestion: Boolean = false) {
-        val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        val time = OrbitTimeFormatter.currentTime()
         val msg = ClassroomMessage(
             id = "msg-" + System.currentTimeMillis(),
             senderId = senderId,
@@ -809,7 +876,7 @@ object OrbitRepository {
             resourceId = resourceId,
             reason = reason,
             correlationId = correlationId,
-            createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+            createdAt = OrbitTimeFormatter.currentDateTime()
         )
         _auditLogs.value = listOf(event) + _auditLogs.value
     }

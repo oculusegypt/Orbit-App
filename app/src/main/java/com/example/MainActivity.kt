@@ -74,6 +74,8 @@ fun OrbitApp(viewModel: OrbitViewModel) {
     val tutorLoading by viewModel.tutorLoading.collectAsState()
     val activeCall by viewModel.activeCall.collectAsState()
     val allRegisteredUsers by viewModel.allRegisteredUsers.collectAsState()
+    val checkoutPricing by viewModel.checkoutPricing.collectAsState()
+    val couponFeedback by viewModel.couponFeedback.collectAsState()
 
     // BackHandler for smooth nested navigation & in-call handling
     BackHandler(enabled = true) {
@@ -269,6 +271,9 @@ fun OrbitApp(viewModel: OrbitViewModel) {
 
     if (showBookingDialog) {
         BookingConsultationDialog(
+            currentUserId = currentUser?.id ?: "guest",
+            currentUserName = currentUser?.displayName ?: "زائر",
+            onBookingSaved = { /* booking already persisted via repository + audit log */ },
             onDismiss = { viewModel.setShowBookingDialog(false) }
         )
     }
@@ -276,7 +281,10 @@ fun OrbitApp(viewModel: OrbitViewModel) {
     if (showCheckoutDialog && selectedCourse != null) {
         CheckoutDialog(
             course = selectedCourse!!,
-            onConfirm = { viewModel.completeCheckout(it) },
+            pricing = checkoutPricing,
+            couponFeedback = couponFeedback,
+            onApplyCoupon = { viewModel.applyCouponCode(it) },
+            onConfirm = { course, method -> viewModel.completeCheckout(course, method) },
             onDismiss = { viewModel.setShowCheckoutDialog(false) }
         )
     }
@@ -287,6 +295,7 @@ fun OrbitApp(viewModel: OrbitViewModel) {
             messages = tutorMessages,
             inputText = tutorInput,
             isLoading = tutorLoading,
+            isAiEngineLive = viewModel.isAiTutorLive,
             onInputChanged = { viewModel.setTutorInput(it) },
             onSendMessage = { viewModel.sendTutorQuery(it) },
             onDismiss = { viewModel.setShowTutorSheet(false) }

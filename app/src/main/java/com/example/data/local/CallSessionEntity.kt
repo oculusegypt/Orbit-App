@@ -31,6 +31,8 @@ enum class CallStatus {
     OUTGOING_RINGING,
     INCOMING_RINGING,
     CONNECTED,
+    UNREACHABLE, // real signaling result: callee has no live presence session
+    MISSED,      // persisted terminal status for an unreachable call attempt
     ENDED
 }
 

@@ -19,21 +19,37 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.example.data.models.Course
 import com.example.ui.theme.OrbitEmerald
-import com.example.ui.theme.OrbitGold
 import com.example.ui.theme.OrbitIndigo
+import com.example.ui.theme.OrbitRose
+import com.example.ui.viewmodel.CheckoutPricing
 
+/**
+ * Real checkout funnel. Pricing, coupon validation (signature + expiry +
+ * per-user quota) and receipts live in CheckoutController behind the
+ * ViewModel; this composable only renders state and forwards intents.
+ */
 @Composable
 fun CheckoutDialog(
     course: Course,
-    onConfirm: (Course) -> Unit,
+    pricing: CheckoutPricing?,
+    couponFeedback: String?,
+    onApplyCoupon: (String) -> Unit,
+    onConfirm: (Course, String) -> Unit,
     onDismiss: () -> Unit
 ) {
     var selectedMethod by remember { mutableStateOf("vodafone") }
     var couponCode by remember { mutableStateOf("") }
-    var discountApplied by remember { mutableStateOf(false) }
 
-    val basePrice = course.priceMinor / 100
-    val finalPrice = if (discountApplied) (basePrice * 0.85).toInt() else basePrice
+    val basePriceMinor = pricing?.basePriceMinor ?: course.priceMinor
+    val finalPriceMinor = pricing?.finalPriceMinor ?: basePriceMinor
+    val discountPercent = pricing?.discountPercent ?: 0
+    val hasDiscount = pricing?.hasDiscount == true
+
+    val methods = listOf(
+        Triple("vodafone", "فودافون كاش ومحافظ المحمول (مصر)", Icons.Default.PhoneAndroid),
+        Triple("card", "البطاقات البنكية (Visa / MasterCard / Mada)", Icons.Default.CreditCard),
+        Triple("fawry", "منافذ فوري وأمان الفورية", Icons.Default.Storefront)
+    )
 
     Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -67,7 +83,7 @@ fun CheckoutDialog(
 
                 Divider(modifier = Modifier.padding(vertical = 10.dp))
 
-                // Price Summary Card
+                // Price Summary Card — computed by the real pricing engine
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant,
@@ -82,12 +98,18 @@ fun CheckoutDialog(
                     ) {
                         Column {
                             Text("المبلغ الإجمالي للاشتراك", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            if (discountApplied) {
-                                Text("تم تطبيق خصم 15% (كود SARA2026)", fontSize = 10.sp, color = OrbitEmerald)
+                            if (hasDiscount) {
+                                Text(
+                                    "السعر قبل الخصم: ${basePriceMinor / 100} ${course.currency} (-$discountPercent%)",
+                                    fontSize = 10.sp,
+                                    color = OrbitEmerald
+                                )
+                            } else {
+                                Text("بدون خصم مطبق", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                         Text(
-                            text = "$finalPrice ${course.currency}",
+                            text = "${finalPriceMinor / 100} ${course.currency}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = OrbitIndigo
@@ -100,12 +122,6 @@ fun CheckoutDialog(
                 // Payment Methods
                 Text("طريقة الدفع المعتمدة:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
-
-                val methods = listOf(
-                    Triple("vodafone", "فودافون كاش ومحافظ المحمول (مصر)", Icons.Default.PhoneAndroid),
-                    Triple("card", "البطاقات البنكية (Visa / MasterCard / Mada)", Icons.Default.CreditCard),
-                    Triple("fawry", "منافذ فوري وأمان الفورية", Icons.Default.Storefront)
-                )
 
                 methods.forEach { (key, label, icon) ->
                     val isSelected = selectedMethod == key
@@ -131,7 +147,7 @@ fun CheckoutDialog(
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Coupon row
+                // Coupon row — validated by the signed-campaign engine
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -146,22 +162,36 @@ fun CheckoutDialog(
                         singleLine = true
                     )
                     Button(
-                        onClick = {
-                            if (couponCode.trim().uppercase() == "SARA2026") {
-                                discountApplied = true
-                            }
-                        },
+                        onClick = { onApplyCoupon(couponCode) },
+                        enabled = couponCode.isNotBlank() && !hasDiscount,
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant, contentColor = MaterialTheme.colorScheme.onSurface)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.testTag("apply_coupon_btn")
                     ) {
-                        Text("تطبيق", fontSize = 12.sp)
+                        Text(if (hasDiscount) "مُفعّل ✓" else "تطبيق", fontSize = 12.sp)
                     }
+                }
+
+                // Real validation feedback from the engine
+                couponFeedback?.let { message ->
+                    Text(
+                        text = message,
+                        fontSize = 11.sp,
+                        color = if (hasDiscount) OrbitEmerald else OrbitRose,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier
+                            .padding(top = 6.dp)
+                            .testTag("coupon_feedback_text")
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
-                    onClick = { onConfirm(course) },
+                    onClick = { onConfirm(course, selectedMethod) },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = OrbitEmerald),
                     modifier = Modifier
@@ -173,6 +203,13 @@ fun CheckoutDialog(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("تأكيد الاشتراك وتفعيل الدروس فوراً ✓", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
+
+                Text(
+                    "يتم إصدار إيصال رقمي وحفظ عملية الشراء في سجل المشتريات المحلي.",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
         }
     }

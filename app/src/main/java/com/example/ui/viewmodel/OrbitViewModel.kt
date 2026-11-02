@@ -8,14 +8,12 @@ import com.example.data.repository.OrbitRepository
 import com.example.data.repository.OrbitRoomRepository
 import com.example.services.AlertNotificationItem
 import com.example.services.OrbitNotificationManager
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 import com.example.data.local.*
-import kotlinx.coroutines.Job
 
 enum class PortalTab(val labelAr: String) {
     HOME("الرئيسية"),
@@ -52,8 +50,26 @@ enum class MentalMathGameState {
 
 class OrbitViewModel : ViewModel() {
 
+    // Real Gemini AI engine (falls back to offline rule-based replies when no key is configured)
+    private var geminiClient: com.example.core.GeminiClient? = null
+
     // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = null
+
+    /** Direct handle on the durable Room database for DAO-level features. */
+    private var db: com.example.data.local.OrbitDatabase? = null
+
+    // Persistent checkout ledger (coupon redemptions + receipts), initialized in initializeServices
+    private var checkoutLedger: com.example.core.OrbitLedger? = null
+
+    private val checkoutController = CheckoutController(
+        ledgerProvider = { checkoutLedger },
+        roomReceiptDaoProvider = { db?.purchaseReceiptDao() },
+        scopeProvider = { viewModelScope },
+    )
+    val checkoutPricing: StateFlow<CheckoutPricing?> = checkoutController.pricing
+    val couponFeedback: StateFlow<String?> = checkoutController.couponFeedback
+    val lastReceipt: StateFlow<PurchaseReceipt?> = checkoutController.lastReceipt
 
     private val _isOfflineCached = MutableStateFlow(false)
     val isOfflineCached: StateFlow<Boolean> = _isOfflineCached.asStateFlow()
@@ -70,17 +86,48 @@ class OrbitViewModel : ViewModel() {
     private val _currentAccount = MutableStateFlow<UserAccount?>(null)
     val currentAccount: StateFlow<UserAccount?> = _currentAccount.asStateFlow()
 
-    // 1-on-1 Private Call & Screen Sharing State
-    private var callDurationJob: Job? = null
-    private val _activeCall = MutableStateFlow<ActiveCallState?>(null)
-    val activeCall: StateFlow<ActiveCallState?> = _activeCall.asStateFlow()
+    // Real presence registry (heartbeat-based availability for 1:1 calls)
+    private var presenceRegistry: com.example.core.OrbitPresenceRegistry? = null
+
+    // 1-on-1 Private Call & Screen Sharing State (delegated controller)
+    private val callController = PrivateCallController(
+        scope = viewModelScope,
+        currentUserProvider = { _currentAccount.value },
+        fallbackUserProvider = { _allRegisteredUsers.value.firstOrNull() },
+        onCallRecorded = { session -> roomRepository?.recordCallSession(session) },
+        presenceRegistryProvider = { presenceRegistry }
+    )
+    val activeCall: StateFlow<ActiveCallState?> = callController.activeCall
+    val callEvent: StateFlow<String?> = callController.callEvent
 
     private val _callHistory = MutableStateFlow<List<CallSessionEntity>>(emptyList())
     val callHistory: StateFlow<List<CallSessionEntity>> = _callHistory.asStateFlow()
 
     fun initializeServices(context: Context) {
+        // Real presence registry: heartbeat tracking for 1:1 call signaling.
+        val registry = com.example.core.OrbitPresenceRegistry.get(context)
+        presenceRegistry = registry
+
+        // Wire the real Gemini client before any tutor query can be issued.
+        val aiClient = com.example.core.GeminiClient(context.applicationContext)
+        geminiClient = aiClient
+        tutorController.attachGeminiClient(aiClient)
+
+        // Persistent coupon/receipt ledger for the checkout funnel.
+        if (checkoutLedger == null) {
+            checkoutLedger = SharedPrefsLedger(context)
+        }
+
         val repo = OrbitRoomRepository.getInstance(context)
         roomRepository = repo
+        db = com.example.data.local.OrbitDatabase.getDatabase(context)
+
+        // Rehydrate the durable booking pipeline (survives process death).
+        viewModelScope.launch {
+            repo.getBookingsFlow().collect { persisted ->
+                if (persisted.isNotEmpty()) OrbitRepository.mergePersistedBookings(persisted)
+            }
+        }
         viewModelScope.launch {
             repo.isOfflineReady.collect { ready ->
                 _isOfflineCached.value = ready
@@ -91,8 +138,7 @@ class OrbitViewModel : ViewModel() {
                 _allRegisteredUsers.value = accounts
                 if (_currentAccount.value == null && accounts.isNotEmpty()) {
                     val defaultUser = accounts.firstOrNull { it.role == UserRole.LEARNER } ?: accounts.first()
-                    _currentAccount.value = defaultUser
-                    _currentUser.value = defaultUser.toUser()
+                    switchUserAccount(defaultUser)
                 }
             }
         }
@@ -102,6 +148,13 @@ class OrbitViewModel : ViewModel() {
             }
         }
         OrbitNotificationManager.initialize(context)
+
+        // Collect REAL incoming-call pushes routed from Firebase Messaging.
+        viewModelScope.launch {
+            com.example.services.OrbitInAppSignalBus.incomingCalls.collect { signal ->
+                onIncomingCallPush(signal.fromUserId, signal.callTypeName)
+            }
+        }
     }
 
     // Current User
@@ -152,41 +205,27 @@ class OrbitViewModel : ViewModel() {
     val showTutorSheet: StateFlow<Boolean> = _showTutorSheet.asStateFlow()
 
     // Repository Flows
-    val courses = OrbitRepository.courses
-    val books = OrbitRepository.books
-    val liveSessions = OrbitRepository.liveSessions
-    val assignments = OrbitRepository.assignments
-    val submissions = OrbitRepository.submissions
-    val certificates = OrbitRepository.certificates
-    val enrollments = OrbitRepository.enrollments
-    val progressMap = OrbitRepository.progressMap
-    val auditLogs = OrbitRepository.auditLogs
-    val classroomMessages = OrbitRepository.classroomMessages
+    val courses get() = OrbitRepository.courses
+    val books get() = OrbitRepository.books
+    val liveSessions get() = OrbitRepository.liveSessions
+    val assignments get() = OrbitRepository.assignments
+    val submissions get() = OrbitRepository.submissions
+    val certificates get() = OrbitRepository.certificates
+    val enrollments get() = OrbitRepository.enrollments
+    val progressMap get() = OrbitRepository.progressMap
+    val auditLogs get() = OrbitRepository.auditLogs
+    val classroomMessages get() = OrbitRepository.classroomMessages
 
-    // Mental Math Challenge State
-    private val _mentalMathDifficulty = MutableStateFlow(MentalMathDifficulty.BEGINNER)
-    val mentalMathDifficulty: StateFlow<MentalMathDifficulty> = _mentalMathDifficulty.asStateFlow()
-
-    private val _mentalMathGameState = MutableStateFlow(MentalMathGameState.IDLE)
-    val mentalMathGameState: StateFlow<MentalMathGameState> = _mentalMathGameState.asStateFlow()
-
-    private val _mentalMathSequence = MutableStateFlow<List<Int>>(emptyList())
-    val mentalMathSequence: StateFlow<List<Int>> = _mentalMathSequence.asStateFlow()
-
-    private val _mentalMathCurrentNumber = MutableStateFlow<Int?>(null)
-    val mentalMathCurrentNumber: StateFlow<Int?> = _mentalMathCurrentNumber.asStateFlow()
-
-    private val _mentalMathUserAnswer = MutableStateFlow("")
-    val mentalMathUserAnswer: StateFlow<String> = _mentalMathUserAnswer.asStateFlow()
-
-    private val _mentalMathIsCorrect = MutableStateFlow<Boolean?>(null)
-    val mentalMathIsCorrect: StateFlow<Boolean?> = _mentalMathIsCorrect.asStateFlow()
-
-    private val _mentalMathStreak = MutableStateFlow(0)
-    val mentalMathStreak: StateFlow<Int> = _mentalMathStreak.asStateFlow()
-
-    private val _mentalMathXp = MutableStateFlow(120)
-    val mentalMathXp: StateFlow<Int> = _mentalMathXp.asStateFlow()
+    // Mental Math Challenge State (delegated controller)
+    private val mentalMathController = MentalMathController()
+    val mentalMathDifficulty: StateFlow<MentalMathDifficulty> = mentalMathController.difficulty
+    val mentalMathGameState: StateFlow<MentalMathGameState> = mentalMathController.gameState
+    val mentalMathSequence: StateFlow<List<Int>> = mentalMathController.sequence
+    val mentalMathCurrentNumber: StateFlow<Int?> = mentalMathController.currentNumber
+    val mentalMathUserAnswer: StateFlow<String> = mentalMathController.userAnswer
+    val mentalMathIsCorrect: StateFlow<Boolean?> = mentalMathController.isCorrect
+    val mentalMathStreak: StateFlow<Int> = mentalMathController.streak
+    val mentalMathXp: StateFlow<Int> = mentalMathController.xp
 
     // Quiz State
     private val _currentQuizIndex = MutableStateFlow(0)
@@ -220,21 +259,14 @@ class OrbitViewModel : ViewModel() {
     private val _classroomChatText = MutableStateFlow("")
     val classroomChatText: StateFlow<String> = _classroomChatText.asStateFlow()
 
-    // Socratic AI Tutor Messages
-    private val _tutorMessages = MutableStateFlow(listOf(
-        TutorMessage(
-            id = "msg-welcome",
-            role = "assistant",
-            content = "أهلاً بك يا بطل! 🌟\nأنا المساعد السقراطي الذكي لمس سارة العربي 💡\nهنا بنتعلم سوا بطريقة ممتعة: \"تأسيس أطفال . حساب ذهني\"! لو في خطوة أو مسألة مش واضحة، اسألني وهفكر معاك ونديك تلميحات حلوة توصلك للحل بنفسك! 🧠✨"
-        )
-    ))
-    val tutorMessages: StateFlow<List<TutorMessage>> = _tutorMessages.asStateFlow()
+    // Socratic AI Tutor (delegated controller; backed by real Gemini once initializeServices runs)
+    private val tutorController = SocraticTutorController()
+    val tutorMessages: StateFlow<List<TutorMessage>> = tutorController.messages
+    val tutorInput: StateFlow<String> = tutorController.input
+    val tutorLoading: StateFlow<Boolean> = tutorController.loading
 
-    private val _tutorInput = MutableStateFlow("")
-    val tutorInput: StateFlow<String> = _tutorInput.asStateFlow()
-
-    private val _tutorLoading = MutableStateFlow(false)
-    val tutorLoading: StateFlow<Boolean> = _tutorLoading.asStateFlow()
+    /** Exposes whether the live AI engine (Gemini) or the offline fallback is answering. */
+    val isAiTutorLive: Boolean get() = tutorController.isAiEngineActive
 
     // Navigation methods
     fun setPortal(portal: PortalTab) {
@@ -349,15 +381,89 @@ class OrbitViewModel : ViewModel() {
             openCourseDetail(course)
         } else {
             _selectedCourse.value = course
+            checkoutController.openForCourse(course.priceMinor)
             _showCheckoutDialog.value = true
         }
     }
 
-    fun completeCheckout(course: Course) {
+    /** Real coupon validation through the signed-campaign engine + persistent quota ledger. */
+    fun applyCouponCode(code: String) {
+        val userId = _currentUser.value?.id ?: return
+        val basePrice = checkoutController.currentQuote()?.basePriceMinor ?: return
+        checkoutController.applyCoupon(code, userId, basePrice)
+    }
+
+    fun completeCheckout(course: Course, paymentMethod: String = "vodafone") {
         val user = _currentUser.value ?: return
+        val receipt = checkoutController.commitPurchase(
+            userId = user.id,
+            courseId = course.id,
+            courseTitle = course.title,
+            currency = course.currency,
+            paymentMethod = paymentMethod,
+        )
         OrbitRepository.enrollCourse(user.id, course.id, "purchase")
+        OrbitRepository.addAudit(
+            actorUserId = user.id,
+            actorName = user.displayName,
+            action = "SUBSCRIPTION_PURCHASED",
+            resourceType = "course",
+            resourceId = course.id,
+            reason = receipt?.let {
+                "دفع ${it.paidAmountMinor / 100} ${it.currency} عبر $paymentMethod" +
+                    (if (it.discountPercent > 0) " بخصم ${it.discountPercent}% [${it.campaignId}]" else "") +
+                    " | رقم العملية ${it.orderId}"
+            } ?: "شراء بدون فاتورة محفوظة",
+            correlationId = receipt?.orderId ?: ""
+        )
+        checkoutController.close()
         _showCheckoutDialog.value = false
         openCourseDetail(course)
+    }
+
+    fun bookConsultation(
+        parentName: String,
+        childName: String,
+        childAge: String,
+        phone: String,
+        service: String,
+        callback: (Boolean, ConsultationBooking?) -> Unit
+    ) {
+        val user = _currentUser.value
+        val booking = OrbitRepository.bookConsultation(
+            parentName = parentName,
+            childName = childName,
+            childAge = childAge,
+            phone = phone,
+            service = service,
+            actorUserId = user?.id ?: "guest",
+            actorName = user?.displayName ?: "زائر"
+        )
+        // Durable persistence: the lead survives restarts and feeds the
+        // instructor/admin pipelines from any future session.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            roomRepository?.persistBooking(booking)
+        }
+        // Real FCM notification so the instructor's device is alerted of the new lead.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                com.example.services.OrbitNotificationManager.recordReceivedAlert(
+                    title = "حجز استشارة جديدة 📅",
+                    body = "${booking.parentName} ولي أمر ${booking.childName} (${booking.childAge}) — ${booking.service} | هاتف ${booking.phone}",
+                    type = "booking"
+                )
+            }
+        }
+        callback(true, booking)
+    }
+
+    /** Instructor/admin workflow action: move a booking through its pipeline. */
+    fun updateBookingStatus(bookingId: String, newStatus: String) {
+        val actor = _currentAccount.value?.displayName ?: _currentUser.value?.displayName ?: "المعلمة"
+        OrbitRepository.updateBookingStatus(bookingId, newStatus, actor)
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            roomRepository?.updatePersistedBookingStatus(bookingId, newStatus)
+        }
     }
 
     // Lesson completion & Room Database Offline Caching
@@ -470,51 +576,28 @@ class OrbitViewModel : ViewModel() {
         _verifiedCertificate.value = OrbitRepository.verifyCertificate(code)
     }
 
-    // Mental Math Game Logic
+    // Mental Math Game Logic (delegates to MentalMathController)
     fun setMentalMathDifficulty(difficulty: MentalMathDifficulty) {
-        _mentalMathDifficulty.value = difficulty
-        _mentalMathGameState.value = MentalMathGameState.IDLE
+        mentalMathController.setDifficulty(difficulty)
     }
 
     fun startMentalMathChallenge() {
-        val diff = _mentalMathDifficulty.value
-        val seq = mutableListOf<Int>()
-        var runningSum = 0
-        for (i in 0 until diff.count) {
-            var num = (diff.min..diff.max).random()
-            if (i > 0 && Math.random() > 0.5 && runningSum - num >= 0) {
-                num = -num
-            }
-            runningSum += num
-            seq.add(num)
-        }
-        _mentalMathSequence.value = seq
-        _mentalMathUserAnswer.value = ""
-        _mentalMathIsCorrect.value = null
-        _mentalMathGameState.value = MentalMathGameState.PLAYING
-
-        viewModelScope.launch {
-            for (num in seq) {
-                _mentalMathCurrentNumber.value = num
-                delay(diff.delayMs)
-                _mentalMathCurrentNumber.value = null
-                delay(200L)
-            }
-            _mentalMathGameState.value = MentalMathGameState.ANSWERING
-        }
+        mentalMathController.startChallenge(viewModelScope)
     }
 
     fun submitMentalMathAnswer(answerStr: String) {
-        val expected = _mentalMathSequence.value.sum()
-        val parsed = answerStr.toIntOrNull()
-        val correct = (parsed == expected)
-        _mentalMathIsCorrect.value = correct
-        _mentalMathGameState.value = MentalMathGameState.RESULT
-        if (correct) {
-            _mentalMathStreak.value += 1
-            _mentalMathXp.value += 20 * _mentalMathDifficulty.value.stars
-        } else {
-            _mentalMathStreak.value = 0
+        mentalMathController.submitAnswer(answerStr)
+        // Durable XP persistence: accumulate the round outcome into the
+        // per-user achievement store (Room) so progress survives restarts.
+        val userId = _currentUser.value?.id ?: return
+        if (mentalMathGameState.value == MentalMathGameState.RESULT) {
+            mentalMathController.recordRoundOutcome(
+                scope = viewModelScope,
+                userId = userId,
+                persist = { xpDelta, streak, correct ->
+                    roomRepository?.accumulateAchievement(userId, xpDelta, streak, correct)
+                }
+            )
         }
     }
 
@@ -569,56 +652,19 @@ class OrbitViewModel : ViewModel() {
         OrbitRepository.upvoteQuestion(msgId)
     }
 
-    // Socratic AI Tutor Logic
+    // Socratic AI Tutor Logic (delegates to SocraticTutorController)
     fun setTutorInput(text: String) {
-        _tutorInput.value = text
+        tutorController.setInput(text)
     }
 
     fun sendTutorQuery(queryText: String? = null) {
-        val query = (queryText ?: _tutorInput.value).trim()
-        if (query.isBlank()) return
-
-        val userMsg = TutorMessage(
-            id = "usr-" + System.currentTimeMillis(),
-            role = "user",
-            content = query
-        )
-        _tutorMessages.value = _tutorMessages.value + listOf(userMsg)
-        _tutorInput.value = ""
-        _tutorLoading.value = true
-
-        viewModelScope.launch {
-            delay(800L) // Socratic thinking animation
-            val currentLesson = _selectedLesson.value
-            val lessonTitle = currentLesson?.title ?: "الحساب الذهني والسوروبان"
-
-            val reply = when {
-                query.contains("أصدقاء") || query.contains("5") -> {
-                    "أحسنت السؤال يا بطل! 💡\nفي قاعدة أصدقاء العدد 5، لو عندنا 4 وعاوزين نضيف 1، إيه أقرب رقم صديق للـ 5 نقدر نستخدمه؟\nالمفتاح السقراطي: الخرزة العلوية بتساوي 5، يبقى بننزل الـ 5 ونطرح كام؟ شاطر، بنطرح 4! (+1 = +5 - 4). جربها بإيدك على العداد وشوف!"
-                }
-                query.contains("خرزة") || query.contains("خرزات") -> {
-                    "سؤال ذكي جداً! 🧮\nافتكر دايماً: خرزة السماء العلوية فوق العارضة بتساوي 5، والأربع خرزات الأرضيات تحت كل واحدة بتساوي 1.\nأي خرزة بتلمس العارضة الفاصلة، بيتم حسابها فوراً. جرب تحرك خرزة السماء مع خرزتين تحت وشوف الناتج هيكون 7!"
-                }
-                query.contains("تلميح") || query.contains("حل") -> {
-                    "أنا معاك خطوة بخطوة! 🌟\nالتلميح الذهبي لمس سارة: اتخيل العداد قدامك وافتكر حركة الأصابع.. الجمع بإصبع الإبهام نحو العارضة، والطرح بالسبابة! جرب تحسبها الأول بعينك وبعدين بإيدك."
-                }
-                query.contains("لغز") || query.contains("سؤال") -> {
-                    "جاهز للتحدي يا عبقري؟ 🎯\nلو عندك 3 خرزات لامسين العارضة، ونزلت خرزة السماء (5)، وبعدين طرحت 2.. الناتج النهائي في عقلك هيكون كام؟ فكر وقولي!"
-                }
-                else -> {
-                    "فكرة ممتازة وتفكير رائع يا بطل! 💡\nفي منهج مدار لتأسيس الأطفال والحساب الذهني، السر كله في 'الفهم مش الحفظ'.. اتخيل حركة الخرزات السحرية في عقلك وخلّي أصابعك خفيفة وسريعة. إيه الجزء اللي حابب نجربه سوا دلوقتي؟"
-                }
+        tutorController.sendQuery(
+            scope = viewModelScope,
+            queryText = queryText,
+            lessonTitleProvider = {
+                _selectedLesson.value?.title ?: "الحساب الذهني والسوروبان"
             }
-
-            val assistantMsg = TutorMessage(
-                id = "tutor-" + System.currentTimeMillis(),
-                role = "assistant",
-                content = reply,
-                citations = listOf(TutorCitation(lessonTitle, "مرجع من منهج مس سارة العربي 2026"))
-            )
-            _tutorMessages.value = _tutorMessages.value + listOf(assistantMsg)
-            _tutorLoading.value = false
-        }
+        )
     }
 
     // Submissions
@@ -682,168 +728,84 @@ class OrbitViewModel : ViewModel() {
     fun switchUserAccount(account: UserAccount) {
         _currentAccount.value = account
         _currentUser.value = account.toUser()
+        // Real presence: begin heartbeat so peers can genuinely detect that
+        // this account is available for 1:1 calls on this device.
+        presenceRegistry?.startHeartbeat(account.id)
         viewModelScope.launch {
             roomRepository?.setUserOnlineStatus(account.id, true)
         }
     }
 
+    /** Live presence of any directory user (drives the availability badges). */
+    fun presenceOf(userId: String): com.example.core.UserPresence =
+        callController.presenceOf(userId)
+
+    /** Reactive map of userId -> presence, refreshed by the heartbeat loop. */
+    val presenceRecords: StateFlow<Map<String, com.example.core.PresenceRecord>>
+        get() = presenceRegistry?.records
+            ?: MutableStateFlow(emptyMap())
+
     // -------------------------------------------------------------
     // 1-on-1 Private Video/Audio Calling & Screen Sharing
+    // (delegates to PrivateCallController)
     // -------------------------------------------------------------
     fun startPrivateCall(targetUser: UserAccount, callType: CallType) {
-        val caller = _currentAccount.value ?: _allRegisteredUsers.value.firstOrNull() ?: return
-        val newCallId = "call_" + java.util.UUID.randomUUID().toString().take(8)
-
-        _activeCall.value = ActiveCallState(
-            callId = newCallId,
-            otherUser = targetUser,
-            isOutgoing = true,
-            callType = callType,
-            status = CallStatus.OUTGOING_RINGING,
-            isScreenSharing = (callType == CallType.VIDEO_SCREEN)
-        )
-
-        // Realistic outgoing ring delay, then connect
-        viewModelScope.launch {
-            delay(2200L)
-            if (_activeCall.value?.callId == newCallId && _activeCall.value?.status == CallStatus.OUTGOING_RINGING) {
-                _activeCall.value = _activeCall.value?.copy(status = CallStatus.CONNECTED)
-                startCallTimer()
-            }
-        }
+        callController.startOutgoingCall(targetUser, callType)
     }
 
-    fun simulateIncomingCall(fromUser: UserAccount, callType: CallType) {
-        val newCallId = "call_" + java.util.UUID.randomUUID().toString().take(8)
-        _activeCall.value = ActiveCallState(
-            callId = newCallId,
-            otherUser = fromUser,
-            isOutgoing = false,
-            callType = callType,
-            status = CallStatus.INCOMING_RINGING,
-            isScreenSharing = (callType == CallType.VIDEO_SCREEN)
-        )
+    /**
+     * Routes a REAL incoming-call push (FCM data message with type=call) into
+     * the ringing state machine. Invoked only from the notification layer.
+     */
+    fun onIncomingCallPush(fromUserId: String, callTypeName: String) {
+        val from = _allRegisteredUsers.value.firstOrNull { it.id == fromUserId } ?: return
+        val type = runCatching { CallType.valueOf(callTypeName) }.getOrDefault(CallType.AUDIO)
+        callController.deliverIncomingCall(from, type)
     }
+
+    fun consumeCallEventIfNeeded() = callController.consumeCallEvent()
 
     fun acceptCall() {
-        val current = _activeCall.value ?: return
-        _activeCall.value = current.copy(status = CallStatus.CONNECTED)
-        startCallTimer()
+        callController.accept()
     }
 
     fun rejectCall() {
-        val current = _activeCall.value ?: return
-        val caller = _currentAccount.value
-        viewModelScope.launch {
-            roomRepository?.recordCallSession(
-                CallSessionEntity(
-                    callId = current.callId,
-                    callerId = current.otherUser.id,
-                    callerName = current.otherUser.displayName,
-                    callerRole = current.otherUser.role.name,
-                    callerAvatar = current.otherUser.avatarUrl,
-                    receiverId = caller?.id ?: "current",
-                    receiverName = caller?.displayName ?: "المستخدم",
-                    receiverRole = caller?.role?.name ?: "LEARNER",
-                    receiverAvatar = caller?.avatarUrl ?: "",
-                    callType = current.callType.name,
-                    durationSeconds = 0,
-                    hadScreenShare = false,
-                    status = "REJECTED"
-                )
-            )
-        }
-        _activeCall.value = current.copy(status = CallStatus.ENDED)
-        viewModelScope.launch {
-            delay(900L)
-            _activeCall.value = null
-        }
-    }
-
-    private fun startCallTimer() {
-        callDurationJob?.cancel()
-        callDurationJob = viewModelScope.launch {
-            while (true) {
-                delay(1000L)
-                val call = _activeCall.value
-                if (call != null && call.status == CallStatus.CONNECTED) {
-                    _activeCall.value = call.copy(durationSeconds = call.durationSeconds + 1)
-                } else {
-                    break
-                }
-            }
-        }
+        callController.reject()
     }
 
     fun toggleMute() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isMuted = !call.isMuted)
+        callController.toggleMute()
     }
 
     fun toggleCamera() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isCameraOff = !call.isCameraOff)
+        callController.toggleCamera()
     }
 
     fun flipCamera() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isFrontCamera = !call.isFrontCamera)
+        callController.flipCamera()
     }
 
     fun toggleSpeaker() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isSpeakerOn = !call.isSpeakerOn)
+        callController.toggleSpeaker()
     }
 
     fun toggleScreenShare() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isScreenSharing = !call.isScreenSharing)
+        callController.toggleScreenShare()
     }
 
     fun setScreenShareContent(content: ScreenShareContent) {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(screenShareContent = content, isScreenSharing = true)
+        callController.setScreenShareContent(content)
     }
 
     fun toggleSorobanUpperBead() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(sorobanUpperBeadActive = !call.sorobanUpperBeadActive)
+        callController.toggleSorobanUpperBead()
     }
 
     fun setSorobanLowerBeads(count: Int) {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(sorobanLowerBeadsCount = count.coerceIn(0, 4))
+        callController.setSorobanLowerBeads(count)
     }
 
     fun endCall() {
-        callDurationJob?.cancel()
-        val current = _activeCall.value ?: return
-        val caller = _currentAccount.value
-
-        viewModelScope.launch {
-            roomRepository?.recordCallSession(
-                CallSessionEntity(
-                    callId = current.callId,
-                    callerId = if (current.isOutgoing) (caller?.id ?: "current") else current.otherUser.id,
-                    callerName = if (current.isOutgoing) (caller?.displayName ?: "أنا") else current.otherUser.displayName,
-                    callerRole = if (current.isOutgoing) (caller?.role?.name ?: "LEARNER") else current.otherUser.role.name,
-                    callerAvatar = if (current.isOutgoing) (caller?.avatarUrl ?: "") else current.otherUser.avatarUrl,
-                    receiverId = if (current.isOutgoing) current.otherUser.id else (caller?.id ?: "current"),
-                    receiverName = if (current.isOutgoing) current.otherUser.displayName else (caller?.displayName ?: "أنا"),
-                    receiverRole = if (current.isOutgoing) current.otherUser.role.name else (caller?.role?.name ?: "LEARNER"),
-                    receiverAvatar = if (current.isOutgoing) current.otherUser.avatarUrl else (caller?.avatarUrl ?: ""),
-                    callType = current.callType.name,
-                    durationSeconds = current.durationSeconds,
-                    hadScreenShare = current.isScreenSharing,
-                    status = "COMPLETED"
-                )
-            )
-        }
-
-        _activeCall.value = current.copy(status = CallStatus.ENDED)
-        viewModelScope.launch {
-            delay(1200L)
-            _activeCall.value = null
-        }
+        callController.end()
     }
 }

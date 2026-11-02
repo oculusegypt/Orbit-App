@@ -13,9 +13,13 @@ import androidx.room.RoomDatabase
         LessonProgressEntity::class,
         LiveSessionEntity::class,
         UserAccountEntity::class,
-        CallSessionEntity::class
+        CallSessionEntity::class,
+        ConsultationBookingEntity::class,
+        PurchaseReceiptEntity::class,
+        LearnerAchievementEntity::class,
+        TutorMessageEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class OrbitDatabase : RoomDatabase() {
@@ -24,6 +28,10 @@ abstract class OrbitDatabase : RoomDatabase() {
     abstract fun lessonProgressDao(): LessonProgressDao
     abstract fun userAccountDao(): UserAccountDao
     abstract fun callSessionDao(): CallSessionDao
+    abstract fun consultationBookingDao(): ConsultationBookingDao
+    abstract fun purchaseReceiptDao(): PurchaseReceiptDao
+    abstract fun learnerAchievementDao(): LearnerAchievementDao
+    abstract fun tutorMessageDao(): TutorMessageDao
 
     companion object {
         @Volatile

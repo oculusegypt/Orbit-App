@@ -32,6 +32,7 @@ import com.example.ui.viewmodel.OrbitViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import com.example.ui.screens.connect.*
 
 @Composable
 fun PrivateConnectScreen(viewModel: OrbitViewModel) {
@@ -99,22 +100,30 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                             )
                         }
 
-                        // Simulation button to demonstrate incoming call from Miss Sara or Student
-                        OutlinedButton(
-                            onClick = {
-                                val other = users.firstOrNull { it.id != currentAccount?.id } ?: users.firstOrNull()
-                                if (other != null) {
-                                    viewModel.simulateIncomingCall(other, CallType.VIDEO_SCREEN)
-                                }
-                            },
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.testTag("btn_simulate_incoming_call")
+                        // Real signaling status chip — incoming calls arrive only
+                        // through genuine FCM push messages (no simulation).
+                        Surface(
+                            color = Color.White.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(Icons.Default.PhoneCallback, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("تجربة مكالمة واردة 📲", fontSize = 11.sp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.PhoneCallback,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = OrbitGold
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "المكالمات الواردة تصل عبر إشعارات FCM الحقيقية فقط",
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
 
@@ -172,12 +181,19 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                                     Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
                                 }
                             }
-                            // Online Dot
+                            // Real availability badge driven by the presence registry
+                            val saraPresence = viewModel.presenceOf(saraAccount.id)
                             Box(
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clip(CircleShape)
-                                    .background(OrbitEmerald)
+                                    .background(
+                                        when (saraPresence) {
+                                            com.example.core.UserPresence.ONLINE -> OrbitEmerald
+                                            com.example.core.UserPresence.RECENTLY_ACTIVE -> OrbitGold
+                                            com.example.core.UserPresence.OFFLINE -> Color.Gray
+                                        }
+                                    )
                                     .border(2.dp, Color.White, CircleShape)
                                     .align(Alignment.BottomEnd)
                             )
@@ -363,233 +379,3 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
     }
 }
 
-@Composable
-fun UserContactCard(
-    user: UserAccount,
-    isCurrentUser: Boolean,
-    onVideoCall: () -> Unit,
-    onAudioCall: () -> Unit,
-    onSwitchToUser: () -> Unit
-) {
-    Card(
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = if (isCurrentUser) androidx.compose.foundation.BorderStroke(2.dp, OrbitIndigo) else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("contact_card_${user.id}")
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Avatar with presence
-                Box {
-                    if (user.avatarUrl.isNotBlank()) {
-                        AsyncImage(
-                            model = user.avatarUrl,
-                            contentDescription = user.displayName,
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(50.dp)
-                                .clip(CircleShape)
-                                .background(
-                                    when (user.role) {
-                                        UserRole.INSTRUCTOR -> OrbitGoldDark
-                                        UserRole.ADMIN -> Color(0xFFDC2626)
-                                        UserRole.LEARNER -> OrbitIndigo
-                                    }
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                        }
-                    }
-
-                    // Online indicator
-                    Box(
-                        modifier = Modifier
-                            .size(12.dp)
-                            .clip(CircleShape)
-                            .background(if (user.isOnline) OrbitEmerald else Color.Gray)
-                            .border(2.dp, Color.White, CircleShape)
-                            .align(Alignment.BottomEnd)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(12.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(user.displayName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        if (isCurrentUser) {
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Surface(
-                                color = OrbitEmerald.copy(alpha = 0.2f),
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text("أنت (الحالي)", color = OrbitEmerald, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(2.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            color = when (user.role) {
-                                UserRole.INSTRUCTOR -> OrbitGold.copy(alpha = 0.2f)
-                                UserRole.ADMIN -> Color(0xFFFEE2E2)
-                                UserRole.LEARNER -> OrbitIndigo.copy(alpha = 0.15f)
-                            },
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text(
-                                text = user.role.labelAr,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = when (user.role) {
-                                    UserRole.INSTRUCTOR -> OrbitGoldDark
-                                    UserRole.ADMIN -> Color(0xFFDC2626)
-                                    UserRole.LEARNER -> OrbitIndigo
-                                },
-                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                            )
-                        }
-
-                        if (user.phone.isNotBlank()) {
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(user.phone, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                    }
-
-                    if (user.bioOrGrade.isNotBlank()) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(user.bioOrGrade, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Action Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (!isCurrentUser) {
-                    Button(
-                        onClick = onVideoCall,
-                        colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo, contentColor = Color.White),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.weight(1f).testTag("btn_call_video_${user.id}")
-                    ) {
-                        Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("فيديو وشاشة", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    FilledTonalButton(
-                        onClick = onAudioCall,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.testTag("btn_call_audio_${user.id}")
-                    ) {
-                        Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("صوت", fontSize = 11.sp)
-                    }
-                }
-
-                // Switch account button
-                OutlinedButton(
-                    onClick = onSwitchToUser,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.testTag("btn_switch_to_${user.id}")
-                ) {
-                    Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isCurrentUser) "مُحدد" else "دخول بحسابه", fontSize = 11.sp)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun CallHistoryCard(call: CallSessionEntity) {
-    val dateFormatted = remember(call.timestamp) {
-        val sdf = SimpleDateFormat("dd MMM yyyy - hh:mm a", Locale("ar"))
-        sdf.format(Date(call.timestamp))
-    }
-    val durationFormatted = remember(call.durationSeconds) {
-        val minutes = call.durationSeconds / 60
-        val seconds = call.durationSeconds % 60
-        String.format("%02d:%02d", minutes, seconds)
-    }
-
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (call.status == "COMPLETED") OrbitEmerald.copy(alpha = 0.15f) else Color(0xFFFEE2E2)
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = if (call.callType == "VIDEO_SCREEN") Icons.Default.Videocam else Icons.Default.Call,
-                    contentDescription = null,
-                    tint = if (call.status == "COMPLETED") OrbitEmerald else Color(0xFFDC2626)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "${call.callerName} ➔ ${call.receiverName}",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "$dateFormatted • ${if (call.hadScreenShare) "تضمنت مشاركة شاشة 🖥️" else "مكالمة عادية"}",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Column(horizontalAlignment = Alignment.End) {
-                Surface(
-                    color = if (call.status == "COMPLETED") OrbitEmerald.copy(alpha = 0.2f) else Color(0xFFFEE2E2),
-                    shape = RoundedCornerShape(6.dp)
-                ) {
-                    Text(
-                        text = if (call.status == "COMPLETED") durationFormatted else "مرفوضة / فائتة",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (call.status == "COMPLETED") OrbitEmerald else Color(0xFFDC2626),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                    )
-                }
-            }
-        }
-    }
-}

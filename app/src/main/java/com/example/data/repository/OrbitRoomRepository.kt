@@ -1,4 +1,5 @@
 package com.example.data.repository
+import com.example.core.OrbitTimeFormatter
 
 import android.content.Context
 import com.example.data.local.*
@@ -7,15 +8,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 class OrbitRoomRepository(
     private val courseDao: CourseDao,
     private val lessonProgressDao: LessonProgressDao,
     private val userAccountDao: UserAccountDao? = null,
-    private val callSessionDao: CallSessionDao? = null
+    private val callSessionDao: CallSessionDao? = null,
+    private val consultationBookingDao: ConsultationBookingDao? = null,
+    private val purchaseReceiptDao: PurchaseReceiptDao? = null,
+    private val learnerAchievementDao: LearnerAchievementDao? = null,
+    private val tutorMessageDao: TutorMessageDao? = null
 ) {
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
@@ -246,7 +249,7 @@ class OrbitRoomRepository(
      * Saves playback position locally in Room so the student can resume offline
      */
     suspend fun saveWatchProgress(userId: String, lessonId: String, courseId: String, seconds: Int) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val existing = lessonProgressDao.getProgressForLessonDirect(userId, lessonId)
         if (existing == null) {
             lessonProgressDao.upsertProgress(
@@ -268,7 +271,7 @@ class OrbitRoomRepository(
      * Marks a lesson completed in Room database
      */
     suspend fun markLessonCompleted(userId: String, lessonId: String, courseId: String) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val existing = lessonProgressDao.getProgressForLessonDirect(userId, lessonId)
         if (existing == null) {
             lessonProgressDao.upsertProgress(
@@ -307,6 +310,15 @@ class OrbitRoomRepository(
      */
     suspend fun seedRealUserAccounts() {
         val dao = userAccountDao ?: return
+        // Transparent security upgrade: rehash any legacy plaintext passwords
+        // written by older builds into salted PBKDF2 specs on first launch.
+        dao.getAllUsers().forEach { entity ->
+            if (com.example.core.PasswordHasher.needsRehash(entity.passwordHash)) {
+                dao.updateUser(
+                    entity.copy(passwordHash = com.example.core.PasswordHasher.hash(entity.passwordHash))
+                )
+            }
+        }
         if (dao.getUsersCount() == 0) {
             val initialAccounts = listOf(
                 UserAccountEntity(
@@ -393,7 +405,7 @@ class OrbitRoomRepository(
         val entity = UserAccountEntity(
             id = newId,
             email = email.trim().lowercase(),
-            passwordHash = password,
+            passwordHash = com.example.core.PasswordHasher.hash(password),
             displayName = name.trim(),
             role = role.name,
             phone = phone.trim(),
@@ -406,14 +418,22 @@ class OrbitRoomRepository(
         return Result.success(entity.toUserAccount())
     }
 
+    /**
+     * Real credential verification against salted PBKDF2 hashes stored in Room.
+     * Handles legacy plaintext rows transparently and upgrades them on success.
+     */
     suspend fun authenticateUser(email: String, password: String): UserAccount? {
         val dao = userAccountDao ?: return null
-        val user = dao.authenticate(email.trim().lowercase(), password)
-        if (user != null) {
-            dao.setOnlineStatus(user.id, true)
-            return user.toUserAccount()
+        val stored = dao.getUserByEmail(email.trim().lowercase()) ?: return null
+        if (!com.example.core.PasswordHasher.verify(password, stored.passwordHash)) return null
+
+        if (com.example.core.PasswordHasher.needsRehash(stored.passwordHash)) {
+            dao.updateUser(
+                stored.copy(passwordHash = com.example.core.PasswordHasher.hash(password))
+            )
         }
-        return null
+        dao.setOnlineStatus(stored.id, true)
+        return stored.toUserAccount()
     }
 
     suspend fun setUserOnlineStatus(userId: String, isOnline: Boolean) {
@@ -428,6 +448,56 @@ class OrbitRoomRepository(
         return callSessionDao?.getAllCallsFlow() ?: flowOf(emptyList())
     }
 
+    // ---- Durable consultation bookings (lead funnel) ----------------------
+
+    suspend fun persistBooking(booking: ConsultationBooking) {
+        consultationBookingDao?.insertBooking(booking.toEntity())
+    }
+
+    suspend fun updatePersistedBookingStatus(bookingId: String, newStatus: String) {
+        consultationBookingDao?.updateStatus(bookingId, newStatus)
+    }
+
+    fun getBookingsFlow(): Flow<List<ConsultationBooking>> =
+        consultationBookingDao?.getAllBookingsFlow()?.map { list -> list.map { it.toModel() } }
+            ?: flowOf(emptyList())
+
+    // ---- Durable purchase receipts & real revenue -------------------------
+
+    suspend fun persistReceipt(receipt: PurchaseReceiptEntity) {
+        purchaseReceiptDao?.insertReceipt(receipt)
+    }
+
+    fun getTotalRevenueMinorFlow(): Flow<Int> =
+        purchaseReceiptDao?.getTotalRevenueMinorFlow() ?: flowOf(0)
+
+    fun getReceiptsFlow(): Flow<List<PurchaseReceiptEntity>> =
+        purchaseReceiptDao?.getAllReceiptsFlow() ?: flowOf(emptyList())
+
+    // ---- Durable learner achievements (mental math XP / streak) -----------
+
+    suspend fun accumulateAchievement(userId: String, xpDelta: Int, streak: Int, correct: Int) {
+        learnerAchievementDao?.accumulate(userId, xpDelta, streak, correct)
+    }
+
+    fun getAchievementFlow(userId: String): Flow<LearnerAchievementEntity?> =
+        learnerAchievementDao?.getAchievementFlow(userId) ?: flowOf(null)
+
+    fun getLeaderboardFlow(): Flow<List<LearnerAchievementEntity>> =
+        learnerAchievementDao?.getLeaderboardFlow() ?: flowOf(emptyList())
+
+    // ---- Durable AI tutor conversation ------------------------------------
+
+    suspend fun persistTutorTurn(turn: TutorMessageEntity) {
+        tutorMessageDao?.insert(turn)
+    }
+
+    suspend fun getRecentTutorTurns(userId: String, limit: Int): List<TutorMessageEntity> =
+        tutorMessageDao?.getRecentTurns(userId, limit) ?: emptyList()
+
+    fun getTutorConversationFlow(userId: String): Flow<List<TutorMessageEntity>> =
+        tutorMessageDao?.getConversationFlow(userId) ?: flowOf(emptyList())
+
     companion object {
         @Volatile
         private var INSTANCE: OrbitRoomRepository? = null
@@ -439,7 +509,11 @@ class OrbitRoomRepository(
                     courseDao = db.courseDao(),
                     lessonProgressDao = db.lessonProgressDao(),
                     userAccountDao = db.userAccountDao(),
-                    callSessionDao = db.callSessionDao()
+                    callSessionDao = db.callSessionDao(),
+                    consultationBookingDao = db.consultationBookingDao(),
+                    purchaseReceiptDao = db.purchaseReceiptDao(),
+                    learnerAchievementDao = db.learnerAchievementDao(),
+                    tutorMessageDao = db.tutorMessageDao()
                 )
                 INSTANCE = repo
                 repo

@@ -35,6 +35,16 @@ fun AdminScreen(
     val courses by viewModel.courses.collectAsState()
     val enrollments by viewModel.enrollments.collectAsState()
     val certificates by viewModel.certificates.collectAsState()
+    val consultationBookings by OrbitRepository.consultationBookings.collectAsState()
+
+    // Real revenue computed from the course catalog × paid enrollments (EGP)
+    val totalRevenueEgp = remember(courses, enrollments) {
+        val priceById = courses.associate { it.id to it.priceMinor }
+        enrollments
+            .filter { it.source == "purchase" }
+            .sumOf { priceById[it.courseId] ?: 0 } / 100
+    }
+    val pendingBookings = consultationBookings.count { it.status == "PENDING" }
 
     LazyColumn(
         modifier = modifier

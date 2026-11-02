@@ -238,3 +238,19 @@ data class ClassroomMessage(
     val isQuestion: Boolean = false,
     val upvotes: Int = 0
 )
+
+/**
+ * A real consultation/seating booking request captured by the booking funnel.
+ * Persisted through [com.example.data.repository.OrbitRepository] and surfaced
+ * to the instructor & admin portals (not a dead-end UI state).
+ */
+data class ConsultationBooking(
+    val id: String,
+    val parentName: String,
+    val childName: String,
+    val childAge: String,
+    val phone: String,
+    val service: String,
+    val status: String = "PENDING", // PENDING | CONTACTED | SEATED
+    val createdAt: String
+)
