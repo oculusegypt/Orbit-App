@@ -52,7 +52,7 @@ fun PrivateCallScreen(viewModel: OrbitViewModel) {
         CallStatus.CONNECTED -> {
             ActiveCallRoomView(state = state, viewModel = viewModel)
         }
-        CallStatus.ENDED, CallStatus.IDLE -> {
+        CallStatus.ENDED, CallStatus.IDLE, CallStatus.UNREACHABLE, CallStatus.MISSED -> {
             CallEndedView(state = state)
         }
     }

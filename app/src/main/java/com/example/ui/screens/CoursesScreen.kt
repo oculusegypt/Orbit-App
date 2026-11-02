@@ -154,5 +154,3 @@ fun CoursesScreen(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)

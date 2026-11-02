@@ -7,6 +7,7 @@ import com.example.core.OrbitLedger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 /** Immutable snapshot of the checkout pricing after real coupon validation. */
 @Immutable

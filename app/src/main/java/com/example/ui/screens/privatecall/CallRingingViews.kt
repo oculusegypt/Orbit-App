@@ -317,5 +317,3 @@ fun IncomingCallView(
         }
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)

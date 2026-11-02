@@ -32,6 +32,7 @@ import com.example.ui.theme.*
 import com.example.ui.viewmodel.ActiveCallState
 import com.example.ui.viewmodel.OrbitViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
     val durationFormatted = remember(state.durationSeconds) {
