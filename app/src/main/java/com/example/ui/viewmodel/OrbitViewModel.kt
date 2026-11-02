@@ -587,6 +587,18 @@ class OrbitViewModel : ViewModel() {
 
     fun submitMentalMathAnswer(answerStr: String) {
         mentalMathController.submitAnswer(answerStr)
+        // Durable XP persistence: accumulate the round outcome into the
+        // per-user achievement store (Room) so progress survives restarts.
+        val userId = _currentUser.value?.id ?: return
+        if (mentalMathGameState.value == MentalMathGameState.RESULT) {
+            mentalMathController.recordRoundOutcome(
+                scope = viewModelScope,
+                userId = userId,
+                persist = { xpDelta, streak, correct ->
+                    roomRepository?.accumulateAchievement(userId, xpDelta, streak, correct)
+                }
+            )
+        }
     }
 
     // Classroom
