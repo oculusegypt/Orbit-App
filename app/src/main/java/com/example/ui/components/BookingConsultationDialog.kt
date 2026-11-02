@@ -31,6 +31,10 @@ import com.example.ui.theme.OrbitIndigo
 fun BookingConsultationDialog(
     currentUserId: String = "guest",
     currentUserName: String = "زائر",
+    // Real persistence path: when provided, the booking goes through the
+    // ViewModel so it is also written to Room and pushes an FCM alert to the
+    // instructor. Falls back to the direct repository call for previews/tests.
+    onSubmit: ((parent: String, child: String, age: String, phone: String, service: String, callback: (Boolean, ConsultationBooking?) -> Unit) -> Unit)? = null,
     onBookingSaved: (ConsultationBooking) -> Unit = {},
     onDismiss: () -> Unit
 ) {
@@ -211,20 +215,35 @@ fun BookingConsultationDialog(
                                     validationError = "رقم الهاتف غير صحيح — مثال: 01028340042"
                                 else -> {
                                     validationError = null
-                                    // Persist the booking through the repository so it
-                                    // reaches the instructor/admin dashboards + audit log.
-                                    val booking = OrbitRepository.bookConsultation(
-                                        parentName = parentName,
-                                        childName = childName,
-                                        childAge = childAge,
-                                        phone = trimmedPhone,
-                                        service = selectedService,
-                                        actorUserId = currentUserId,
-                                        actorName = currentUserName
-                                    )
-                                    savedBooking = booking
-                                    bookedSuccess = true
-                                    onBookingSaved(booking)
+                                    // Persist the booking through the ViewModel when wired
+                                    // (Room + FCM alert + audit), otherwise fall back to the
+                                    // repository directly so the flow never dead-ends.
+                                    val handler: (ConsultationBooking?) -> Unit = { booking ->
+                                        if (booking != null) {
+                                            savedBooking = booking
+                                            bookedSuccess = true
+                                            onBookingSaved(booking)
+                                        } else {
+                                            validationError = "تعذر حفظ الحجز، حاول مرة أخرى"
+                                        }
+                                    }
+                                    val submit = onSubmit
+                                    if (submit != null) {
+                                        submit(parentName, childName, childAge, trimmedPhone, selectedService) { ok, booking ->
+                                            handler(if (ok) booking else null)
+                                        }
+                                    } else {
+                                        val booking = OrbitRepository.bookConsultation(
+                                            parentName = parentName,
+                                            childName = childName,
+                                            childAge = childAge,
+                                            phone = trimmedPhone,
+                                            service = selectedService,
+                                            actorUserId = currentUserId,
+                                            actorName = currentUserName
+                                        )
+                                        handler(booking)
+                                    }
                                 }
                             }
                         },
