@@ -56,6 +56,9 @@ class OrbitViewModel : ViewModel() {
     // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = null
 
+    /** Application context captured at init; powers real push signaling. */
+    private var appContext: Context? = null
+
     /** Direct handle on the durable Room database for DAO-level features. */
     private var db: com.example.data.local.OrbitDatabase? = null
 
@@ -95,7 +98,8 @@ class OrbitViewModel : ViewModel() {
         currentUserProvider = { _currentAccount.value },
         fallbackUserProvider = { _allRegisteredUsers.value.firstOrNull() },
         onCallRecorded = { session -> roomRepository?.recordCallSession(session) },
-        presenceRegistryProvider = { presenceRegistry }
+        presenceRegistryProvider = { presenceRegistry },
+        contextProvider = { appContext }
     )
     val activeCall: StateFlow<ActiveCallState?> = callController.activeCall
     val callEvent: StateFlow<String?> = callController.callEvent
@@ -104,6 +108,7 @@ class OrbitViewModel : ViewModel() {
     val callHistory: StateFlow<List<CallSessionEntity>> = _callHistory.asStateFlow()
 
     fun initializeServices(context: Context) {
+        appContext = context.applicationContext
         // Real presence registry: heartbeat tracking for 1:1 call signaling.
         val registry = com.example.core.OrbitPresenceRegistry.get(context)
         presenceRegistry = registry
@@ -218,6 +223,7 @@ class OrbitViewModel : ViewModel() {
             val seen = durable.map { it.verificationCode.uppercase() }.toSet()
             durable + seeded.filter { it.verificationCode.uppercase() !in seen }
         }
+    val submissions get() = OrbitRepository.submissions
     val enrollments get() = OrbitRepository.enrollments
     val progressMap get() = OrbitRepository.progressMap
     val auditLogs get() = OrbitRepository.auditLogs

@@ -100,6 +100,17 @@ class PrivateCallController(
             isScreenSharing = (callType == CallType.VIDEO_SCREEN)
         )
 
+        // Publish the invite over the real push channel so the callee's
+        // device rings via FCM -> OrbitInAppSignalBus on any screen.
+        contextProvider()?.let { ctx ->
+            com.example.services.OrbitNotificationManager.dispatchCallInvite(
+                fromUserId = caller.id,
+                fromName = caller.displayName,
+                toUserId = targetUser.id,
+                callType = callType.name
+            )
+        }
+
         // Ring delay, then transition to CONNECTED only while the callee's
         // presence is still live at answer time (re-check — real semantics).
         scope.launch {

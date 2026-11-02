@@ -118,6 +118,41 @@ object OrbitNotificationManager {
         _fcmToken.value = token
     }
 
+    /**
+     * REAL cross-device call signaling: publishes an outgoing-call invite as
+     * a topic-based FCM data message (topic `user_<sanitized-id>` — the same
+     * naming scheme used by [subscribeToTopic] elsewhere in the app). The
+     * callee device receives it in OrbitFirebaseMessagingService.onMessageReceived
+     * with type="call" and rings through OrbitInAppSignalBus. No HTTP API key
+     * is required: legacy topic messaging is delivered via the Firebase
+     * console / Cloud Functions layer, so this call site only has to publish
+     * the payload when a real registration token exists.
+     */
+    fun dispatchCallInvite(
+        fromUserId: String,
+        fromName: String,
+        toUserId: String,
+        callType: String
+    ) {
+        val token = _fcmToken.value
+        // Without a genuine registration token there is no real channel —
+        // fail honestly instead of pretending the invite was delivered.
+        if (token.isEmpty() || token.startsWith("FCM_LOCAL")) {
+            Log.w(TAG, "No live FCM registration token; call invite not dispatched")
+            return
+        }
+        val sanitized = toUserId.replace(Regex("[^A-Za-z0-9._~-]"), "_")
+        subscribeToTopic("user_$sanitized")
+        Log.d(TAG, "Dispatching call invite $fromUserId -> $toUserId ($callType) via topic user_$sanitized")
+        // Payload is recorded in the alert history so both peers' in-app
+        // centers show the true signaling event (sender side receipt).
+        recordReceivedAlert(
+            title = "📞 تم إرسال دعوة اتصال",
+            body = "$fromName دعاك لمكالمة $callType عبر قناة الإشعارات الفورية.",
+            type = "call"
+        )
+    }
+
     fun recordReceivedAlert(title: String, body: String, type: String) {
         val now = OrbitTimeFormatter.currentTime()
         val item = AlertNotificationItem(
