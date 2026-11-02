@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -92,7 +95,7 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(
-                                text = "🔒 غرف الاتصال الخاص 1:1",
+                                text = stringResource(R.string.ui_c7caef7),
                                 color = OrbitGold,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -118,7 +121,7 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "المكالمات الواردة تصل عبر إشعارات FCM الحقيقية فقط",
+                                    text = stringResource(R.string.ui_4ffd168),
                                     color = Color.White.copy(alpha = 0.9f),
                                     fontSize = 10.sp,
                                     fontWeight = FontWeight.Bold
@@ -130,14 +133,14 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "الاتصال المباشر الخاص ومشاركة الشاشة",
+                        text = stringResource(R.string.ui_02bb684),
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
-                        text = "تواصل صوت وصورة مع أي شخص بالاسم ومشاركة سبورة السوربان والشيتات التعليمية في الوقت الفعلي.",
+                        text = stringResource(R.string.ui_80f8e26),
                         fontSize = 12.sp,
                         color = Color.White.copy(alpha = 0.85f),
                         lineHeight = 18.sp
@@ -205,9 +208,9 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(saraAccount.displayName, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("⭐ المعلمة الأولى", fontSize = 10.sp, color = OrbitGold, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_74d8068), fontSize = 10.sp, color = OrbitGold, fontWeight = FontWeight.Bold)
                             }
-                            Text("مدربة السوربان والحساب الذهني - جاهزة للاستفسار والشرح", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_69d5322), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Spacer(modifier = Modifier.height(8.dp))
 
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -219,7 +222,7 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                                 ) {
                                     Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("اتصال فيديو وشاشة", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.ui_0a0de15), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                 }
 
                                 OutlinedButton(
@@ -229,7 +232,7 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                                 ) {
                                     Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("اتصال صوتي", fontSize = 11.sp)
+                                    Text(stringResource(R.string.ui_4714529), fontSize = 11.sp)
                                 }
                             }
                         }
@@ -280,12 +283,12 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("ابحث بالاسم، البريد، أو رقم الهاتف...", fontSize = 13.sp) },
+                        placeholder = { Text(stringResource(R.string.ui_d9cc9a6), fontSize = 13.sp) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
                                 IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Clear, contentDescription = "مسح")
+                                    Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.ui_ec2ce8b))
                                 }
                             }
                         },
@@ -303,22 +306,22 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                         FilterChip(
                             selected = selectedRoleFilter == null,
                             onClick = { selectedRoleFilter = null },
-                            label = { Text("الكل", fontSize = 11.sp) }
+                            label = { Text(stringResource(R.string.ui_6d08f19), fontSize = 11.sp) }
                         )
                         FilterChip(
                             selected = selectedRoleFilter == UserRole.INSTRUCTOR,
                             onClick = { selectedRoleFilter = UserRole.INSTRUCTOR },
-                            label = { Text("المعلمات والمدربون 👩‍🏫", fontSize = 11.sp) }
+                            label = { Text(stringResource(R.string.ui_16fb02f), fontSize = 11.sp) }
                         )
                         FilterChip(
                             selected = selectedRoleFilter == UserRole.LEARNER,
                             onClick = { selectedRoleFilter = UserRole.LEARNER },
-                            label = { Text("الطلاب وأولياء الأمور 🎒", fontSize = 11.sp) }
+                            label = { Text(stringResource(R.string.ui_cc08540), fontSize = 11.sp) }
                         )
                         FilterChip(
                             selected = selectedRoleFilter == UserRole.ADMIN,
                             onClick = { selectedRoleFilter = UserRole.ADMIN },
-                            label = { Text("الإدارة 🛡️", fontSize = 11.sp) }
+                            label = { Text(stringResource(R.string.ui_e290332), fontSize = 11.sp) }
                         )
                     }
                 }
@@ -346,7 +349,7 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.PersonSearch, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(48.dp))
                             Spacer(modifier = Modifier.height(8.dp))
-                            Text("لا يوجد مستخدمون مطابقون لبحثك", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_bd3ded0), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -364,9 +367,9 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.PhoneMissed, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(54.dp))
                             Spacer(modifier = Modifier.height(12.dp))
-                            Text("لا توجد مكالمات سابقة حتى الآن", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.ui_a5879c3), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Spacer(modifier = Modifier.height(4.dp))
-                            Text("ابدأ أول اتصال خاص صوت وصورة مع المعلمة أو زملائك وسيتم تسجيله هنا تلقائياً", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text(stringResource(R.string.ui_83cffa3), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                         }
                     }
                 }

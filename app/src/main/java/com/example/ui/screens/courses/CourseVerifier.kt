@@ -1,5 +1,8 @@
 package com.example.ui.screens.courses
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -55,9 +58,9 @@ fun VerifierView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "رجوع")
+                    Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.ui_11e8376))
                 }
-                Text("نظام التحقق من الشهادات المعتمدة", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.ui_a4e2c7a), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.width(48.dp))
             }
         }
@@ -70,8 +73,8 @@ fun VerifierView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
-                    Text("أدخل كود التحقق الرقمي:", fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    Text("يمكنك تجربة كود مس سارة الجاهز: CERT-2026-SOROBAN-001", fontSize = 11.sp, color = OrbitIndigo)
+                    Text(stringResource(R.string.ui_4242b38), fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_53a3f67), fontSize = 11.sp, color = OrbitIndigo)
                     Spacer(modifier = Modifier.height(10.dp))
 
                     Row(
@@ -81,7 +84,7 @@ fun VerifierView(
                         OutlinedTextField(
                             value = inputCode,
                             onValueChange = { inputCode = it },
-                            placeholder = { Text("مثال: CERT-2026-...", fontSize = 12.sp) },
+                            placeholder = { Text(stringResource(R.string.ui_31061b9), fontSize = 12.sp) },
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f),
                             singleLine = true
@@ -92,7 +95,7 @@ fun VerifierView(
                             colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("تحقق")
+                            Text(stringResource(R.string.ui_c92977c))
                         }
                     }
                 }
@@ -113,8 +116,8 @@ fun VerifierView(
                         Icon(Icons.Default.Verified, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(28.dp))
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("شهادة أصلية معتمدة وموثقة رسمياً ✓", fontWeight = FontWeight.Bold, color = OrbitEmerald, fontSize = 14.sp)
-                            Text("مسجلة في سجل الخريجين لعام 2026 لأكاديمية مس سارة العربي", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_55ccfd6), fontWeight = FontWeight.Bold, color = OrbitEmerald, fontSize = 14.sp)
+                            Text(stringResource(R.string.ui_a68cd73), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                 }
@@ -134,7 +137,7 @@ fun VerifierView(
                     ) {
                         Icon(Icons.Default.Error, contentDescription = null, tint = Color(0xFFDC2626))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("لم يتم العثور على شهادة بهذا الكود. يرجى التحقق من الأحرف والأرقام.", fontSize = 12.sp, color = Color(0xFF991B1B))
+                        Text(stringResource(R.string.ui_cee4b7a), fontSize = 12.sp, color = Color(0xFF991B1B))
                     }
                 }
             }

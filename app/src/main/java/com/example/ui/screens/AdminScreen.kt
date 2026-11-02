@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -71,17 +74,17 @@ fun AdminScreen(
                                 Box(modifier = Modifier.size(10.dp))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("لوحة التحكم والعمليات التنفيذية 2026", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text(stringResource(R.string.ui_8c1ea38), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         }
 
                         Surface(color = OrbitEmerald.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp)) {
-                            Text("النظام يعمل 100% ✓", color = OrbitEmerald, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            Text(stringResource(R.string.ui_3a78740), color = OrbitEmerald, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                         }
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "متابعة الاشتراكات، الإيرادات المعتمدة، وسجل التدقيق والامتثال الصارم (Audit Log Ledger)",
+                        text = stringResource(R.string.ui_d17052a),
                         color = Color.White.copy(alpha = 0.8f),
                         fontSize = 11.sp
                     )
@@ -102,9 +105,9 @@ fun AdminScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("إجمالي الإيرادات", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_33a72bd), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("46,000 EGP", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = OrbitEmerald)
-                        Text("+18% هذا الشهر", fontSize = 9.sp, color = OrbitEmerald)
+                        Text(stringResource(R.string.ui_09c07c0), fontSize = 9.sp, color = OrbitEmerald)
                     }
                 }
 
@@ -115,9 +118,9 @@ fun AdminScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("الشهادات الموثقة", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_19e6dfd), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("${certificates.size} شهادة", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = OrbitGold)
-                        Text("كود تحقق QR نشط", fontSize = 9.sp, color = OrbitGold)
+                        Text(stringResource(R.string.ui_6d9a2be), fontSize = 9.sp, color = OrbitGold)
                     }
                 }
 
@@ -128,9 +131,9 @@ fun AdminScreen(
                     modifier = Modifier.weight(1f)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
-                        Text("الدورات المنشورة", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_60e2c73), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text("${courses.size} دورات", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp, color = OrbitIndigo)
-                        Text("تأسيس وحساب ذهني", fontSize = 9.sp, color = OrbitIndigo)
+                        Text(stringResource(R.string.ui_7d2139c), fontSize = 9.sp, color = OrbitIndigo)
                     }
                 }
             }
@@ -143,7 +146,7 @@ fun AdminScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("سجل التدقيق والحركات الأمنية (Audit Ledger)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(stringResource(R.string.ui_919cab9), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 Text("${auditLogs.size} عملية", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,10 +39,10 @@ fun SocraticTutorSheet(
     onDismiss: () -> Unit
 ) {
     val quickPrompts = listOf(
-        "💡 ساعدني أفهم الفكرة ببساطة",
-        "🧮 وريني تلميح للحل",
-        "🎯 اديني لغز يختبر فهمي",
-        "⭐ إزاي أتدرب عليها بسرعة؟"
+        stringResource(R.string.ui_f13be5e),
+        stringResource(R.string.ui_0fa11cb),
+        stringResource(R.string.ui_e6495b3),
+        stringResource(R.string.ui_7e45a91)
     )
 
     ModalBottomSheet(
@@ -78,7 +81,7 @@ fun SocraticTutorSheet(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "المساعد السقراطي الذكي 💡",
+                            text = stringResource(R.string.ui_135dc6b),
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -88,7 +91,7 @@ fun SocraticTutorSheet(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = if (isAiEngineLive) "🟡 محرك Gemini الذكي متصل" else "🟢 الوضع التعليمي دون اتصال",
+                            text = if (isAiEngineLive) stringResource(R.string.ui_a007f60) else stringResource(R.string.ui_c89918f),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
                             color = if (isAiEngineLive) OrbitGold else MaterialTheme.colorScheme.outline
@@ -97,7 +100,7 @@ fun SocraticTutorSheet(
                 }
 
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                 }
             }
 
@@ -105,7 +108,7 @@ fun SocraticTutorSheet(
 
             // Quick Prompts Row
             Text(
-                text = "اختر تلميحاً سريعاً لبدء التفكير:",
+                text = stringResource(R.string.ui_7ab97f4),
                 fontSize = 11.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.SemiBold
@@ -205,7 +208,7 @@ fun SocraticTutorSheet(
                         ) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = OrbitIndigo)
                             Text(
-                                text = "مس سارة الذكية تفكر معك في التلميح...",
+                                text = stringResource(R.string.ui_fe3bdb2),
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -226,7 +229,7 @@ fun SocraticTutorSheet(
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = onInputChanged,
-                    placeholder = { Text("اسأل مس سارة عن أي خطوة...", fontSize = 13.sp) },
+                    placeholder = { Text(stringResource(R.string.ui_7b06dbd), fontSize = 13.sp) },
                     shape = RoundedCornerShape(24.dp),
                     modifier = Modifier
                         .weight(1f)
@@ -245,7 +248,7 @@ fun SocraticTutorSheet(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Send,
-                        contentDescription = "إرسال",
+                        contentDescription = stringResource(R.string.ui_6dbd36c),
                         tint = if (inputText.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }

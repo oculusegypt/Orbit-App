@@ -1,5 +1,8 @@
 package com.example.ui.screens.classroom
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.view.ViewGroup
@@ -99,14 +102,14 @@ fun LiveCameraPreview(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "إذن الكاميرا مطلوب للبث الحي",
+                    text = stringResource(R.string.ui_66b967e),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "يرجى منح إذن الكاميرا لتشغيل الكاميرا الحقيقية لجهازك والتفاعل المباشر مع المعلمة والطلاب",
+                    text = stringResource(R.string.ui_8db52d9),
                     color = Color.White.copy(alpha = 0.7f),
                     fontSize = 11.sp,
                     textAlign = TextAlign.Center
@@ -120,7 +123,7 @@ fun LiveCameraPreview(
                 ) {
                     Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("منح إذن الكاميرا", fontSize = 12.sp)
+                    Text(stringResource(R.string.ui_74b8c16), fontSize = 12.sp)
                 }
             }
         } else if (!isCameraEnabled) {
@@ -137,7 +140,7 @@ fun LiveCameraPreview(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "الكاميرا متوقفة حالياً",
+                    text = stringResource(R.string.ui_f3379c0),
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium
@@ -151,7 +154,7 @@ fun LiveCameraPreview(
                 ) {
                     Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("تشغيل الكاميرا الحقيقية", fontSize = 11.sp)
+                    Text(stringResource(R.string.ui_6f8ad16), fontSize = 11.sp)
                 }
             }
         } else {
@@ -234,7 +237,7 @@ fun LiveCameraPreview(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = if (isFrontCamera) "كاميرا السيلفي (أمامية) 🔴" else "الكاميرا الخلفية 🔴",
+                            text = if (isFrontCamera) stringResource(R.string.ui_c938b5b) else stringResource(R.string.ui_9809a95),
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -259,7 +262,7 @@ fun LiveCameraPreview(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Cameraswitch,
-                        contentDescription = "تبديل الكاميرا",
+                        contentDescription = stringResource(R.string.ui_ba4dfe0),
                         tint = Color.White,
                         modifier = Modifier.size(18.dp)
                     )

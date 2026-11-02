@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -46,9 +49,9 @@ fun CheckoutDialog(
     val hasDiscount = pricing?.hasDiscount == true
 
     val methods = listOf(
-        Triple("vodafone", "فودافون كاش ومحافظ المحمول (مصر)", Icons.Default.PhoneAndroid),
-        Triple("card", "البطاقات البنكية (Visa / MasterCard / Mada)", Icons.Default.CreditCard),
-        Triple("fawry", "منافذ فوري وأمان الفورية", Icons.Default.Storefront)
+        Triple("vodafone", stringResource(R.string.ui_5d1b8c5), Icons.Default.PhoneAndroid),
+        Triple("card", stringResource(R.string.ui_cd1171c), Icons.Default.CreditCard),
+        Triple("fawry", stringResource(R.string.ui_d9f5d85), Icons.Default.Storefront)
     )
 
     Dialog(onDismissRequest = onDismiss) {
@@ -73,11 +76,11 @@ fun CheckoutDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("إتمام الاشتراك الفوري", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.ui_0122c11), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Text(course.title, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                     }
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                     }
                 }
 
@@ -97,7 +100,7 @@ fun CheckoutDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("المبلغ الإجمالي للاشتراك", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_7f6ea07), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             if (hasDiscount) {
                                 Text(
                                     "السعر قبل الخصم: ${basePriceMinor / 100} ${course.currency} (-$discountPercent%)",
@@ -105,7 +108,7 @@ fun CheckoutDialog(
                                     color = OrbitEmerald
                                 )
                             } else {
-                                Text("بدون خصم مطبق", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_7ae9ab1), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                         Text(
@@ -120,7 +123,7 @@ fun CheckoutDialog(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 // Payment Methods
-                Text("طريقة الدفع المعتمدة:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.ui_16d24e5), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
 
                 methods.forEach { (key, label, icon) ->
@@ -156,7 +159,7 @@ fun CheckoutDialog(
                     OutlinedTextField(
                         value = couponCode,
                         onValueChange = { couponCode = it },
-                        placeholder = { Text("كود الخصم (جرب SARA2026)", fontSize = 11.sp) },
+                        placeholder = { Text(stringResource(R.string.ui_71ae3ba), fontSize = 11.sp) },
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.weight(1f),
                         singleLine = true
@@ -171,7 +174,7 @@ fun CheckoutDialog(
                         ),
                         modifier = Modifier.testTag("apply_coupon_btn")
                     ) {
-                        Text(if (hasDiscount) "مُفعّل ✓" else "تطبيق", fontSize = 12.sp)
+                        Text(if (hasDiscount) stringResource(R.string.ui_5019eb3) else stringResource(R.string.ui_abe3151), fontSize = 12.sp)
                     }
                 }
 
@@ -201,11 +204,11 @@ fun CheckoutDialog(
                 ) {
                     Icon(Icons.Default.Check, contentDescription = null)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("تأكيد الاشتراك وتفعيل الدروس فوراً ✓", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(stringResource(R.string.ui_a0c450e), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
 
                 Text(
-                    "يتم إصدار إيصال رقمي وحفظ عملية الشراء في سجل المشتريات المحلي.",
+                    stringResource(R.string.ui_1294f58),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 8.dp)

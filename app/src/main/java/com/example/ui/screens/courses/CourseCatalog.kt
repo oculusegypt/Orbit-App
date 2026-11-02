@@ -1,5 +1,8 @@
 package com.example.ui.screens.courses
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -44,15 +47,15 @@ fun CatalogView(
     modifier: Modifier = Modifier
 ) {
     val categories = listOf(
-        "الكل",
-        "الحساب الذهني وتنمية الذكاء",
-        "تأسيس اللغة العربية والقرائية",
-        "الرياضيات المدرسية والتفكير المنطقي",
-        "إعداد وتأهيل المدربين والمعلمات"
+        stringResource(R.string.ui_6d08f19),
+        stringResource(R.string.ui_2ef5a3b),
+        stringResource(R.string.ui_40999bd),
+        stringResource(R.string.ui_942feb3),
+        stringResource(R.string.ui_08c95b4)
     )
 
     val filtered = courses.filter { c ->
-        val matchesCategory = selectedCategory == "الكل" || c.category.contains(selectedCategory)
+        val matchesCategory = selectedCategory == stringResource(R.string.ui_6d08f19) || c.category.contains(selectedCategory)
         val matchesSearch = searchQuery.isBlank() || c.title.contains(searchQuery, ignoreCase = true) || c.summary.contains(searchQuery, ignoreCase = true)
         matchesCategory && matchesSearch
     }
@@ -69,7 +72,7 @@ fun CatalogView(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = onSearchChanged,
-                placeholder = { Text("ابحث في الدورات والمهارات الحسابية...", fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.ui_5213297), fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier
@@ -204,7 +207,7 @@ fun CatalogView(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("رسوم الاشتراك المعتمد", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_cae22fb), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
                                     text = course.priceFormatted,
                                     fontSize = 18.sp,
@@ -218,7 +221,7 @@ fun CatalogView(
                                     onClick = { onOpenCourse(course) },
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
-                                    Text("التفاصيل", fontSize = 12.sp)
+                                    Text(stringResource(R.string.ui_7eca236), fontSize = 12.sp)
                                 }
 
                                 Button(
@@ -226,7 +229,7 @@ fun CatalogView(
                                     colors = ButtonDefaults.buttonColors(containerColor = OrbitEmerald),
                                     shape = RoundedCornerShape(10.dp)
                                 ) {
-                                    Text("اشتراك فوري", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.ui_ff41725), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }

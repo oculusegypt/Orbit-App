@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -60,7 +63,7 @@ fun OrbitTopBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.School,
-                        contentDescription = "شعار مدار",
+                        contentDescription = stringResource(R.string.ui_690541c),
                         tint = OrbitGold,
                         modifier = Modifier.size(24.dp)
                     )
@@ -71,7 +74,7 @@ fun OrbitTopBar(
                 Column {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "مدار للتعلم",
+                            text = stringResource(R.string.ui_5e13683),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = MaterialTheme.colorScheme.onSurface
@@ -91,7 +94,7 @@ fun OrbitTopBar(
                         }
                     }
                     Text(
-                        text = "أكاديمية أ/ سارة العربي 💡",
+                        text = stringResource(R.string.ui_a0c9c29),
                         fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -116,7 +119,7 @@ fun OrbitTopBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Verified,
-                        contentDescription = "التحقق من الشهادات",
+                        contentDescription = stringResource(R.string.ui_bd9b06f),
                         tint = OrbitIndigo,
                         modifier = Modifier.size(20.dp)
                     )
@@ -140,7 +143,7 @@ fun OrbitTopBar(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "حجز استشارة",
+                        text = stringResource(R.string.ui_d6ba13e),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -158,7 +161,7 @@ fun OrbitTopBar(
                     if (currentUser?.avatarUrl.isNullOrBlank()) {
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
-                            contentDescription = "الحساب",
+                            contentDescription = stringResource(R.string.ui_0869f7a),
                             tint = OrbitIndigo,
                             modifier = Modifier.size(28.dp)
                         )

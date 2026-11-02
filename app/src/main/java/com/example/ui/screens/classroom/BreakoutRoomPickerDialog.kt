@@ -1,5 +1,8 @@
 package com.example.ui.screens.classroom
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -57,8 +60,8 @@ fun BreakoutRoomPickerDialog(
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Column(modifier = Modifier.padding(18.dp)) {
-                Text("الغرف التفاعلية ومجموعات العمل 👥", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("اختر الغرفة المناسبة لمستوى طفلك للتدريب التفاعلي المباشر", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.ui_630c211), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.ui_86de27b), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Divider(modifier = Modifier.padding(vertical = 10.dp))
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -98,7 +101,7 @@ fun BreakoutRoomPickerDialog(
                     shape = RoundedCornerShape(10.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("إغلاق")
+                    Text(stringResource(R.string.ui_9932cca))
                 }
             }
         }

@@ -1,5 +1,8 @@
 package com.example.ui.screens.courses
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,11 +63,11 @@ fun LessonPlayerView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "رجوع")
+                    Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.ui_11e8376))
                 }
                 Text(lesson.title, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 IconButton(onClick = onOpenTutor) {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = "المساعد الذكي", tint = OrbitIndigo)
+                    Icon(Icons.Default.AutoAwesome, contentDescription = stringResource(R.string.ui_4f48f25), tint = OrbitIndigo)
                 }
             }
         }
@@ -97,7 +100,7 @@ fun LessonPlayerView(
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "تشغيل/إيقاف",
+                            contentDescription = stringResource(R.string.ui_5400245),
                             tint = OrbitNavyDark,
                             modifier = Modifier.size(36.dp)
                         )
@@ -147,8 +150,8 @@ fun LessonPlayerView(
                         Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = OrbitIndigo)
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("المساعد السقراطي لمس سارة 💡", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            Text("انقر هنا للتفكير الذكي وطلب تلميحات المسائل", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_6b130e4), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_8c5c72c), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = OrbitIndigo)
@@ -164,10 +167,10 @@ fun LessonPlayerView(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("ملخص الدرس والقواعد الذهبية 📖", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text(stringResource(R.string.ui_6a44368), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = lesson.bodyMarkdown.ifBlank { "شاهد الفيديو بتركيز، وطبق الحركات بإصبعي الإبهام والسبابة على العداد كما تشرح مس سارة." },
+                        text = lesson.bodyMarkdown.ifBlank { stringResource(R.string.ui_902a10c) },
                         fontSize = 13.sp,
                         lineHeight = 22.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -185,7 +188,7 @@ fun LessonPlayerView(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("النص المسجل والتوقيتات التفاعلية ⏱️", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(stringResource(R.string.ui_49afa4c), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         Spacer(modifier = Modifier.height(8.dp))
                         lesson.transcript.forEach { line ->
                             Surface(
@@ -229,7 +232,7 @@ fun LessonPlayerView(
                 ) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(if (isCompleted) "الدرس مكتمل ✓" else "تحديد كمكتمل")
+                    Text(if (isCompleted) stringResource(R.string.ui_c4e74f5) else stringResource(R.string.ui_a0ec785))
                 }
 
                 if (lesson.quiz != null) {
@@ -241,7 +244,7 @@ fun LessonPlayerView(
                     ) {
                         Icon(Icons.Default.Quiz, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("بدء الاختبار 📝", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_5264003), fontWeight = FontWeight.Bold)
                     }
                 }
             }

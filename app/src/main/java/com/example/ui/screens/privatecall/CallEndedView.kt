@@ -1,5 +1,8 @@
 package com.example.ui.screens.privatecall
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -38,7 +41,7 @@ fun CallEndedView(state: ActiveCallState) {
                 Icon(Icons.Default.CallEnd, contentDescription = null, tint = Color.White, modifier = Modifier.size(40.dp))
             }
             Spacer(modifier = Modifier.height(20.dp))
-            Text("انتهت المكالمة", color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.ui_c13e63f), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "مدة الاتصال: ${state.durationSeconds / 60} دقيقة و ${state.durationSeconds % 60} ثانية",
@@ -46,7 +49,7 @@ fun CallEndedView(state: ActiveCallState) {
                 fontSize = 14.sp
             )
             Spacer(modifier = Modifier.height(4.dp))
-            Text("تم حفظ سجل المكالمة في قاعدة البيانات المحلية بنجاح ✅", color = OrbitEmerald, fontSize = 11.sp)
+            Text(stringResource(R.string.ui_3f15a68), color = OrbitEmerald, fontSize = 11.sp)
         }
     }
 }

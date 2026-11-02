@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -73,12 +76,12 @@ fun ClassroomScreen(
     val meetingDeepLink = "https://ais-dev-bioob4ko24mxi7yewjrudv-760922361558.europe-west2.run.app/?live=$meetingCode"
 
     val studentsList = listOf(
-        Pair("ياسين أحمد", true), // hand raised
-        Pair("نور الهدى", false),
-        Pair("عمر خالد", false),
-        Pair("مريم يوسف", true),
-        Pair("زين الدين", false),
-        Pair("فاطمة الزهراء", false)
+        Pair(stringResource(R.string.ui_f685e01), true), // hand raised
+        Pair(stringResource(R.string.ui_8912465), false),
+        Pair(stringResource(R.string.ui_80680b8), false),
+        Pair(stringResource(R.string.ui_a1e2f3f), true),
+        Pair(stringResource(R.string.ui_6b8e7a9), false),
+        Pair(stringResource(R.string.ui_3227b46), false)
     )
 
     LazyColumn(
@@ -110,13 +113,13 @@ fun ClassroomScreen(
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
                             Text(
-                                text = if (isMeetingConnected) "الفصل المباشر متصل: $meetingCode 🟢" else "تم قطع الاتصال بالميتينج ⚪",
+                                text = if (isMeetingConnected) "الفصل المباشر متصل: $meetingCode 🟢" else stringResource(R.string.ui_6b6a5bf),
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 13.sp
                             )
                             Text(
-                                text = "معلمة الحصة: أ / سارة العربي • 28 طالباً متصلاً",
+                                text = stringResource(R.string.ui_e35ce69),
                                 color = OrbitGoldLight,
                                 fontSize = 11.sp
                             )
@@ -130,7 +133,7 @@ fun ClassroomScreen(
                                 shape = RoundedCornerShape(8.dp)
                             ) {
                                 Text(
-                                    text = "✋ يدك مرفوعة",
+                                    text = stringResource(R.string.ui_27f1406),
                                     color = OrbitNavyDark,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
@@ -143,16 +146,16 @@ fun ClassroomScreen(
                         IconButton(
                             onClick = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText("رابط ميتينج مس سارة", meetingDeepLink)
+                                val clip = ClipData.newPlainText(stringResource(R.string.ui_6ebe7f1), meetingDeepLink)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, "تم نسخ رابط الميتينج لمشاركته مع الطلاب!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, stringResource(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
 
                                 val sendIntent: Intent = Intent().apply {
                                     action = Intent.ACTION_SEND
                                     putExtra(Intent.EXTRA_TEXT, "انضم الآن إلى حصة العداد الصيني المباشرة مع مس سارة العربي 🧮💡:\n$meetingDeepLink")
                                     type = "text/plain"
                                 }
-                                context.startActivity(Intent.createChooser(sendIntent, "مشاركة رابط الميتينج"))
+                                context.startActivity(Intent.createChooser(sendIntent, stringResource(R.string.ui_8782f38)))
                             },
                             modifier = Modifier
                                 .size(36.dp)
@@ -160,7 +163,7 @@ fun ClassroomScreen(
                                 .background(Color.White.copy(alpha = 0.2f))
                                 .testTag("share_meeting_btn")
                         ) {
-                            Icon(Icons.Default.Share, contentDescription = "مشاركة الميتينج", tint = Color.White, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.ui_0849cc9), tint = Color.White, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -179,10 +182,10 @@ fun ClassroomScreen(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     val modes = listOf(
-                        Pair("abacus", "🧮 العداد التفاعلي"),
-                        Pair("slides", "📑 عرض الشرائح"),
-                        Pair("students", "👥 شبكة الطلاب"),
-                        Pair("camera", "🎥 كاميرا المعلمة")
+                        Pair("abacus", stringResource(R.string.ui_57df5ed)),
+                        Pair("slides", stringResource(R.string.ui_5ee8cfd)),
+                        Pair("students", stringResource(R.string.ui_96fe532)),
+                        Pair("camera", stringResource(R.string.ui_bfde3ef))
                     )
 
                     modes.forEach { (mode, label) ->
@@ -233,13 +236,13 @@ fun ClassroomScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Icon(Icons.Default.CallEnd, contentDescription = null, tint = OrbitRose, modifier = Modifier.size(48.dp))
                                 Spacer(modifier = Modifier.height(8.dp))
-                                Text("الميتينج متوقف حالياً", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_3a79635), color = Color.White, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Button(
                                     onClick = { isMeetingConnected = true },
                                     colors = ButtonDefaults.buttonColors(containerColor = OrbitEmerald)
                                 ) {
-                                    Text("الانضمام / فتح الميتينج 🟢")
+                                    Text(stringResource(R.string.ui_6d82c46))
                                 }
                             }
                         } else {
@@ -279,7 +282,7 @@ fun ClassroomScreen(
                                                 }
                                             ) {
                                                 Text(
-                                                    text = "تصفير ↺",
+                                                    text = stringResource(R.string.ui_386c966),
                                                     color = Color.White,
                                                     fontSize = 11.sp,
                                                     fontWeight = FontWeight.Bold,
@@ -304,7 +307,7 @@ fun ClassroomScreen(
                                             ) {
                                                 // Rod 1: Hundreds
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("مئات", fontSize = 9.sp, color = OrbitGoldLight)
+                                                    Text(stringResource(R.string.ui_c39203f), fontSize = 9.sp, color = OrbitGoldLight)
                                                     Box(
                                                         modifier = Modifier
                                                             .size(width = 38.dp, height = 18.dp)
@@ -339,7 +342,7 @@ fun ClassroomScreen(
 
                                                 // Rod 2: Tens
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("عشرات", fontSize = 9.sp, color = OrbitGoldLight)
+                                                    Text(stringResource(R.string.ui_c93e60c), fontSize = 9.sp, color = OrbitGoldLight)
                                                     Box(
                                                         modifier = Modifier
                                                             .size(width = 38.dp, height = 18.dp)
@@ -374,7 +377,7 @@ fun ClassroomScreen(
 
                                                 // Rod 3: Ones
                                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("آحاد", fontSize = 9.sp, color = OrbitGoldLight)
+                                                    Text(stringResource(R.string.ui_0394c18), fontSize = 9.sp, color = OrbitGoldLight)
                                                     Box(
                                                         modifier = Modifier
                                                             .size(width = 38.dp, height = 18.dp)
@@ -409,7 +412,7 @@ fun ClassroomScreen(
 
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = "المس الخرزات العلوية والسفلية في أي عمود لتحريكها ورؤية الناتج فوراً!",
+                                            text = stringResource(R.string.ui_1fea341),
                                             color = Color.White.copy(alpha = 0.7f),
                                             fontSize = 10.sp
                                         )
@@ -424,21 +427,21 @@ fun ClassroomScreen(
                                         verticalArrangement = Arrangement.Center
                                     ) {
                                         Surface(color = OrbitIndigo, shape = RoundedCornerShape(8.dp)) {
-                                            Text("شريحة العرض رقم 1 / 4", color = Color.White, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
+                                            Text(stringResource(R.string.ui_fa36ae6), color = Color.White, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
                                         }
                                         Spacer(modifier = Modifier.height(10.dp))
-                                        Text("قواعد أصدقاء العدد 5 (Small Friends) 💡", color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                        Text(stringResource(R.string.ui_2638928), color = Color.White, fontSize = 15.sp, fontWeight = FontWeight.Bold)
                                         Spacer(modifier = Modifier.height(6.dp))
                                         Text("+4 = +5 - 1\n+3 = +5 - 2\n+2 = +5 - 3\n+1 = +5 - 4", color = OrbitGoldLight, fontSize = 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
                                         Spacer(modifier = Modifier.height(10.dp))
-                                        Text("تشارك مس سارة هذه الشريحة على شاشات جميع الطلاب الآن", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+                                        Text(stringResource(R.string.ui_9165bab), color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
                                     }
                                 }
 
                                 "students" -> {
                                     // 6-student Camera Grid View
                                     Column(modifier = Modifier.fillMaxSize().padding(8.dp)) {
-                                        Text("كاميرات وتفاعل الطلاب في القاعة (6 طلاب مميزين):", color = OrbitGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                        Text(stringResource(R.string.ui_01c41bc), color = OrbitGoldLight, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                         Spacer(modifier = Modifier.height(4.dp))
                                         val rows = studentsList.chunked(3)
                                         rows.forEach { row ->
@@ -484,8 +487,8 @@ fun ClassroomScreen(
                                             modifier = Modifier.size(72.dp).clip(CircleShape)
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
-                                        Text("أ / سارة العربي (بث حي مباشر 🔴)", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                                        Text("شرح الجمع والطرح السريع بالمنصورة", color = OrbitGoldLight, fontSize = 12.sp)
+                                        Text(stringResource(R.string.ui_dd37fd9), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                                        Text(stringResource(R.string.ui_4e95506), color = OrbitGoldLight, fontSize = 12.sp)
                                     }
                                 }
                             }
@@ -511,7 +514,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = if (isMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                                contentDescription = "الميكروفون",
+                                contentDescription = stringResource(R.string.ui_072b93d),
                                 tint = Color.White
                             )
                         }
@@ -527,7 +530,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = if (isVideoOn) Icons.Default.Videocam else Icons.Default.VideocamOff,
-                                contentDescription = "الكاميرا",
+                                contentDescription = stringResource(R.string.ui_1e8ec14),
                                 tint = Color.White
                             )
                         }
@@ -543,7 +546,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FrontHand,
-                                contentDescription = "رفع اليد",
+                                contentDescription = stringResource(R.string.ui_95d6a9a),
                                 tint = if (isHandRaised) OrbitNavyDark else Color.White
                             )
                         }
@@ -554,7 +557,7 @@ fun ClassroomScreen(
                                 viewModel.toggleClassroomScreenShare()
                                 Toast.makeText(
                                     context,
-                                    if (isScreenShared) "تم إيقاف مشاركة الشاشة" else "أنت تشارك الشاشة الآن للطلاب 🟢",
+                                    if (isScreenShared) stringResource(R.string.ui_c5dc7f0) else stringResource(R.string.ui_9e8640e),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             },
@@ -566,7 +569,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ScreenShare,
-                                contentDescription = "مشاركة الشاشة",
+                                contentDescription = stringResource(R.string.ui_b0b5a2c),
                                 tint = Color.White
                             )
                         }
@@ -582,7 +585,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = if (isMeetingConnected) Icons.Default.CallEnd else Icons.Default.Call,
-                                contentDescription = "إنهاء المكالمة",
+                                contentDescription = stringResource(R.string.ui_9e960bd),
                                 tint = Color.White
                             )
                         }
@@ -616,7 +619,7 @@ fun ClassroomScreen(
                 FilterChip(
                     selected = activeTab == "schedule",
                     onClick = { activeTab = "schedule" },
-                    label = { Text("جدول الحصص", fontSize = 11.sp) },
+                    label = { Text(stringResource(R.string.ui_81c9553), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(selectedContainerColor = OrbitIndigo, selectedLabelColor = Color.White),
                     modifier = Modifier.weight(1f)
                 )
@@ -645,13 +648,13 @@ fun ClassroomScreen(
                                     if (msg.senderRole == "instructor") {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Surface(color = OrbitGold, shape = RoundedCornerShape(4.dp)) {
-                                            Text("معلمة 💡", fontSize = 9.sp, color = OrbitNavyDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                            Text(stringResource(R.string.ui_b5190a9), fontSize = 9.sp, color = OrbitNavyDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                                         }
                                     }
                                     if (msg.isQuestion) {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Surface(color = OrbitIndigo, shape = RoundedCornerShape(4.dp)) {
-                                            Text("سؤال ❓", fontSize = 9.sp, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                            Text(stringResource(R.string.ui_45c51e4), fontSize = 9.sp, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                                         }
                                     }
                                 }
@@ -689,7 +692,7 @@ fun ClassroomScreen(
                         OutlinedTextField(
                             value = chatInput,
                             onValueChange = { viewModel.setClassroomChatText(it) },
-                            placeholder = { Text("اكتب مشاركتك أو سؤالك في البث...", fontSize = 12.sp) },
+                            placeholder = { Text(stringResource(R.string.ui_b989b59), fontSize = 12.sp) },
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier.weight(1f).testTag("classroom_chat_input"),
                             singleLine = true
@@ -706,7 +709,7 @@ fun ClassroomScreen(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
-                                contentDescription = "إرسال",
+                                contentDescription = stringResource(R.string.ui_6dbd36c),
                                 tint = if (chatInput.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -734,7 +737,7 @@ fun ClassroomScreen(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(OrbitRepository.INSTRUCTOR_SARA.name, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                Text("المعلمة ومضيفة الحصة 💡", fontSize = 11.sp, color = OrbitGoldDark)
+                                Text(stringResource(R.string.ui_8b9e2d3), fontSize = 11.sp, color = OrbitGoldDark)
                             }
                             Icon(Icons.Default.Mic, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(18.dp))
                         }
@@ -761,11 +764,11 @@ fun ClassroomScreen(
                             Spacer(modifier = Modifier.width(10.dp))
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(name, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                Text("طالب متصل", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_6f73f74), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
 
                             if (hand) {
-                                Text("✋ يد مرفوعة", fontSize = 11.sp, color = OrbitGoldDark, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_1002eb6), fontSize = 11.sp, color = OrbitGoldDark, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -792,7 +795,7 @@ fun ClassroomScreen(
                                     shape = RoundedCornerShape(6.dp)
                                 ) {
                                     Text(
-                                        text = if (session.status == "live") "مباشر الآن 🔴" else "مجدولة",
+                                        text = if (session.status == "live") stringResource(R.string.ui_6166f5f) else stringResource(R.string.ui_6003890),
                                         color = if (session.status == "live") OrbitRose else OrbitIndigo,
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,

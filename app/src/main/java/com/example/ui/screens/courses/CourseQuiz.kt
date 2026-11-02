@@ -1,5 +1,8 @@
 package com.example.ui.screens.courses
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -59,7 +62,7 @@ fun QuizView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { viewModel.backToCourseDetail() }) {
-                    Icon(Icons.Default.Close, contentDescription = "خروج")
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_6080666))
                 }
                 Text(quiz.title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 Spacer(modifier = Modifier.width(48.dp))
@@ -87,7 +90,7 @@ fun QuizView(
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = if (passed) "مبروك يا بطل! لقد اجتزت الاختبار بنجاح 🌟" else "محاولة جيدة، يمكنك إعادة الاختبار!",
+                            text = if (passed) stringResource(R.string.ui_a1b7f67) else stringResource(R.string.ui_2a32a18),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             textAlign = TextAlign.Center
@@ -97,7 +100,7 @@ fun QuizView(
 
                         if (passed) {
                             Text(
-                                text = "تم إصدار شهادتك الرقمية المعتمدة تلقائياً ويمكنك استعراضها الآن!",
+                                text = stringResource(R.string.ui_ddc69b4),
                                 fontSize = 12.sp,
                                 color = OrbitEmerald,
                                 textAlign = TextAlign.Center,
@@ -116,7 +119,7 @@ fun QuizView(
                             ) {
                                 Icon(Icons.Default.WorkspacePremium, contentDescription = null)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("عرض الشهادة المعتمدة", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_753a9cd), fontWeight = FontWeight.Bold)
                             }
                         } else {
                             Spacer(modifier = Modifier.height(12.dp))
@@ -126,7 +129,7 @@ fun QuizView(
                                 shape = RoundedCornerShape(12.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("إعادة المحاولة")
+                                Text(stringResource(R.string.ui_fb452d3))
                             }
                         }
                     }
@@ -190,7 +193,7 @@ fun QuizView(
                                 modifier = Modifier.fillMaxWidth().height(48.dp)
                             ) {
                                 Text(
-                                    text = if (currentIdx + 1 < questions.size) "السؤال التالي ←" else "إنهاء الاختبار ورصد النتيجة ✓",
+                                    text = if (currentIdx + 1 < questions.size) stringResource(R.string.ui_2553160) else stringResource(R.string.ui_5f5e8fc),
                                     fontWeight = FontWeight.Bold
                                 )
                             }

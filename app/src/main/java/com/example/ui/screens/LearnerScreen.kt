@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -91,13 +94,13 @@ fun LearnerScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = currentUser?.displayName ?: "البطل الصغير",
+                            text = currentUser?.displayName ?: stringResource(R.string.ui_1e746ed),
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "مسار: بطل العباقرة الصغار • المستوى الأول",
+                            text = stringResource(R.string.ui_59e56f9),
                             fontSize = 11.sp,
                             color = OrbitIndigo
                         )
@@ -139,8 +142,8 @@ fun LearnerScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("المعلمة الخصوصية المباشرة 👩‍🏫", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            Text("اتصال خاص صوت وصورة ومشاركة شاشة السوربان 1:1", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_b392aed), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_abc58d5), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Button(
@@ -149,7 +152,7 @@ fun LearnerScreen(
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.testTag("btn_learner_to_connect")
                     ) {
-                        Text("اتصال خاص", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_6f8dc6b), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -157,17 +160,17 @@ fun LearnerScreen(
 
         // Badges Showcase
         item {
-            Text("شارات وأوسمة الإنجاز 🏅", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_3c64267), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 val badges = listOf(
-                    Triple("بطل السوروبان", "إتقان العداد", Icons.Default.Calculate),
-                    Triple("قارئ المستقبل", "أصوات نور البيان", Icons.Default.MenuBook),
-                    Triple("العبقري السريع", "الحساب التخيلي", Icons.Default.Bolt),
-                    Triple("الملتزم 🌟", "حضور الحصص", Icons.Default.Verified)
+                    Triple(stringResource(R.string.ui_ecf23aa), stringResource(R.string.ui_9438850), Icons.Default.Calculate),
+                    Triple(stringResource(R.string.ui_71ab7c9), stringResource(R.string.ui_b3260bb), Icons.Default.MenuBook),
+                    Triple(stringResource(R.string.ui_9e74ea8), stringResource(R.string.ui_8de2283), Icons.Default.Bolt),
+                    Triple(stringResource(R.string.ui_3618782), stringResource(R.string.ui_8989f93), Icons.Default.Verified)
                 )
 
                 badges.forEach { (title, desc, icon) ->
@@ -213,8 +216,8 @@ fun LearnerScreen(
                     ) {
                         Icon(Icons.Default.School, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(40.dp))
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("لم تشترك في أي دورة بعد", fontWeight = FontWeight.Bold)
-                        Text("استكشف دورات الحساب الذهني والتأسيس وابدأ رحلتك الآن!", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_cd1129f), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_0bf5bc7), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -273,7 +276,7 @@ fun LearnerScreen(
                                 shape = RoundedCornerShape(10.dp),
                                 modifier = Modifier.weight(1f)
                             ) {
-                                Text("متابعة الدورة", fontSize = 12.sp)
+                                Text(stringResource(R.string.ui_e4f8cd6), fontSize = 12.sp)
                             }
 
                             FilledTonalButton(
@@ -284,7 +287,7 @@ fun LearnerScreen(
                             ) {
                                 Icon(Icons.Default.Bolt, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("استئناف أوفلاين (Room) ⚡", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_6a520ee), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -294,7 +297,7 @@ fun LearnerScreen(
 
         // Assignments and Homework
         item {
-            Text("الواجبات والتحديات المطلوبة 📝", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_699e23d), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
 
         items(assignments) { asg ->
@@ -317,7 +320,7 @@ fun LearnerScreen(
                             shape = RoundedCornerShape(6.dp)
                         ) {
                             Text(
-                                text = if (mySub?.status == "graded") "تم التصحيح (${mySub.grade}/${mySub.maxScore})" else if (mySub != null) "تم التسليم ⏳" else "مطلوب تسليمه",
+                                text = if (mySub?.status == "graded") "تم التصحيح (${mySub.grade}/${mySub.maxScore})" else if (mySub != null) stringResource(R.string.ui_df69277) else stringResource(R.string.ui_ca69196),
                                 color = if (mySub?.status == "graded") OrbitEmerald else if (mySub != null) OrbitIndigo else OrbitGoldDark,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
@@ -361,7 +364,7 @@ fun LearnerScreen(
                         ) {
                             Icon(Icons.Default.Upload, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("تسليم الواجب الآن", fontSize = 12.sp)
+                            Text(stringResource(R.string.ui_191eda4), fontSize = 12.sp)
                         }
                     }
                 }
@@ -371,7 +374,7 @@ fun LearnerScreen(
         // My Certificates
         if (certificates.isNotEmpty()) {
             item {
-                Text("شهاداتي المعتمدة بالباركود 🎓", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.ui_35223d4), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             }
 
             items(certificates) { cert ->
@@ -399,7 +402,7 @@ fun LearnerScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("عرض", fontSize = 11.sp)
+                            Text(stringResource(R.string.ui_6e63a5f), fontSize = 11.sp)
                         }
                     }
                 }
@@ -408,7 +411,7 @@ fun LearnerScreen(
 
         // Firebase Cloud Messaging (FCM) Live Alerts & Module Reminders Section
         item {
-            Text("مركز تنبيهات الفصول والموديولات (FCM) 🔔", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_d3d5f12), fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(4.dp))
             Card(
                 shape = RoundedCornerShape(18.dp),
@@ -434,8 +437,8 @@ fun LearnerScreen(
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
-                                Text("إشعارات سحابة فايربيس (FCM)", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                                Text("تنبيهات فورية للحصص الحية ومتابعة الموديولات", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_bb91d36), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                Text(stringResource(R.string.ui_ca737d5), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
@@ -444,7 +447,7 @@ fun LearnerScreen(
                             color = OrbitEmerald.copy(alpha = 0.15f)
                         ) {
                             Text(
-                                text = "متصل 🟢",
+                                text = stringResource(R.string.ui_24a8301),
                                 color = OrbitEmerald,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -467,9 +470,9 @@ fun LearnerScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("رمز جهازك المسجل (FCM Device Token):", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_675deca), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 Text(
-                                    text = if (fcmToken.isNotBlank()) fcmToken.take(28) + "..." else "جاري التهيئة والربط مع فايربيس...",
+                                    text = if (fcmToken.isNotBlank()) fcmToken.take(28) + "..." else stringResource(R.string.ui_f046aa7),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = OrbitIndigo
@@ -481,7 +484,7 @@ fun LearnerScreen(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text("اختبار إرسال التنبيهات المباشرة إلى شريط إشعارات الأندرويد:", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ui_16e6b5d), fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
@@ -496,7 +499,7 @@ fun LearnerScreen(
                         ) {
                             Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("تنبيه حصة حية 🔴", fontSize = 11.sp)
+                            Text(stringResource(R.string.ui_2d3753b), fontSize = 11.sp)
                         }
 
                         Button(
@@ -507,14 +510,14 @@ fun LearnerScreen(
                         ) {
                             Icon(Icons.Default.Alarm, contentDescription = null, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("تذكير موديول 📚", fontSize = 11.sp)
+                            Text(stringResource(R.string.ui_bb3e833), fontSize = 11.sp)
                         }
                     }
 
                     // Alerts History List
                     if (alertsHistory.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(14.dp))
-                        Text("سجل الإشعارات المستلمة:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_3644d9c), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(6.dp))
 
                         alertsHistory.take(3).forEach { alert ->
@@ -568,8 +571,8 @@ fun LearnerScreen(
                     OutlinedTextField(
                         value = submissionText,
                         onValueChange = { submissionText = it },
-                        label = { Text("حل المسائل / نواتج التمارين") },
-                        placeholder = { Text("اكتب نواتج المسائل التي قمت بحلها على العداد...") },
+                        label = { Text(stringResource(R.string.ui_de79968)) },
+                        placeholder = { Text(stringResource(R.string.ui_4da7fc4)) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(110.dp),
                         maxLines = 4
@@ -580,8 +583,8 @@ fun LearnerScreen(
                     OutlinedTextField(
                         value = submissionLink,
                         onValueChange = { submissionLink = it },
-                        label = { Text("رابط مقطع الفيديو أو الصورة (اختياري)") },
-                        placeholder = { Text("رابط درايف أو واتساب...") },
+                        label = { Text(stringResource(R.string.ui_62b53d2)) },
+                        placeholder = { Text(stringResource(R.string.ui_949ce06)) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true
@@ -601,7 +604,7 @@ fun LearnerScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(48.dp)
                     ) {
-                        Text("إرسال الواجب لمس سارة للتصحيح ✓", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_fae4f85), fontWeight = FontWeight.Bold)
                     }
                 }
             }

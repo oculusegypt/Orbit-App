@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -39,13 +42,13 @@ fun LibraryScreen(
     val context = LocalContext.current
     val books by viewModel.books.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("الكل") }
+    var selectedCategory by remember { mutableStateOf(stringResource(R.string.ui_6d08f19)) }
     var selectedBookForChapters by remember { mutableStateOf<LibraryBook?>(null) }
 
-    val categories = listOf("الكل", "الحساب الذهني والسروبان", "تأسيس لغة عربية وقراءة", "تأسيس رياضيات", "إعداد وتأهيل المدربين - العباقرة الصغار")
+    val categories = listOf(stringResource(R.string.ui_6d08f19), stringResource(R.string.ui_80ea32b), stringResource(R.string.ui_95a2f1b), stringResource(R.string.ui_f88ce8f), stringResource(R.string.ui_8978d2e))
 
     val filteredBooks = books.filter { b ->
-        val matchCat = selectedCategory == "الكل" || b.category.contains(selectedCategory)
+        val matchCat = selectedCategory == stringResource(R.string.ui_6d08f19) || b.category.contains(selectedCategory)
         val matchSearch = searchQuery.isBlank() || b.title.contains(searchQuery, ignoreCase = true) || b.description.contains(searchQuery, ignoreCase = true)
         matchCat && matchSearch
     }
@@ -65,8 +68,8 @@ fun LibraryScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("المكتبة الرقمية والملازم 📚", fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
-                    Text("المناهج المعتمدة وكراسات التدريب المنزلي لعام 2026", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(stringResource(R.string.ui_5d0c8a3), fontWeight = FontWeight.ExtraBold, fontSize = 20.sp)
+                    Text(stringResource(R.string.ui_50b0859), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 
@@ -76,7 +79,7 @@ fun LibraryScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("ابحث في الملازم والكتب التدريبية...", fontSize = 13.sp) },
+                placeholder = { Text(stringResource(R.string.ui_673807b), fontSize = 13.sp) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth().testTag("library_search_input"),
@@ -186,7 +189,7 @@ fun LibraryScreen(
                             ) {
                                 Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("طلب النسخة", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_2984807), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -213,9 +216,9 @@ fun LibraryScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("فهرس المحتوى وفصول الكتاب", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.ui_5907eef), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         IconButton(onClick = { selectedBookForChapters = null }) {
-                            Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                         }
                     }
                     Text(book.title, fontSize = 12.sp, color = OrbitIndigo, maxLines = 1)
@@ -247,7 +250,7 @@ fun LibraryScreen(
                         shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("إغلاق")
+                        Text(stringResource(R.string.ui_9932cca))
                     }
                 }
             }

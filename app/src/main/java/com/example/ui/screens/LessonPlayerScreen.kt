@@ -1,5 +1,7 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+
 import android.net.Uri
 import android.widget.VideoView
 import androidx.compose.animation.*
@@ -118,7 +120,7 @@ fun LessonPlayerScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack, modifier = Modifier.testTag("lesson_player_back_btn")) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "رجوع")
+                    Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.ui_11e8376))
                 }
 
                 Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
@@ -139,7 +141,7 @@ fun LessonPlayerScreen(
                 }
 
                 IconButton(onClick = onOpenTutor, modifier = Modifier.testTag("lesson_player_tutor_btn")) {
-                    Icon(Icons.Default.AutoAwesome, contentDescription = "المساعد السقراطي", tint = OrbitIndigo)
+                    Icon(Icons.Default.AutoAwesome, contentDescription = stringResource(R.string.ui_9ec9cea), tint = OrbitIndigo)
                 }
             }
         }
@@ -163,7 +165,7 @@ fun LessonPlayerScreen(
                         Icon(Icons.Default.CloudDone, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "محفوظ في Room DB (جاهز للاستئناف بدون إنترنت)",
+                            text = stringResource(R.string.ui_4349ddc),
                             color = OrbitEmerald,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
@@ -174,7 +176,7 @@ fun LessonPlayerScreen(
                             shape = RoundedCornerShape(6.dp),
                             color = OrbitEmerald
                         ) {
-                            Text("مكتمل ✅", color = Color.White, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                            Text(stringResource(R.string.ui_59488a5), color = Color.White, fontSize = 10.sp, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                         }
                     }
                 }
@@ -247,7 +249,7 @@ fun LessonPlayerScreen(
                     ) {
                         Icon(
                             imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = if (isPlaying) "إيقاف مؤقت" else "تشغيل",
+                            contentDescription = if (isPlaying) stringResource(R.string.ui_e409dbb) else stringResource(R.string.ui_0d24133),
                             tint = OrbitNavyDark,
                             modifier = Modifier.size(32.dp)
                         )
@@ -272,7 +274,7 @@ fun LessonPlayerScreen(
                             },
                             modifier = Modifier.size(38.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.Replay10, contentDescription = "تأخير 10 ثوان", tint = Color.White)
+                            Icon(Icons.Default.Replay10, contentDescription = stringResource(R.string.ui_1d31442), tint = Color.White)
                         }
 
                         IconButton(
@@ -285,7 +287,7 @@ fun LessonPlayerScreen(
                             },
                             modifier = Modifier.size(38.dp).clip(CircleShape).background(Color.Black.copy(alpha = 0.5f))
                         ) {
-                            Icon(Icons.Default.Forward10, contentDescription = "تقديم 10 ثوان", tint = Color.White)
+                            Icon(Icons.Default.Forward10, contentDescription = stringResource(R.string.ui_9328fc8), tint = Color.White)
                         }
                     }
 
@@ -359,7 +361,7 @@ fun LessonPlayerScreen(
                                 ) {
                                     Icon(
                                         imageVector = if (isMuted) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                        contentDescription = "الصوت",
+                                        contentDescription = stringResource(R.string.ui_1caf4c1),
                                         tint = Color.White,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -388,7 +390,7 @@ fun LessonPlayerScreen(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.Timeline, contentDescription = null, tint = OrbitIndigo, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("تتبع تقدم المشاهدة الفعلي", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_6c2e06d), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
 
                         Surface(
@@ -396,7 +398,7 @@ fun LessonPlayerScreen(
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(
-                                text = if (isCompleted) "تم إكمال الدرس ✓" else "قيد المشاهدة: $progressPercent%",
+                                text = if (isCompleted) stringResource(R.string.ui_f64d000) else "قيد المشاهدة: $progressPercent%",
                                 color = if (isCompleted) OrbitEmerald else OrbitGoldDark,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
@@ -423,7 +425,7 @@ fun LessonPlayerScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        listOf("البداية (0%)", "25%", "50%", "75%", "الإتقان (100%)").forEach { milestone ->
+                        listOf(stringResource(R.string.ui_4385315), "25%", "50%", "75%", stringResource(R.string.ui_c7d1f41)).forEach { milestone ->
                             Text(milestone, fontSize = 9.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
@@ -456,8 +458,8 @@ fun LessonPlayerScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("المساعد السقراطي الذكي لمس سارة 💡", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            Text("انقر هنا لأخذ تلميحات ومساعدتك في فهم خوارزمية الدرس", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_b99c810), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_0e06efe), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Icon(Icons.Default.ChevronLeft, contentDescription = null, tint = OrbitIndigo)
@@ -474,7 +476,7 @@ fun LessonPlayerScreen(
                 FilterChip(
                     selected = activeTab == "notes",
                     onClick = { activeTab = "notes" },
-                    label = { Text("الملاحظات والشرح 📖", fontSize = 11.sp) },
+                    label = { Text(stringResource(R.string.ui_a47434c), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(selectedContainerColor = OrbitIndigo, selectedLabelColor = Color.White),
                     modifier = Modifier.weight(1f)
                 )
@@ -482,7 +484,7 @@ fun LessonPlayerScreen(
                 FilterChip(
                     selected = activeTab == "transcript",
                     onClick = { activeTab = "transcript" },
-                    label = { Text("النص التفاعلي ⏱️", fontSize = 11.sp) },
+                    label = { Text(stringResource(R.string.ui_f4dbc4a), fontSize = 11.sp) },
                     colors = FilterChipDefaults.filterChipColors(selectedContainerColor = OrbitIndigo, selectedLabelColor = Color.White),
                     modifier = Modifier.weight(1f)
                 )
@@ -507,11 +509,11 @@ fun LessonPlayerScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("محتوى وقواعد الدرس الذهبية 💡", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(stringResource(R.string.ui_4d21e76), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = lesson.bodyMarkdown.ifBlank {
-                                    "شاهد الفيديو التفاعلي وتابع شرح مس سارة على العداد الصيني، وركز على حركة الإبهام للأعلى والسبابة للأسفل."
+                                    stringResource(R.string.ui_a2f4bef)
                                 },
                                 fontSize = 13.sp,
                                 lineHeight = 22.sp,
@@ -525,7 +527,7 @@ fun LessonPlayerScreen(
             "transcript" -> {
                 if (lesson.transcript.isEmpty()) {
                     item {
-                        Text("النص التفاعلي التزامني مسجل ومدمج مع الشرح الصوتي لمس سارة.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_13805d6), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     items(lesson.transcript) { line ->
@@ -567,7 +569,7 @@ fun LessonPlayerScreen(
             "resources" -> {
                 if (lesson.resources.isEmpty()) {
                     item {
-                        Text("لا توجد ملفات إضافية لهذا الدرس. يمكنك تحميل كراسة التمارين العامة من صفحة الدورة.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_b6ef100), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 } else {
                     items(lesson.resources) { res ->
@@ -598,7 +600,7 @@ fun LessonPlayerScreen(
                                 ) {
                                     Icon(Icons.Default.Download, contentDescription = null, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
-                                    Text("تحميل", fontSize = 11.sp)
+                                    Text(stringResource(R.string.ui_969879d), fontSize = 11.sp)
                                 }
                             }
                         }
@@ -624,7 +626,7 @@ fun LessonPlayerScreen(
                 ) {
                     Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(if (isCompleted) "الدرس مكتمل ✓" else "تحديد كمكتمل")
+                    Text(if (isCompleted) stringResource(R.string.ui_c4e74f5) else stringResource(R.string.ui_a0ec785))
                 }
 
                 if (lesson.quiz != null) {
@@ -636,7 +638,7 @@ fun LessonPlayerScreen(
                     ) {
                         Icon(Icons.Default.Quiz, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("بدء الاختبار 📝", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_5264003), fontWeight = FontWeight.Bold)
                     }
                 }
             }

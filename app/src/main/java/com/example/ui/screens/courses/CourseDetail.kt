@@ -1,5 +1,8 @@
 package com.example.ui.screens.courses
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -54,9 +57,9 @@ fun CourseDetailView(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onBack) {
-                    Icon(Icons.Default.ArrowForward, contentDescription = "رجوع")
+                    Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.ui_11e8376))
                 }
-                Text("تفاصيل الدورة التدريبية", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.ui_494027b), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.width(48.dp))
             }
         }
@@ -82,7 +85,7 @@ fun CourseDetailView(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column {
-                            Text("الرسوم:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_36aff06), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             Text(course.priceFormatted, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = OrbitIndigo)
                         }
 
@@ -93,7 +96,7 @@ fun CourseDetailView(
                         ) {
                             Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("الاشتراك في الدورة", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.ui_9e2a200), fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -111,7 +114,7 @@ fun CourseDetailView(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Checklist, contentDescription = null, tint = OrbitIndigo)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("ماذا سيتعلم الطفل في هذا الدبلوم؟", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.ui_273752b), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     course.outcomes.forEach { outcome ->
@@ -170,11 +173,11 @@ fun CourseDetailView(
 
                                 if (isCompleted) {
                                     Surface(color = OrbitEmerald.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp)) {
-                                        Text("مكتمل ✓", fontSize = 10.sp, color = OrbitEmerald, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                                        Text(stringResource(R.string.ui_f61d02f), fontSize = 10.sp, color = OrbitEmerald, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                                     }
                                 } else if (lesson.isPreview) {
                                     Surface(color = OrbitGold.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp)) {
-                                        Text("معاينة مجانية", fontSize = 10.sp, color = OrbitGoldDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                                        Text(stringResource(R.string.ui_e909a9e), fontSize = 10.sp, color = OrbitGoldDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                                     }
                                 }
                             }

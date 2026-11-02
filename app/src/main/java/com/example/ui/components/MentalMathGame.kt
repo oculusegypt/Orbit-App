@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -78,13 +81,13 @@ fun MentalMathGame(
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
                         Text(
-                            text = "تحدي الحساب الذهني التفاعلي 🧮",
+                            text = stringResource(R.string.ui_65244e5),
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "سرعة البديهة والخرزات السحرية بدون آلة حاسبة",
+                            text = stringResource(R.string.ui_6925e04),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -184,7 +187,7 @@ fun MentalMathGame(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "ستظهر أرقام سريعة بالترتيب.. احسب مجموعها بذهنك!",
+                                text = stringResource(R.string.ui_80a7101),
                                 color = Color.White,
                                 fontSize = 13.sp,
                                 textAlign = TextAlign.Center
@@ -198,7 +201,7 @@ fun MentalMathGame(
                             ) {
                                 Icon(Icons.Default.PlayArrow, contentDescription = null)
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("ابدأ التحدي الآن", fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_87a0858), fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -236,7 +239,7 @@ fun MentalMathGame(
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
-                                text = "ما هو الناتج النهائي؟",
+                                text = stringResource(R.string.ui_e8a8f63),
                                 color = OrbitGoldLight,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
@@ -248,7 +251,7 @@ fun MentalMathGame(
                                 modifier = Modifier.width(160.dp)
                             ) {
                                 Text(
-                                    text = if (inputBuffer.isEmpty()) "؟" else inputBuffer,
+                                    text = if (inputBuffer.isEmpty()) stringResource(R.string.ui_494367d) else inputBuffer,
                                     color = Color.White,
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.ExtraBold,
@@ -274,7 +277,7 @@ fun MentalMathGame(
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = if (correct) "إجابة عبقرية صحيحة! 🎉" else "محاولة جيدة يا بطل!",
+                                text = if (correct) stringResource(R.string.ui_91aa26a) else stringResource(R.string.ui_527a1dc),
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
@@ -293,7 +296,7 @@ fun MentalMathGame(
                             ) {
                                 Icon(Icons.Default.Refresh, contentDescription = null)
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("تحدي جديد")
+                                Text(stringResource(R.string.ui_f74a92e))
                             }
                         }
                     }
@@ -361,7 +364,7 @@ fun MentalMathGame(
                             ),
                             modifier = Modifier.weight(1f).height(44.dp)
                         ) {
-                            Icon(Icons.Default.Backspace, contentDescription = "مسح خطوة", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Backspace, contentDescription = stringResource(R.string.ui_8e2751e), modifier = Modifier.size(18.dp))
                         }
 
                         Button(
@@ -374,7 +377,7 @@ fun MentalMathGame(
                             ),
                             modifier = Modifier.weight(2f).height(44.dp).testTag("submit_math_answer_btn")
                         ) {
-                            Text("تأكيد الحل ✓", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                            Text(stringResource(R.string.ui_5d20755), fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         }
                     }
                 }

@@ -1,5 +1,8 @@
 package com.example.ui.screens.privatecall
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -67,14 +70,14 @@ fun OutgoingCallView(state: ActiveCallState, onCancel: () -> Unit) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                text = "جاري الاتصال المباشر الخاص...",
+                text = stringResource(R.string.ui_c5b00e8),
                 color = OrbitGold,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = if (state.callType == CallType.VIDEO_SCREEN) "مكالمة فيديو ومشاركة شاشة 1:1" else "مكالمة صوتية خاصة 1:1",
+                text = if (state.callType == CallType.VIDEO_SCREEN) stringResource(R.string.ui_feed54e) else stringResource(R.string.ui_f5d4108),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 14.sp
             )
@@ -157,10 +160,10 @@ fun OutgoingCallView(state: ActiveCallState, onCancel: () -> Unit) {
                     .size(64.dp)
                     .testTag("btn_cancel_outgoing_call")
             ) {
-                Icon(Icons.Default.CallEnd, contentDescription = "إنهاء المكالمة", modifier = Modifier.size(32.dp))
+                Icon(Icons.Default.CallEnd, contentDescription = stringResource(R.string.ui_9e960bd), modifier = Modifier.size(32.dp))
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text("إلغاء الاتصال", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
+            Text(stringResource(R.string.ui_d536e60), color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp)
         }
     }
 }
@@ -220,7 +223,7 @@ fun IncomingCallView(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "اتصال مباشر خاص وارد الآن 📞",
+                        text = stringResource(R.string.ui_763ca57),
                         color = OrbitEmerald,
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold
@@ -272,7 +275,7 @@ fun IncomingCallView(
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = state.otherUser.role.labelAr + " • " + (if (state.callType == CallType.VIDEO_SCREEN) "فيديو ومشاركة شاشة" else "صوت فقط"),
+                text = state.otherUser.role.labelAr + " • " + (if (state.callType == CallType.VIDEO_SCREEN) stringResource(R.string.ui_e0c2bc6) else stringResource(R.string.ui_b03e850)),
                 color = Color.White.copy(alpha = 0.8f),
                 fontSize = 13.sp
             )
@@ -293,10 +296,10 @@ fun IncomingCallView(
                         shape = CircleShape,
                         modifier = Modifier.size(64.dp).testTag("btn_decline_incoming_call")
                     ) {
-                        Icon(Icons.Default.CallEnd, contentDescription = "رفض المكالمة", modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.CallEnd, contentDescription = stringResource(R.string.ui_5cdf9fb), modifier = Modifier.size(32.dp))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("رفض", color = Color.White, fontSize = 12.sp)
+                    Text(stringResource(R.string.ui_b7dee97), color = Color.White, fontSize = 12.sp)
                 }
 
                 // Accept
@@ -308,10 +311,10 @@ fun IncomingCallView(
                         shape = CircleShape,
                         modifier = Modifier.size(64.dp).testTag("btn_accept_incoming_call")
                     ) {
-                        Icon(Icons.Default.Call, contentDescription = "قبول المكالمة", modifier = Modifier.size(32.dp))
+                        Icon(Icons.Default.Call, contentDescription = stringResource(R.string.ui_6a0daf3), modifier = Modifier.size(32.dp))
                     }
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("قبول الاتصال", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_0e36add), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }

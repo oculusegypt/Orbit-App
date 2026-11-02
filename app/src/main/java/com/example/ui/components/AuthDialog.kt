@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -86,21 +89,21 @@ fun AuthDialog(
                     Column {
                         Text(
                             text = when (selectedTab) {
-                                0 -> "تسجيل الدخول إلى حسابك 🔐"
-                                1 -> "إنشاء حساب حقيقي جديد ✍️"
-                                else -> "تبديل الحسابات المسجلة 👥"
+                                0 -> stringResource(R.string.ui_cf06700)
+                                1 -> stringResource(R.string.ui_6246c22)
+                                else -> stringResource(R.string.ui_ac4aa45)
                             },
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         )
                         Text(
-                            text = "نظام إدارة الحسابات الحقيقية وأنواع المستخدمين",
+                            text = stringResource(R.string.ui_8cacfdd),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                     }
                 }
 
@@ -120,7 +123,7 @@ fun AuthDialog(
                             errorMessage = null
                             successMessage = null
                         },
-                        text = { Text("دخول", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                        text = { Text(stringResource(R.string.ui_269168c), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                     )
                     Tab(
                         selected = selectedTab == 1,
@@ -129,7 +132,7 @@ fun AuthDialog(
                             errorMessage = null
                             successMessage = null
                         },
-                        text = { Text("تسجيل جديد", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                        text = { Text(stringResource(R.string.ui_31c5d1a), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                     )
                     Tab(
                         selected = selectedTab == 2,
@@ -192,7 +195,7 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = loginEmail,
                                     onValueChange = { loginEmail = it },
-                                    label = { Text("البريد الإلكتروني") },
+                                    label = { Text(stringResource(R.string.ui_2436aac)) },
                                     placeholder = { Text("example@orbitlearn.edu") },
                                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -204,7 +207,7 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = loginPassword,
                                     onValueChange = { loginPassword = it },
-                                    label = { Text("كلمة المرور") },
+                                    label = { Text(stringResource(R.string.ui_bcb75ee)) },
                                     placeholder = { Text("••••••••") },
                                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                                     visualTransformation = PasswordVisualTransformation(),
@@ -217,7 +220,7 @@ fun AuthDialog(
                                 Button(
                                     onClick = {
                                         if (loginEmail.isBlank() || loginPassword.isBlank()) {
-                                            errorMessage = "يرجى كتابة البريد الإلكتروني وكلمة المرور"
+                                            errorMessage = stringResource(R.string.ui_ccf9734)
                                             return@Button
                                         }
                                         onLogin(loginEmail, loginPassword) { success, msg ->
@@ -234,12 +237,12 @@ fun AuthDialog(
                                 ) {
                                     Icon(Icons.Default.Login, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("تسجيل الدخول الآن", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.ui_83ed06b), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 }
 
                                 Divider(modifier = Modifier.padding(vertical = 8.dp))
 
-                                Text("أو اختر أحد الحسابات المعتمدة للدخول المباشر بنقرة واحدة:", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(stringResource(R.string.ui_a2e8ac6), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
                                 allRegisteredUsers.take(3).forEach { user ->
                                     ElevatedCard(
@@ -270,16 +273,16 @@ fun AuthDialog(
                         1 -> {
                             // SIGN UP TAB (Real Accounts)
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text("نوع الحساب والصفة في الأكاديمية:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_98fd1d4), fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     listOf(
-                                        UserRole.LEARNER to "طالب / ولي أمر 🎒",
-                                        UserRole.INSTRUCTOR to "معلمة / مدربة 👩‍🏫",
-                                        UserRole.ADMIN to "إدارة 🛡️"
+                                        UserRole.LEARNER to stringResource(R.string.ui_c1c4111),
+                                        UserRole.INSTRUCTOR to stringResource(R.string.ui_80900fd),
+                                        UserRole.ADMIN to stringResource(R.string.ui_f0976b3)
                                     ).forEach { (role, label) ->
                                         FilterChip(
                                             selected = signupRole == role,
@@ -300,8 +303,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupName,
                                     onValueChange = { signupName = it },
-                                    label = { Text("الاسم بالكامل") },
-                                    placeholder = { Text("مثال: أحمد مصطفى") },
+                                    label = { Text(stringResource(R.string.ui_a92ebc2)) },
+                                    placeholder = { Text(stringResource(R.string.ui_445f3f1)) },
                                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
@@ -311,7 +314,7 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupEmail,
                                     onValueChange = { signupEmail = it },
-                                    label = { Text("البريد الإلكتروني الحقيقي") },
+                                    label = { Text(stringResource(R.string.ui_b09228f)) },
                                     placeholder = { Text("ahmed@example.com") },
                                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -323,7 +326,7 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupPhone,
                                     onValueChange = { signupPhone = it },
-                                    label = { Text("رقم الهاتف / واتساب") },
+                                    label = { Text(stringResource(R.string.ui_18bd813)) },
                                     placeholder = { Text("+20 10 1234 5678") },
                                     leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -335,8 +338,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupPassword,
                                     onValueChange = { signupPassword = it },
-                                    label = { Text("كلمة المرور") },
-                                    placeholder = { Text("6 أحرف على الأقل") },
+                                    label = { Text(stringResource(R.string.ui_bcb75ee)) },
+                                    placeholder = { Text(stringResource(R.string.ui_5c83dee)) },
                                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                                     visualTransformation = PasswordVisualTransformation(),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -348,8 +351,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupBioOrGrade,
                                     onValueChange = { signupBioOrGrade = it },
-                                    label = { Text(if (signupRole == UserRole.LEARNER) "الصف الدراسي / المستوى" else "التخصص والخبرة") },
-                                    placeholder = { Text(if (signupRole == UserRole.LEARNER) "الصف الخامس الابتدائي" else "مدربة سوربان وتنمية مهارات") },
+                                    label = { Text(if (signupRole == UserRole.LEARNER) stringResource(R.string.ui_aad225d) else stringResource(R.string.ui_2c83545)) },
+                                    placeholder = { Text(if (signupRole == UserRole.LEARNER) stringResource(R.string.ui_77bd4f8) else stringResource(R.string.ui_a231de9)) },
                                     leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
@@ -359,12 +362,12 @@ fun AuthDialog(
                                 Button(
                                     onClick = {
                                         if (signupName.isBlank() || signupEmail.isBlank() || signupPassword.isBlank()) {
-                                            errorMessage = "يرجى ملء جميع الحقول المطلوبة"
+                                            errorMessage = stringResource(R.string.ui_10bc485)
                                             return@Button
                                         }
                                         onRegister(signupName, signupEmail, signupPassword, signupRole, signupPhone, signupBioOrGrade) { success, msg ->
                                             if (success) {
-                                                successMessage = "تم إنشاء الحساب وحفظه في قاعدة البيانات بنجاح!"
+                                                successMessage = stringResource(R.string.ui_ae7b64b)
                                                 onDismiss()
                                             } else {
                                                 errorMessage = msg
@@ -377,7 +380,7 @@ fun AuthDialog(
                                 ) {
                                     Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("إنشاء الحساب والتسجيل فوراً", fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.ui_b597ead), fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -385,7 +388,7 @@ fun AuthDialog(
                         2 -> {
                             // REGISTERED ACCOUNTS LIST
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("الحسابات المحفوظة في قاعدة بيانات Room المحلية:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_526c07b), fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
                                 allRegisteredUsers.forEach { user ->
                                     val isSelected = currentUser?.id == user.id
@@ -473,7 +476,7 @@ fun AuthDialog(
                                 ) {
                                     Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(6.dp))
-                                    Text("تسجيل الخروج (المتابعة كزائر)", fontSize = 12.sp)
+                                    Text(stringResource(R.string.ui_e8e2498), fontSize = 12.sp)
                                 }
                             }
                         }

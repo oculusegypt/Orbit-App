@@ -1,5 +1,8 @@
 package com.example.ui.screens.classroom
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.content.Context
 import android.net.Uri
 import android.widget.Toast
@@ -105,7 +108,7 @@ fun ClassroomStageWindow(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(Icons.Default.CallEnd, contentDescription = null, tint = OrbitRose, modifier = Modifier.size(54.dp))
                 Spacer(modifier = Modifier.height(8.dp))
-                Text("تمت مغادرة الفصل الحي", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.ui_417875b), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(modifier = Modifier.height(10.dp))
                 Button(
                     onClick = onReconnect,
@@ -113,7 +116,7 @@ fun ClassroomStageWindow(
                 ) {
                     Icon(Icons.Filled.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("الانضمام مجدداً إلى الفصل")
+                    Text(stringResource(R.string.ui_1c4ec89))
                 }
             }
         } else {
@@ -171,7 +174,7 @@ fun RealScreenShareStatusPanel(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = if (isRealScreenSharingActive) "شاشة هاتفك تُشارك الآن للطلاب والمعلمة 🟢" else "مشاركة شاشة جهاز الأندرويد الحقيقية",
+            text = if (isRealScreenSharingActive) stringResource(R.string.ui_7fd5eda) else stringResource(R.string.ui_d2ff873),
             color = Color.White,
             fontWeight = FontWeight.Bold,
             fontSize = 14.sp,
@@ -180,9 +183,9 @@ fun RealScreenShareStatusPanel(
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = if (isRealScreenSharingActive)
-                "يتم بث شاشة الهاتف بدقة 1080p إلى غرفة الميتينج التفاعلية. يمكن لجميع الطلاب رؤية ما تفعله."
+                stringResource(R.string.ui_2fc84aa)
             else
-                "اضغط على الزر أدناه لبدء مشاركة شاشة جهازك بالكامل عبر نظام Android MediaProjection.",
+                stringResource(R.string.ui_9990587),
             color = Color.White.copy(alpha = 0.75f),
             fontSize = 11.sp,
             textAlign = TextAlign.Center
@@ -202,7 +205,7 @@ fun RealScreenShareStatusPanel(
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
-            Text(if (isRealScreenSharingActive) "إيقاف مشاركة الشاشة" else "بدء مشاركة شاشة الجهاز الحقيقية")
+            Text(if (isRealScreenSharingActive) stringResource(R.string.ui_41eacbe) else stringResource(R.string.ui_d7af66b))
         }
     }
 }
@@ -259,7 +262,7 @@ fun InteractiveSorobanStage(modifier: Modifier = Modifier) {
                 }
             ) {
                 Text(
-                    text = "تصفير ↺",
+                    text = stringResource(R.string.ui_386c966),
                     color = Color.White,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
@@ -282,21 +285,21 @@ fun InteractiveSorobanStage(modifier: Modifier = Modifier) {
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                SorobanRod(label = "مئات", upperUp = rod1Upper, lowerUp = rod1Lower,
+                SorobanRod(label = stringResource(R.string.ui_c39203f), upperUp = rod1Upper, lowerUp = rod1Lower,
                     digitValue = hundredsVal,
                     onToggleUpper = { rod1Upper = !rod1Upper },
                     onSelectLower = { idx -> rod1Lower = if (rod1Lower == idx) idx - 1 else idx })
 
                 RodDivider()
 
-                SorobanRod(label = "عشرات", upperUp = rod2Upper, lowerUp = rod2Lower,
+                SorobanRod(label = stringResource(R.string.ui_c93e60c), upperUp = rod2Upper, lowerUp = rod2Lower,
                     digitValue = tensVal,
                     onToggleUpper = { rod2Upper = !rod2Upper },
                     onSelectLower = { idx -> rod2Lower = if (rod2Lower == idx) idx - 1 else idx })
 
                 RodDivider()
 
-                SorobanRod(label = "آحاد", upperUp = rod3Upper, lowerUp = rod3Lower,
+                SorobanRod(label = stringResource(R.string.ui_0394c18), upperUp = rod3Upper, lowerUp = rod3Lower,
                     digitValue = onesVal,
                     onToggleUpper = { rod3Upper = !rod3Upper },
                     onSelectLower = { idx -> rod3Lower = if (rod3Lower == idx) idx - 1 else idx })
@@ -304,7 +307,7 @@ fun InteractiveSorobanStage(modifier: Modifier = Modifier) {
         }
 
         Spacer(modifier = Modifier.height(4.dp))
-        Text("المس الخرزات العلوية والسفلية في أي عمود لتحريكها ورؤية الناتج فوراً!", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+        Text(stringResource(R.string.ui_1fea341), color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
     }
 }
 
@@ -399,7 +402,7 @@ fun InteractiveWhiteboardStage(modifier: Modifier = Modifier) {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
-                    text = "✏️ سبورة الرسم ومشاركة الحل (ارسم بيدك هنا)",
+                    text = stringResource(R.string.ui_bc44bac),
                     color = Color.White,
                     fontSize = 11.sp,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -416,7 +419,7 @@ fun InteractiveWhiteboardStage(modifier: Modifier = Modifier) {
                 .clip(CircleShape)
                 .background(Color.Black.copy(alpha = 0.6f))
         ) {
-            Icon(Icons.Default.Delete, contentDescription = "مسح السبورة", tint = Color.White, modifier = Modifier.size(16.dp))
+            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.ui_a1f06be), tint = Color.White, modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -459,7 +462,7 @@ fun TeacherLiveStreamStage(modifier: Modifier = Modifier) {
             Row(modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color.White))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("بث درس مس سارة 1080p HD", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                Text(stringResource(R.string.ui_2923bda), color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -476,12 +479,12 @@ fun ClassroomStageTabs(
 ) {
     val tabs = remember {
         listOf(
-            Pair("stream", "🎥 بث الحصة المباشر"),
-            Pair("camera", "📸 كاميرا جهازي (CameraX)"),
-            Pair("screen", "📱 شاشتي الحقيقية (Screen Capture)"),
-            Pair("abacus", "🧮 العداد التفاعلي"),
-            Pair("whiteboard", "✏️ سبورة الرسم"),
-            Pair("webrtc", "🌐 المؤتمر الحي (WebRTC)")
+            Pair("stream", stringResource(R.string.ui_d6e5c07)),
+            Pair("camera", stringResource(R.string.ui_2b7b49e)),
+            Pair("screen", stringResource(R.string.ui_1686653)),
+            Pair("abacus", stringResource(R.string.ui_57df5ed)),
+            Pair("whiteboard", stringResource(R.string.ui_ea350b6)),
+            Pair("webrtc", stringResource(R.string.ui_d0a8c0d))
         )
     }
 

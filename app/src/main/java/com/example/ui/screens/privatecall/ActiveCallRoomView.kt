@@ -1,5 +1,8 @@
 package com.example.ui.screens.privatecall
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -87,18 +90,18 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             imageVector = if (state.isFrontCamera) Icons.Default.CameraFront else Icons.Default.CameraRear,
-                            contentDescription = "الكاميرا المحلية",
+                            contentDescription = stringResource(R.string.ui_82d2722),
                             tint = OrbitGold,
                             modifier = Modifier.size(28.dp)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = if (state.isFrontCamera) "كاميرا أمامية" else "كاميرا خلفية",
+                            text = if (state.isFrontCamera) stringResource(R.string.ui_94cfab9) else stringResource(R.string.ui_1f94f27),
                             fontSize = 9.sp,
                             color = Color.White
                         )
                         Text(
-                            text = "اضغط للتبديل",
+                            text = stringResource(R.string.ui_fc137fc),
                             fontSize = 8.sp,
                             color = Color.White.copy(alpha = 0.5f)
                         )
@@ -172,7 +175,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                     ) {
                         Icon(Icons.Default.ScreenShare, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("تغيير المحتوى", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_e063849), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -208,7 +211,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                 ) {
                     Icon(
                         imageVector = if (state.isMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                        contentDescription = "المايكروفون",
+                        contentDescription = stringResource(R.string.ui_e3b9e5d),
                         tint = Color.White
                     )
                 }
@@ -224,7 +227,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                 ) {
                     Icon(
                         imageVector = if (state.isCameraOff) Icons.Default.VideocamOff else Icons.Default.Videocam,
-                        contentDescription = "الكاميرا",
+                        contentDescription = stringResource(R.string.ui_1e8ec14),
                         tint = Color.White
                     )
                 }
@@ -246,7 +249,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                 ) {
                     Icon(
                         imageVector = if (state.isScreenSharing) Icons.Default.StopScreenShare else Icons.Default.ScreenShare,
-                        contentDescription = "مشاركة الشاشة",
+                        contentDescription = stringResource(R.string.ui_b0b5a2c),
                         tint = if (state.isScreenSharing) OrbitNavyDark else Color.White,
                         modifier = Modifier.size(28.dp)
                     )
@@ -263,7 +266,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                 ) {
                     Icon(
                         imageVector = if (state.isSpeakerOn) Icons.Default.VolumeUp else Icons.Default.VolumeDown,
-                        contentDescription = "مكبر الصوت",
+                        contentDescription = stringResource(R.string.ui_1481ebe),
                         tint = if (state.isSpeakerOn) OrbitEmerald else Color.White
                     )
                 }
@@ -279,7 +282,7 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                 ) {
                     Icon(
                         imageVector = Icons.Default.CallEnd,
-                        contentDescription = "إنهاء المكالمة",
+                        contentDescription = stringResource(R.string.ui_9e960bd),
                         tint = Color.White
                     )
                 }
@@ -305,11 +308,11 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("مشاركة الشاشة الحية 🖥️", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(stringResource(R.string.ui_123e66b), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         Text("اختر ما ترغب في مشاركته مع ${state.otherUser.displayName}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = { showSharePicker = false }) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                     }
                 }
 
@@ -359,10 +362,10 @@ fun ActiveCallRoomView(state: ActiveCallState, viewModel: OrbitViewModel) {
                                 Text(option.labelAr, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                                 Text(
                                     text = when (option) {
-                                        ScreenShareContent.SOROBAN_BOARD -> "شرح عملي وحل المسائل بواسطة عداد السوربان الياباني التفاعلي"
-                                        ScreenShareContent.MATH_WORKSHEET -> "مسائل حساب ذهني وتدريبات فورية مباشرة"
-                                        ScreenShareContent.WHITEBOARD -> "لوحة بيضاء للكتابة ورسم العمليات والخطوات"
-                                        ScreenShareContent.DEVICE_SCREEN -> "بث شاشة الهاتف المباشرة بجودة فائقة"
+                                        ScreenShareContent.SOROBAN_BOARD -> stringResource(R.string.ui_c740f82)
+                                        ScreenShareContent.MATH_WORKSHEET -> stringResource(R.string.ui_ff2a2b4)
+                                        ScreenShareContent.WHITEBOARD -> stringResource(R.string.ui_48a13f8)
+                                        ScreenShareContent.DEVICE_SCREEN -> stringResource(R.string.ui_20ce0e8)
                                     },
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant

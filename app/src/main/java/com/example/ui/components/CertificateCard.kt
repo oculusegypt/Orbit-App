@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -75,7 +78,7 @@ fun CertificateCard(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 Text(
-                    text = "شهادة اجتياز معتمدة لعام 2026",
+                    text = stringResource(R.string.ui_2272626),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.ExtraBold,
                     color = OrbitNavy,
@@ -83,7 +86,7 @@ fun CertificateCard(
                 )
 
                 Text(
-                    text = "منصة مدار للتعلم الرقمي • أكاديمية أ/ سارة العربي",
+                    text = stringResource(R.string.ui_9baa0b3),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -91,7 +94,7 @@ fun CertificateCard(
                 Spacer(modifier = Modifier.height(14.dp))
 
                 Text(
-                    text = "تشهد الأكاديمية بأن البطل(ة):",
+                    text = stringResource(R.string.ui_5b05fdf),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -106,7 +109,7 @@ fun CertificateCard(
                 )
 
                 Text(
-                    text = "قد اجتاز بنجاح وامتياز متطلبات الدورة التدريبية المعتمدة:",
+                    text = stringResource(R.string.ui_de1c39b),
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
@@ -161,7 +164,7 @@ fun CertificateCard(
                 // Skills Verified
                 if (certificate.skillsVerified.isNotEmpty()) {
                     Text(
-                        text = "المهارات المعتمدة:",
+                        text = stringResource(R.string.ui_f1f4107),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -196,14 +199,14 @@ fun CertificateCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(horizontalAlignment = Alignment.Start) {
-                        Text("تاريخ الإصدار:", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_feec37e), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(certificate.issuedAt, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
 
                     Column(horizontalAlignment = Alignment.End) {
-                        Text("المدربة المعتمدة:", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_e99f7bd), fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(certificate.instructorName, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = OrbitNavy)
-                        Text("توقيع إلكتروني موثق ✓", fontSize = 9.sp, color = OrbitEmerald)
+                        Text(stringResource(R.string.ui_b01a06e), fontSize = 9.sp, color = OrbitEmerald)
                     }
                 }
             }

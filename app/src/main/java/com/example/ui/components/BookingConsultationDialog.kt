@@ -1,5 +1,8 @@
 package com.example.ui.components
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -30,7 +33,7 @@ import com.example.ui.theme.OrbitIndigo
 @Composable
 fun BookingConsultationDialog(
     currentUserId: String = "guest",
-    currentUserName: String = "زائر",
+    currentUserName: String = stringResource(R.string.ui_e2404ae),
     // Real persistence path: when provided, the booking goes through the
     // ViewModel so it is also written to Room and pushes an FCM alert to the
     // instructor. Falls back to the direct repository call for previews/tests.
@@ -43,7 +46,7 @@ fun BookingConsultationDialog(
     var childName by remember { mutableStateOf("") }
     var childAge by remember { mutableStateOf("7") }
     var phone by remember { mutableStateOf("") }
-    var selectedService by remember { mutableStateOf("دبلوم الحساب الذهني والسوروبان") }
+    var selectedService by remember { mutableStateOf(stringResource(R.string.ui_1270492)) }
     var bookedSuccess by remember { mutableStateOf(false) }
     var savedBooking by remember { mutableStateOf<ConsultationBooking?>(null) }
     var validationError by remember { mutableStateOf<String?>(null) }
@@ -81,13 +84,13 @@ fun BookingConsultationDialog(
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                         Column {
-                            Text("حجز مقعد واستشارة مجانية", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                            Text("مع أ / سارة العربي بالمنصورة وأونلاين", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_9d72f1a), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.ui_85bb781), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
                     IconButton(onClick = onDismiss) {
-                        Icon(Icons.Default.Close, contentDescription = "إغلاق")
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.ui_9932cca))
                     }
                 }
 
@@ -100,7 +103,7 @@ fun BookingConsultationDialog(
                     ) {
                         Icon(Icons.Default.CheckCircle, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(64.dp))
                         Spacer(modifier = Modifier.height(12.dp))
-                        Text("تم تسجيل طلب الحجز بنجاح! 🌟", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        Text(stringResource(R.string.ui_34ba860), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                         savedBooking?.let { bk ->
                             Text(
                                 text = "رقم مرجع الحجز: ${bk.id}",
@@ -128,14 +131,14 @@ fun BookingConsultationDialog(
                         ) {
                             Icon(Icons.Default.Chat, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("متابعة المحادثة عبر واتساب مباشرة")
+                            Text(stringResource(R.string.ui_3223343))
                         }
                     }
                 } else {
                     OutlinedTextField(
                         value = parentName,
                         onValueChange = { parentName = it },
-                        label = { Text("اسم ولي الأمر") },
+                        label = { Text(stringResource(R.string.ui_5b55f88)) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                     )
@@ -144,14 +147,14 @@ fun BookingConsultationDialog(
                         OutlinedTextField(
                             value = childName,
                             onValueChange = { childName = it },
-                            label = { Text("اسم الطفل") },
+                            label = { Text(stringResource(R.string.ui_dad952f)) },
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(2f).padding(vertical = 4.dp)
                         )
                         OutlinedTextField(
                             value = childAge,
                             onValueChange = { childAge = it },
-                            label = { Text("العمر") },
+                            label = { Text(stringResource(R.string.ui_8e1707e)) },
                             shape = RoundedCornerShape(12.dp),
                             modifier = Modifier.weight(1f).padding(vertical = 4.dp)
                         )
@@ -160,18 +163,18 @@ fun BookingConsultationDialog(
                     OutlinedTextField(
                         value = phone,
                         onValueChange = { phone = it },
-                        label = { Text("رقم الهاتف / واتساب") },
+                        label = { Text(stringResource(R.string.ui_18bd813)) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("البرنامج المطلوب:", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ui_0b17ec2), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     val services = listOf(
-                        "دبلوم الحساب الذهني والسوروبان",
-                        "تأسيس اللغة العربية ونور البيان",
-                        "الرياضيات المدرسية الذكية",
-                        "دبلوم إعداد المدربين (TOT)"
+                        stringResource(R.string.ui_1270492),
+                        stringResource(R.string.ui_8fa6be1),
+                        stringResource(R.string.ui_c5b8179),
+                        stringResource(R.string.ui_e8290bf)
                     )
                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         services.forEach { s ->
@@ -208,11 +211,11 @@ fun BookingConsultationDialog(
                             val trimmedPhone = phone.filter { it.isDigit() }
                             when {
                                 parentName.isBlank() ->
-                                    validationError = "من فضلك اكتب اسم ولي الأمر"
+                                    validationError = stringResource(R.string.ui_3d3a3d9)
                                 childName.isBlank() ->
-                                    validationError = "من فضلك اكتب اسم الطفل"
+                                    validationError = stringResource(R.string.ui_2d3b926)
                                 trimmedPhone.length < 11 || !trimmedPhone.startsWith("01") ->
-                                    validationError = "رقم الهاتف غير صحيح — مثال: 01028340042"
+                                    validationError = stringResource(R.string.ui_7a6714d)
                                 else -> {
                                     validationError = null
                                     // Persist the booking through the ViewModel when wired
@@ -224,7 +227,7 @@ fun BookingConsultationDialog(
                                             bookedSuccess = true
                                             onBookingSaved(booking)
                                         } else {
-                                            validationError = "تعذر حفظ الحجز، حاول مرة أخرى"
+                                            validationError = stringResource(R.string.ui_7d6d010)
                                         }
                                     }
                                     val submit = onSubmit
@@ -252,7 +255,7 @@ fun BookingConsultationDialog(
                         colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                         modifier = Modifier.fillMaxWidth().height(48.dp)
                     ) {
-                        Text("تأكيد حجز الاستشارة 💡", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Text(stringResource(R.string.ui_ce6b0c4), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                     }
                 }
             }

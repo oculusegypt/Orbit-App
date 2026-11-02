@@ -1,5 +1,8 @@
 package com.example.ui.screens.privatecall
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
@@ -77,7 +80,7 @@ fun ParticipantVideoSurface(user: com.example.data.local.UserAccount, isCameraOf
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(user.displayName, color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
-                Text("الكاميرا مغلقة حالياً من قبل المشارك", color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
+                Text(stringResource(R.string.ui_221c540), color = Color.White.copy(alpha = 0.6f), fontSize = 12.sp)
             }
         }
 
@@ -99,7 +102,7 @@ fun ParticipantVideoSurface(user: com.example.data.local.UserAccount, isCameraOf
             )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
-                text = if (isMuted) "الصوت مكتوم" else "يتحدث الآن...",
+                text = if (isMuted) stringResource(R.string.ui_cbd2635) else stringResource(R.string.ui_2dde952),
                 color = Color.White,
                 fontSize = 11.sp
             )
@@ -209,13 +212,13 @@ fun LiveSorobanShareCanvas(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "🧮 عداد السوربان التفاعلي المشترك",
+                text = stringResource(R.string.ui_890e688),
                 color = Color.White,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
             )
             Text(
-                text = "اضغط على الخرزات لشرح كيفية تمثيل الأرقام وحل العمليات الحسابية مباشرة",
+                text = stringResource(R.string.ui_9d409be),
                 color = Color.White.copy(alpha = 0.7f),
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center
@@ -255,7 +258,7 @@ fun LiveSorobanShareCanvas(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Upper Bead (Value = 5)
-                    Text("خرزة السماء (5)", color = OrbitGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_5125e46), color = OrbitGold, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
                     Button(
                         onClick = onToggleUpper,
@@ -269,7 +272,7 @@ fun LiveSorobanShareCanvas(
                             .testTag("btn_soroban_upper_bead")
                     ) {
                         Text(
-                            text = if (upperActive) "خرزة 5 مفعّلة (نازلة للعارضة)" else "خرزة 5 مرفوعة (غير مفعّلة)",
+                            text = if (upperActive) stringResource(R.string.ui_71d0c72) else stringResource(R.string.ui_c090dc3),
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (upperActive) OrbitNavyDark else Color.White
@@ -290,7 +293,7 @@ fun LiveSorobanShareCanvas(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Lower Beads (Values = 1 each, 0 to 4)
-                    Text("خرزات الأرض (1 كل خرزة)", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_e5ddb9a), color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(6.dp))
 
                     Row(
@@ -319,7 +322,7 @@ fun LiveSorobanShareCanvas(
                         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)
                     ) {
                         Text(
-                            text = "💡 مثال للشرح: لجمع (4 + 3) نستخدم أصدقاء العشرة أو الخمسة: (+3 = +5 - 2).",
+                            text = stringResource(R.string.ui_61e4762),
                             color = Color.White.copy(alpha = 0.85f),
                             fontSize = 10.sp,
                             modifier = Modifier.padding(8.dp),
@@ -344,15 +347,15 @@ fun LiveWorksheetShareCanvas() {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("📝 شيت التدريبات الحسابية المباشر", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text("مسائل حساب ذهني مباشرة لحلها ومراجعتها أثناء المكالمة", color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
+            Text(stringResource(R.string.ui_9eddbc2), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_ddbb8de), color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             val exercises = listOf(
-                Triple("12 + 25 - 6", "31", "تم الحل بنجاح ✅"),
-                Triple("48 + 15 + 7", "70", "قيد الحل المباشر ⏳"),
-                Triple("95 - 43 + 12", "64", "جاهزة للتطبيق 🎯")
+                Triple("12 + 25 - 6", "31", stringResource(R.string.ui_6d3cea5)),
+                Triple("48 + 15 + 7", "70", stringResource(R.string.ui_e4b7909)),
+                Triple("95 - 43 + 12", "64", stringResource(R.string.ui_34c343e))
             )
 
             exercises.forEach { (equation, answer, status) ->
@@ -392,8 +395,8 @@ fun LiveWhiteboardCanvas() {
             modifier = Modifier.fillMaxSize().padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("🎨 السبورة الذكية المشتركة", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-            Text("يمكنك تدوين الملاحظات التوضيحية وشرح الخطوات", color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
+            Text(stringResource(R.string.ui_80ee6c6), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_50e8995), color = Color.White.copy(alpha = 0.7f), fontSize = 11.sp)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -406,9 +409,9 @@ fun LiveWhiteboardCanvas() {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(Icons.Default.Draw, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(48.dp))
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("السبورة جاهزة للشرح التفاعلي باللمس والقلم", color = Color.White, fontSize = 13.sp)
+                        Text(stringResource(R.string.ui_f0d570c), color = Color.White, fontSize = 13.sp)
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("مزامنة فورية لكل خطوة مع المشارك في المكالمة", color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp)
+                        Text(stringResource(R.string.ui_d88c2ea), color = Color.White.copy(alpha = 0.6f), fontSize = 10.sp)
                     }
                 }
             }
@@ -431,9 +434,9 @@ fun LiveDeviceScreenMirror() {
         ) {
             Icon(Icons.Default.Smartphone, contentDescription = null, tint = OrbitGold, modifier = Modifier.size(54.dp))
             Spacer(modifier = Modifier.height(12.dp))
-            Text("بث شاشة الهاتف الحية قيد التشغيل", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_b672fe9), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
             Spacer(modifier = Modifier.height(6.dp))
-            Text("يتم عرض شاشتك كاملة للطرف الآخر بأعلى معدل إطارات وبث مشفر", color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
+            Text(stringResource(R.string.ui_79fa089), color = Color.White.copy(alpha = 0.7f), fontSize = 12.sp, textAlign = TextAlign.Center)
         }
     }
 }

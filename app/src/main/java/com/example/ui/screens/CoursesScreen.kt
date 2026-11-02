@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -121,9 +124,9 @@ fun CoursesScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         IconButton(onClick = { viewModel.backToCatalog() }) {
-                            Icon(Icons.Default.ArrowForward, contentDescription = "رجوع")
+                            Icon(Icons.Default.ArrowForward, contentDescription = stringResource(R.string.ui_11e8376))
                         }
-                        Text("الشهادة الرقمية المعتمدة", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.ui_f2e400c), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         Spacer(modifier = Modifier.width(48.dp))
                     }
 
@@ -139,7 +142,7 @@ fun CoursesScreen(
                     ) {
                         Icon(Icons.Default.Verified, contentDescription = null)
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("التحقق من كود الشهادة في السجل العام")
+                        Text(stringResource(R.string.ui_79962bd))
                     }
                 }
             } ?: viewModel.backToCatalog()

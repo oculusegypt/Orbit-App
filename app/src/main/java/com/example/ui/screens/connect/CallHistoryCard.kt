@@ -1,5 +1,8 @@
 package com.example.ui.screens.connect
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -92,7 +95,7 @@ fun CallHistoryCard(call: CallSessionEntity) {
                     shape = RoundedCornerShape(6.dp)
                 ) {
                     Text(
-                        text = if (call.status == "COMPLETED") durationFormatted else "مرفوضة / فائتة",
+                        text = if (call.status == "COMPLETED") durationFormatted else stringResource(R.string.ui_ac30148),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (call.status == "COMPLETED") OrbitEmerald else Color(0xFFDC2626),

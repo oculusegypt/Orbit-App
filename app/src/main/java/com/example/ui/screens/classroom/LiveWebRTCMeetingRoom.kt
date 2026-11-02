@@ -1,5 +1,8 @@
 package com.example.ui.screens.classroom
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -137,7 +140,7 @@ fun LiveWebRTCMeetingRoom(
                 )
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
-                    text = "غرفة المؤتمر المرئي المباشر (WebRTC)",
+                    text = stringResource(R.string.ui_062c405),
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
@@ -145,7 +148,7 @@ fun LiveWebRTCMeetingRoom(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "لتوفير أعلى أداء لمشاركة الشاشات والكاميرات بجودة HD، يُفضّل الانضمام مباشرة عبر المتصفح أو تطبيق Jitsi Meet بدون قيود ذاكرة العرض المدمجة.",
+                    text = stringResource(R.string.ui_b33a3c0),
                     color = Color.White.copy(alpha = 0.8f),
                     fontSize = 12.sp,
                     textAlign = TextAlign.Center,
@@ -164,7 +167,7 @@ fun LiveWebRTCMeetingRoom(
                     ) {
                         Icon(Icons.Default.OpenInBrowser, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("الانضمام عبر المتصفح 🌐", fontSize = 12.sp)
+                        Text(stringResource(R.string.ui_fafab42), fontSize = 12.sp)
                     }
 
                     OutlinedButton(
@@ -179,7 +182,7 @@ fun LiveWebRTCMeetingRoom(
                     ) {
                         Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("إعادة المحاولة", fontSize = 12.sp)
+                        Text(stringResource(R.string.ui_fb452d3), fontSize = 12.sp)
                     }
                 }
             }
@@ -282,7 +285,7 @@ fun LiveWebRTCMeetingRoom(
                         CircularProgressIndicator(color = OrbitIndigo)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "جاري الاتصال بغرفة المؤتمر المرئي المباشر...",
+                            text = stringResource(R.string.ui_ff663b5),
                             color = Color.White,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium
@@ -315,7 +318,7 @@ fun LiveWebRTCMeetingRoom(
                             Icon(Icons.Default.ScreenShare, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(14.dp))
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "ميتينج تفاعلي حي • يدعم مشاركة الشاشات الحقيقية",
+                                text = stringResource(R.string.ui_d07c2d7),
                                 color = Color.White,
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold
@@ -331,7 +334,7 @@ fun LiveWebRTCMeetingRoom(
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(Color.Black.copy(alpha = 0.6f))
                         ) {
-                            Icon(Icons.Default.Refresh, contentDescription = "تحديث", tint = Color.White, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Refresh, contentDescription = stringResource(R.string.ui_061401d), tint = Color.White, modifier = Modifier.size(16.dp))
                         }
 
                         IconButton(
@@ -345,7 +348,7 @@ fun LiveWebRTCMeetingRoom(
                                 .background(OrbitIndigo)
                                 .testTag("open_webrtc_external_btn")
                         ) {
-                            Icon(Icons.Default.OpenInBrowser, contentDescription = "فتح في المتصفح", tint = Color.White, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.ui_a361cae), tint = Color.White, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
@@ -374,7 +377,7 @@ fun LiveWebRTCMeetingRoom(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "تفعيل الكاميرا والمايك لمشاركة الصوت والصورة في الميتينج",
+                                    text = stringResource(R.string.ui_ef801d0),
                                     color = Color.White,
                                     fontSize = 10.sp
                                 )
@@ -391,7 +394,7 @@ fun LiveWebRTCMeetingRoom(
                                 contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
                                 modifier = Modifier.height(28.dp).testTag("grant_webrtc_permissions_btn")
                             ) {
-                                Text("تفعيل الآن", fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.ui_6d36d32), fontSize = 10.sp, fontWeight = FontWeight.Bold)
                             }
                         }
                     }

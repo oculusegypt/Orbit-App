@@ -1,5 +1,8 @@
 package com.example.ui.screens.classroom
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.AudioFormat
@@ -147,16 +150,16 @@ fun LiveAudioMonitor(
                 ) {
                     Icon(Icons.Default.MicOff, contentDescription = null, tint = OrbitRose, modifier = Modifier.size(14.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("إذن المايك", fontSize = 10.sp, color = OrbitRose, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.ui_8ffc402), fontSize = 10.sp, color = OrbitRose, fontWeight = FontWeight.Bold)
                 }
             } else if (pauseRecording) {
                 Icon(Icons.Default.Mic, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("الميكروفون مخصص للمؤتمر 🌐", fontSize = 10.sp, color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Medium)
+                Text(stringResource(R.string.ui_4a17c4b), fontSize = 10.sp, color = Color.White.copy(alpha = 0.85f), fontWeight = FontWeight.Medium)
             } else if (isMuted) {
                 Icon(Icons.Default.MicOff, contentDescription = null, tint = OrbitRose, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("الميكروفون مكتوم", fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f))
+                Text(stringResource(R.string.ui_689e0dd), fontSize = 10.sp, color = Color.White.copy(alpha = 0.7f))
             } else {
                 Icon(Icons.Default.Mic, contentDescription = null, tint = OrbitEmerald, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(6.dp))

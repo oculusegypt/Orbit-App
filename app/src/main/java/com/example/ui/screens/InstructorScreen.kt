@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,7 +45,7 @@ fun InstructorScreen(
 
     var activeGradingSub by remember { mutableStateOf<StudentSubmission?>(null) }
     var gradeInput by remember { mutableStateOf("95") }
-    var feedbackInput by remember { mutableStateOf("ممتاز جداً يا بطل! استمر في التدريب اليومي 💡👏") }
+    var feedbackInput by remember { mutableStateOf(stringResource(R.string.ui_372887e)) }
 
     LazyColumn(
         modifier = modifier
@@ -74,10 +77,10 @@ fun InstructorScreen(
                             Text(instructor.name, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 17.sp)
                             Spacer(modifier = Modifier.width(4.dp))
                             Surface(color = OrbitGold, shape = RoundedCornerShape(4.dp)) {
-                                Text("استوديو المعلمة 💡", color = Color.Black, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
+                                Text(stringResource(R.string.ui_52f843c), color = Color.Black, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
                             }
                         }
-                        Text("إدارة الفصول الافتراضية، تصحيح الواجبات واعتماد الشهادات", color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
+                        Text(stringResource(R.string.ui_880bda3), color = Color.White.copy(alpha = 0.8f), fontSize = 11.sp)
                     }
                 }
             }
@@ -97,7 +100,7 @@ fun InstructorScreen(
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("184", fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = OrbitIndigo)
-                        Text("طالباً مسجلاً", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_5a3397f), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -109,7 +112,7 @@ fun InstructorScreen(
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("${submissions.size}", fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = OrbitGold)
-                        Text("واجبات مستلمة", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_c92c6df), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
 
@@ -121,7 +124,7 @@ fun InstructorScreen(
                 ) {
                     Column(modifier = Modifier.padding(12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("${courses.size}", fontWeight = FontWeight.ExtraBold, fontSize = 22.sp, color = OrbitEmerald)
-                        Text("دورات نشطة", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_bbbafeb), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -141,8 +144,8 @@ fun InstructorScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("بدء حصة البث المباشر التفاعلية", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("مشاركة شاشة العداد الصيني واستقبال أسئلة الطلاب", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_50548e4), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(stringResource(R.string.ui_36037bd), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
 
                     Button(
@@ -152,7 +155,7 @@ fun InstructorScreen(
                     ) {
                         Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("فتح الفصل 🔴", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_da9ebf2), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -173,8 +176,8 @@ fun InstructorScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("اتصال خاص وفردي مع طالب معين 📞", fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("مكالمة فيديو خاصة 1:1 ومشاركة شاشة العداد لشرح المفاهيم الفردية", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.ui_6b30dc4), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(stringResource(R.string.ui_f1aca94), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
 
                     Button(
@@ -185,7 +188,7 @@ fun InstructorScreen(
                     ) {
                         Icon(Icons.Default.PhoneInTalk, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("اتصال خاص", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_6f8dc6b), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -193,7 +196,7 @@ fun InstructorScreen(
 
         // Submissions Grading Queue
         item {
-            Text("قائمة تصحيح واجبات وتحديات الطلاب 📝", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            Text(stringResource(R.string.ui_c8a34dd), fontWeight = FontWeight.Bold, fontSize = 16.sp)
         }
 
         items(submissions) { sub ->
@@ -220,7 +223,7 @@ fun InstructorScreen(
                             shape = RoundedCornerShape(6.dp)
                         ) {
                             Text(
-                                text = if (isGraded) "تم التصحيح (${sub.grade}/${sub.maxScore}) ✓" else "بانتظار التصحيح ⏳",
+                                text = if (isGraded) "تم التصحيح (${sub.grade}/${sub.maxScore}) ✓" else stringResource(R.string.ui_ae1b6ab),
                                 color = if (isGraded) OrbitEmerald else OrbitGold,
                                 fontWeight = FontWeight.Bold,
                                 fontSize = 11.sp,
@@ -261,7 +264,7 @@ fun InstructorScreen(
                         onClick = {
                             activeGradingSub = sub
                             gradeInput = (sub.grade ?: 95).toString()
-                            feedbackInput = sub.feedback ?: "ما شاء الله عليك يا بطل! حركة أصابعك سريعة ودقيقة جداً 💡👏"
+                            feedbackInput = sub.feedback ?: stringResource(R.string.ui_94f96b5)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                         shape = RoundedCornerShape(8.dp),
@@ -269,7 +272,7 @@ fun InstructorScreen(
                     ) {
                         Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text(if (isGraded) "تعديل الدرجة والملاحظات" else "تصحيح ورصد الدرجة")
+                        Text(if (isGraded) stringResource(R.string.ui_eb50ccd) else stringResource(R.string.ui_e7e2a43))
                     }
                 }
             }
@@ -307,7 +310,7 @@ fun InstructorScreen(
                     OutlinedTextField(
                         value = feedbackInput,
                         onValueChange = { feedbackInput = it },
-                        label = { Text("الملاحظات التشجيعية للطفل وولي الأمر") },
+                        label = { Text(stringResource(R.string.ui_95b7790)) },
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(100.dp),
                         maxLines = 4
@@ -325,7 +328,7 @@ fun InstructorScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth().height(48.dp)
                     ) {
-                        Text("اعتماد ونشر النتيجة للطالب ✓", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_c45eae5), fontWeight = FontWeight.Bold)
                     }
                 }
             }

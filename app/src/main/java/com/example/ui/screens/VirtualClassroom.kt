@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -87,11 +90,11 @@ fun VirtualClassroom(
             isRealScreenSharingActive = true
             viewModel.setClassroomScreenShared(true)
             screenShareContent = "screen"
-            Toast.makeText(context, "تم بدء مشاركة شاشة الجهاز الحقيقية بنجاح! 🟢", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, stringResource(R.string.ui_f0e94e0), Toast.LENGTH_LONG).show()
         } else {
             isRealScreenSharingActive = false
             viewModel.setClassroomScreenShared(false)
-            Toast.makeText(context, "تم إلغاء مشاركة الشاشة", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, stringResource(R.string.ui_5ec193b), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -102,12 +105,12 @@ fun VirtualClassroom(
             if (mediaProjectionManager != null) {
                 screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
             } else {
-                Toast.makeText(context, "خاصية مشاركة الشاشة غير مدعومة على هذا الجهاز", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, stringResource(R.string.ui_52fe2ee), Toast.LENGTH_SHORT).show()
             }
         } else {
             isRealScreenSharingActive = false
             viewModel.setClassroomScreenShared(false)
-            Toast.makeText(context, "تم إيقاف مشاركة الشاشة", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, stringResource(R.string.ui_c5dc7f0), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -119,10 +122,10 @@ fun VirtualClassroom(
     // Breakout sessions
     val breakoutSessions = remember {
         listOf(
-            BreakoutGroupSession("main", "القاعة الرئيسية الكبرى 🌟", "حصة السوروبان والحساب الذهني مع مس سارة", 28, isPrimary = true),
-            BreakoutGroupSession("g1", "غرفة العصافير (المستوى 1) 🐣", "تمارين الجمع البسيط حتى 10", 8),
-            BreakoutGroupSession("g2", "غرفة أبطال الـ Small Friends 🧮", "تطبيق قواعد الخرزة 5 المركبة", 12),
-            BreakoutGroupSession("g3", "غرفة العباقرة للتخيل السريع 🧠", "مسائل الحساب التخيلي Anzan", 8)
+            BreakoutGroupSession("main", stringResource(R.string.ui_01956d5), stringResource(R.string.ui_7e160b7), 28, isPrimary = true),
+            BreakoutGroupSession("g1", stringResource(R.string.ui_c32355b), stringResource(R.string.ui_970f743), 8),
+            BreakoutGroupSession("g2", stringResource(R.string.ui_0cba708), stringResource(R.string.ui_e7c0c88), 12),
+            BreakoutGroupSession("g3", stringResource(R.string.ui_451e7b1), stringResource(R.string.ui_227fc56), 8)
         )
     }
     var currentGroup by remember { mutableStateOf(breakoutSessions.first()) }
@@ -133,12 +136,12 @@ fun VirtualClassroom(
 
     val participants = remember {
         listOf(
-            Triple("أ / سارة العربي", "معلمة ومضيفة الحصة 💡", true),
-            Triple("ياسين أحمد", "طالب متميز", false),
-            Triple("نور الهدى", "طالبة متفاعلة", false),
-            Triple("عمر خالد", "طالب", false),
-            Triple("مريم يوسف", "طالبة", false),
-            Triple("زين الدين", "طالب", false)
+            Triple(stringResource(R.string.ui_cec9cf0), stringResource(R.string.ui_ca65086), true),
+            Triple(stringResource(R.string.ui_f685e01), stringResource(R.string.ui_50517af), false),
+            Triple(stringResource(R.string.ui_8912465), stringResource(R.string.ui_1893f40), false),
+            Triple(stringResource(R.string.ui_80680b8), stringResource(R.string.ui_79c983e), false),
+            Triple(stringResource(R.string.ui_a1e2f3f), stringResource(R.string.ui_1518d4f), false),
+            Triple(stringResource(R.string.ui_6b8e7a9), stringResource(R.string.ui_79c983e), false)
         )
     }
 
@@ -173,7 +176,7 @@ fun VirtualClassroom(
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
                                 Text(
-                                    text = if (isMeetingConnected) "الفصل الافتراضي الحي الحقيقي 🔴" else "غير متصل بالجلسة ⚪",
+                                    text = if (isMeetingConnected) stringResource(R.string.ui_27d3f21) else stringResource(R.string.ui_d14161f),
                                     color = Color.White,
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 14.sp
@@ -197,23 +200,23 @@ fun VirtualClassroom(
                             ) {
                                 Icon(Icons.Default.Groups, contentDescription = null, modifier = Modifier.size(14.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("الغرف", fontSize = 11.sp)
+                                Text(stringResource(R.string.ui_c718afb), fontSize = 11.sp)
                             }
 
                             // Share Meeting Link
                             IconButton(
                                 onClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText("رابط ميتينج مس سارة", meetingDeepLink)
+                                    val clip = ClipData.newPlainText(stringResource(R.string.ui_6ebe7f1), meetingDeepLink)
                                     clipboard.setPrimaryClip(clip)
-                                    Toast.makeText(context, "تم نسخ رابط الميتينج لمشاركته مع الطلاب!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, stringResource(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
 
                                     val sendIntent = Intent().apply {
                                         action = Intent.ACTION_SEND
                                         putExtra(Intent.EXTRA_TEXT, "انضم الآن إلى الفصل الافتراضي التفاعلي مع مس سارة العربي 🧮💡:\n$meetingDeepLink")
                                         type = "text/plain"
                                     }
-                                    context.startActivity(Intent.createChooser(sendIntent, "مشاركة رابط الفصل الافتراضي"))
+                                    context.startActivity(Intent.createChooser(sendIntent, stringResource(R.string.ui_a2bb682)))
                                 },
                                 modifier = Modifier
                                     .size(34.dp)
@@ -221,7 +224,7 @@ fun VirtualClassroom(
                                     .background(Color.White.copy(alpha = 0.2f))
                                     .testTag("virtual_classroom_share_btn")
                             ) {
-                                Icon(Icons.Default.Share, contentDescription = "مشاركة", tint = Color.White, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.ui_81a50c9), tint = Color.White, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
@@ -265,7 +268,7 @@ fun VirtualClassroom(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = if (isScreenShared || isRealScreenSharingActive) "مشاركة الشاشة: نشطة 🟢" else "مشاركة شاشة الجهاز",
+                                    text = if (isScreenShared || isRealScreenSharingActive) stringResource(R.string.ui_86f7282) else stringResource(R.string.ui_0c26748),
                                     fontSize = 10.sp,
                                     color = if (isScreenShared || isRealScreenSharingActive) OrbitEmeraldLight else Color.White,
                                     fontWeight = FontWeight.Bold
@@ -322,7 +325,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = if (isMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                                contentDescription = "الميكروفون",
+                                contentDescription = stringResource(R.string.ui_072b93d),
                                 tint = Color.White
                             )
                         }
@@ -343,7 +346,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = if (isVideoOn) Icons.Default.Videocam else Icons.Default.VideocamOff,
-                                contentDescription = "الكاميرا",
+                                contentDescription = stringResource(R.string.ui_1e8ec14),
                                 tint = Color.White
                             )
                         }
@@ -369,7 +372,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = if (isRealScreenSharingActive) Icons.Default.StopScreenShare else Icons.Default.ScreenShare,
-                                contentDescription = "مشاركة الشاشة",
+                                contentDescription = stringResource(R.string.ui_b0b5a2c),
                                 tint = Color.White
                             )
                         }
@@ -385,7 +388,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.FrontHand,
-                                contentDescription = "رفع اليد",
+                                contentDescription = stringResource(R.string.ui_95d6a9a),
                                 tint = if (isHandRaised) OrbitNavyDark else Color.White
                             )
                         }
@@ -401,7 +404,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = if (isMeetingConnected) Icons.Default.CallEnd else Icons.Default.Call,
-                                contentDescription = "مغادرة الجلسة",
+                                contentDescription = stringResource(R.string.ui_8731974),
                                 tint = Color.White
                             )
                         }
@@ -463,13 +466,13 @@ fun VirtualClassroom(
                                     if (msg.senderRole == "instructor") {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Surface(color = OrbitGold, shape = RoundedCornerShape(4.dp)) {
-                                            Text("معلمة 💡", fontSize = 9.sp, color = OrbitNavyDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                            Text(stringResource(R.string.ui_b5190a9), fontSize = 9.sp, color = OrbitNavyDark, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                                         }
                                     }
                                     if (msg.isQuestion) {
                                         Spacer(modifier = Modifier.width(4.dp))
                                         Surface(color = OrbitIndigo, shape = RoundedCornerShape(4.dp)) {
-                                            Text("سؤال ❓", fontSize = 9.sp, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
+                                            Text(stringResource(R.string.ui_45c51e4), fontSize = 9.sp, color = Color.White, modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp))
                                         }
                                     }
                                 }
@@ -507,7 +510,7 @@ fun VirtualClassroom(
                         OutlinedTextField(
                             value = chatInput,
                             onValueChange = { viewModel.setClassroomChatText(it) },
-                            placeholder = { Text("اكتب مشاركتك في الفصل الحي...", fontSize = 12.sp) },
+                            placeholder = { Text(stringResource(R.string.ui_7cd9315), fontSize = 12.sp) },
                             shape = RoundedCornerShape(20.dp),
                             modifier = Modifier.weight(1f).testTag("virtual_classroom_chat_input"),
                             singleLine = true
@@ -524,7 +527,7 @@ fun VirtualClassroom(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Send,
-                                contentDescription = "إرسال",
+                                contentDescription = stringResource(R.string.ui_6dbd36c),
                                 tint = if (chatInput.isNotBlank()) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -612,7 +615,7 @@ fun VirtualClassroom(
                                 ),
                                 shape = RoundedCornerShape(8.dp)
                             ) {
-                                Text(if (isCurrent) "أنت هنا ✓" else "انضمام", fontSize = 11.sp)
+                                Text(if (isCurrent) stringResource(R.string.ui_dffc622) else stringResource(R.string.ui_c060541), fontSize = 11.sp)
                             }
                         }
                     }

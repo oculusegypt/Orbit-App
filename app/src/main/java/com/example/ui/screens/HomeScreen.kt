@@ -1,5 +1,8 @@
 package com.example.ui.screens
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -94,7 +97,7 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(20.dp)
                             ) {
                                 Text(
-                                    text = "💡 المنصة المعتمدة لعام 2026",
+                                    text = stringResource(R.string.ui_20b68be),
                                     color = OrbitGoldLight,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
@@ -106,7 +109,7 @@ fun HomeScreen(
                                 shape = RoundedCornerShape(20.dp)
                             ) {
                                 Text(
-                                    text = "المنصورة • أونلاين",
+                                    text = stringResource(R.string.ui_b0ca879),
                                     color = OrbitEmeraldLight,
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.SemiBold,
@@ -118,7 +121,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "أكاديمية أ/ سارة العربي\nتأسيس أطفال . حساب ذهني",
+                            text = stringResource(R.string.ui_e3eac3a),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = Color.White,
@@ -128,7 +131,7 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "طريقة ممتعة وسهلة للأطفال لتنمية الذكاء الخارق وسرعة التركيز بالسوروبان والقرائية بالفهم مش الحفظ 🌟",
+                            text = stringResource(R.string.ui_a0b3018),
                             fontSize = 13.sp,
                             color = Color.White.copy(alpha = 0.85f),
                             lineHeight = 20.sp
@@ -143,15 +146,15 @@ fun HomeScreen(
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("4.98 ★", fontWeight = FontWeight.ExtraBold, color = OrbitGoldLight, fontSize = 16.sp)
-                                Text("184+ تقييم معتمد", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+                                Text(stringResource(R.string.ui_a938b03), color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("4 برامج", fontWeight = FontWeight.ExtraBold, color = OrbitGoldLight, fontSize = 16.sp)
-                                Text("تأسيس وحساب ذهني", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+                                Text(stringResource(R.string.ui_61f7bff), fontWeight = FontWeight.ExtraBold, color = OrbitGoldLight, fontSize = 16.sp)
+                                Text(stringResource(R.string.ui_7d2139c), color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
                             }
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text("100%", fontWeight = FontWeight.ExtraBold, color = OrbitGoldLight, fontSize = 16.sp)
-                                Text("شهادات بالباركود", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
+                                Text(stringResource(R.string.ui_59d6018), color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
                             }
                         }
 
@@ -172,7 +175,7 @@ fun HomeScreen(
                             ) {
                                 Icon(Icons.Default.School, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("استكشاف الدورات", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text(stringResource(R.string.ui_fc485f6), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
 
                             FilledTonalButton(
@@ -188,7 +191,7 @@ fun HomeScreen(
                             ) {
                                 Icon(Icons.Default.Event, contentDescription = null, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
-                                Text("حجز مقعد / استشارة", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                Text(stringResource(R.string.ui_cffb50c), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                             }
                         }
 
@@ -207,7 +210,7 @@ fun HomeScreen(
                         ) {
                             Icon(Icons.Default.PhoneInTalk, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("اتصال خاص صوت وصورة ومشاركة شاشة 📞", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_846143b), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
@@ -236,8 +239,8 @@ fun HomeScreen(
                         }
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
-                            Text("التعلم متاح أوفلاين (Room DB)", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                            Text("استأنف دروسك وتقدمك بدون اتصال بالإنترنت", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.ui_96ccfed), fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text(stringResource(R.string.ui_e4ef52e), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
 
@@ -250,7 +253,7 @@ fun HomeScreen(
                         ) {
                             Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("استئناف ⚡", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.ui_ae169e7), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -316,7 +319,7 @@ fun HomeScreen(
                     ) {
                         Button(
                             onClick = {
-                                val url = "https://wa.me/201028340042?text=" + Uri.encode("مرحباً مس سارة العربي، حابب أستفسر عن دورات الأكاديمية للأطفال")
+                                val url = "https://wa.me/201028340042?text=" + Uri.encode(stringResource(R.string.ui_b3deaa7))
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 context.startActivity(intent)
                             },
@@ -327,7 +330,7 @@ fun HomeScreen(
                         ) {
                             Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("واتساب مباشر", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.ui_c98725a), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         }
 
                         OutlinedButton(
@@ -341,7 +344,7 @@ fun HomeScreen(
                         ) {
                             Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("اتصال: 01028340042", fontSize = 11.sp)
+                            Text(stringResource(R.string.ui_00ce664), fontSize = 11.sp)
                         }
                     }
                 }
@@ -373,13 +376,13 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "أقوى البرامج التدريبية المعتمدة 🎓",
+                    text = stringResource(R.string.ui_67a81a7),
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp
                 )
 
                 TextButton(onClick = { viewModel.setPortal(PortalTab.COURSES) }) {
-                    Text("عرض الكل", color = OrbitIndigo, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.ui_1eab5c6), color = OrbitIndigo, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -491,10 +494,10 @@ fun HomeScreen(
                                 Box(modifier = Modifier.size(8.dp))
                             }
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("الفصل الافتراضي التفاعلي الحي", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = OrbitNavyDark)
+                            Text(stringResource(R.string.ui_154effb), fontWeight = FontWeight.Bold, fontSize = 14.sp, color = OrbitNavyDark)
                         }
                         Text(
-                            text = "بث مباشر وشاشة عداد تفاعلية مع مس سارة والطلاب",
+                            text = stringResource(R.string.ui_bd2d442),
                             fontSize = 11.sp,
                             color = Color(0xFF78350F)
                         )
@@ -505,7 +508,7 @@ fun HomeScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = OrbitNavy, contentColor = Color.White),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Text("دخول الفصل", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_a49b1fb), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }

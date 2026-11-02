@@ -1,5 +1,8 @@
 package com.example.ui.screens.connect
 
+import androidx.compose.ui.res.stringResource
+import com.example.R
+
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -106,7 +109,7 @@ fun UserContactCard(
                                 color = OrbitEmerald.copy(alpha = 0.2f),
                                 shape = RoundedCornerShape(6.dp)
                             ) {
-                                Text("أنت (الحالي)", color = OrbitEmerald, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
+                                Text(stringResource(R.string.ui_8bbc394), color = OrbitEmerald, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp))
                             }
                         }
                     }
@@ -164,7 +167,7 @@ fun UserContactCard(
                     ) {
                         Icon(Icons.Default.Videocam, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("فيديو وشاشة", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.ui_5367cfa), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
 
                     FilledTonalButton(
@@ -174,7 +177,7 @@ fun UserContactCard(
                     ) {
                         Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("صوت", fontSize = 11.sp)
+                        Text(stringResource(R.string.ui_2c65d31), fontSize = 11.sp)
                     }
                 }
 
@@ -186,7 +189,7 @@ fun UserContactCard(
                 ) {
                     Icon(Icons.Default.SwapHoriz, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(if (isCurrentUser) "مُحدد" else "دخول بحسابه", fontSize = 11.sp)
+                    Text(if (isCurrentUser) stringResource(R.string.ui_90ed358) else stringResource(R.string.ui_4dc3f03), fontSize = 11.sp)
                 }
             }
         }
