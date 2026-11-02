@@ -18,7 +18,8 @@ class OrbitRoomRepository(
     private val consultationBookingDao: ConsultationBookingDao? = null,
     private val purchaseReceiptDao: PurchaseReceiptDao? = null,
     private val learnerAchievementDao: LearnerAchievementDao? = null,
-    private val tutorMessageDao: TutorMessageDao? = null
+    private val tutorMessageDao: TutorMessageDao? = null,
+    private val certificateDao: CertificateDao? = null
 ) {
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
@@ -498,6 +499,69 @@ class OrbitRoomRepository(
     fun getTutorConversationFlow(userId: String): Flow<List<TutorMessageEntity>> =
         tutorMessageDao?.getConversationFlow(userId) ?: flowOf(emptyList())
 
+    // ---- Durable certificates (issue + verification across restarts) ------
+
+    /** Persists an issued certificate so its verification code survives app restarts. */
+    suspend fun persistCertificate(cert: com.example.data.models.Certificate) {
+        certificateDao?.insertCertificate(
+            CertificateEntity(
+                id = cert.id,
+                enrollmentId = cert.enrollmentId,
+                courseId = cert.courseId,
+                courseTitle = cert.courseTitle,
+                userId = cert.userId,
+                userName = cert.userName,
+                instructorName = cert.instructorName,
+                verificationCode = cert.verificationCode,
+                issuedAt = cert.issuedAt,
+                gradePercentage = cert.gradePercentage,
+                skillsVerifiedCsv = cert.skillsVerified.joinToString("|")
+            )
+        )
+    }
+
+    /** Looks up a durable certificate by its verification code (case/space-insensitive). */
+    suspend fun findDurableCertificate(code: String): com.example.data.models.Certificate? =
+        certificateDao?.findByVerificationCode(code.trim())?.let { e ->
+            com.example.data.models.Certificate(
+                id = e.id,
+                enrollmentId = e.enrollmentId,
+                courseId = e.courseId,
+                courseTitle = e.courseTitle,
+                userId = e.userId,
+                userName = e.userName,
+                instructorName = e.instructorName,
+                verificationCode = e.verificationCode,
+                issuedAt = e.issuedAt,
+                gradePercentage = e.gradePercentage,
+                skillsVerified = e.skillsVerifiedCsv.split("|").filter { it.isNotBlank() }
+            )
+        }
+
+    /** True when the user already holds a durable certificate for the course. */
+    suspend fun hasDurableCertificate(courseId: String, userId: String): Boolean =
+        (certificateDao?.countFor(courseId, userId) ?: 0) > 0
+
+    /** All durable certificates, newest first — feeds the learner/admin lists. */
+    fun getDurableCertificatesFlow(): Flow<List<com.example.data.models.Certificate>> =
+        (certificateDao?.getAllCertificatesFlow() ?: flowOf(emptyList())).map { list ->
+            list.map { e ->
+                com.example.data.models.Certificate(
+                    id = e.id,
+                    enrollmentId = e.enrollmentId,
+                    courseId = e.courseId,
+                    courseTitle = e.courseTitle,
+                    userId = e.userId,
+                    userName = e.userName,
+                    instructorName = e.instructorName,
+                    verificationCode = e.verificationCode,
+                    issuedAt = e.issuedAt,
+                    gradePercentage = e.gradePercentage,
+                    skillsVerified = e.skillsVerifiedCsv.split("|").filter { it.isNotBlank() }
+                )
+            }
+        }
+
     companion object {
         @Volatile
         private var INSTANCE: OrbitRoomRepository? = null
@@ -513,7 +577,8 @@ class OrbitRoomRepository(
                     consultationBookingDao = db.consultationBookingDao(),
                     purchaseReceiptDao = db.purchaseReceiptDao(),
                     learnerAchievementDao = db.learnerAchievementDao(),
-                    tutorMessageDao = db.tutorMessageDao()
+                    tutorMessageDao = db.tutorMessageDao(),
+                    certificateDao = db.certificateDao()
                 )
                 INSTANCE = repo
                 repo

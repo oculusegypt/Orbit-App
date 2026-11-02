@@ -128,10 +128,6 @@ fun VirtualClassroom(
     var currentGroup by remember { mutableStateOf(breakoutSessions.first()) }
     var showBreakoutDialog by remember { mutableStateOf(false) }
 
-
-
-    }
-
     val meetingRoomId = "OrbitLearn2026_SaraElarby_${currentGroup.id}"
     val meetingDeepLink = "https://meet.jit.si/$meetingRoomId"
 
@@ -629,7 +625,6 @@ fun VirtualClassroom(
         }
     }
 
-    // Breakout Session Picker Dialog
     // Breakout Session Picker Dialog (extracted to classroom/BreakoutRoomPickerDialog.kt)
     if (showBreakoutDialog) {
         BreakoutRoomPickerDialog(
@@ -637,8 +632,7 @@ fun VirtualClassroom(
             currentGroup = currentGroup,
             onJoin = { session ->
                 currentGroup = session
-                setCurrentMeetingRoomName("OrbitLearn2026_SaraElarby_${'$'}{session.id}")
-                Toast.makeText(context, "انضممت إلى: ${'$'}{session.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "انضممت إلى: ${session.name}", Toast.LENGTH_SHORT).show()
             },
             onDismiss = { showBreakoutDialog = false }
         )

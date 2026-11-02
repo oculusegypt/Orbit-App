@@ -17,9 +17,10 @@ import androidx.room.RoomDatabase
         ConsultationBookingEntity::class,
         PurchaseReceiptEntity::class,
         LearnerAchievementEntity::class,
-        TutorMessageEntity::class
+        TutorMessageEntity::class,
+        CertificateEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class OrbitDatabase : RoomDatabase() {
@@ -32,6 +33,7 @@ abstract class OrbitDatabase : RoomDatabase() {
     abstract fun purchaseReceiptDao(): PurchaseReceiptDao
     abstract fun learnerAchievementDao(): LearnerAchievementDao
     abstract fun tutorMessageDao(): TutorMessageDao
+    abstract fun certificateDao(): CertificateDao
 
     companion object {
         @Volatile

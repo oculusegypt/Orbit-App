@@ -209,8 +209,15 @@ class OrbitViewModel : ViewModel() {
     val books get() = OrbitRepository.books
     val liveSessions get() = OrbitRepository.liveSessions
     val assignments get() = OrbitRepository.assignments
-    val submissions get() = OrbitRepository.submissions
-    val certificates get() = OrbitRepository.certificates
+    // Durable certificates: Room-issued certs (survive restarts) merged with
+    // the in-memory catalog; newest first, deduplicated by verification code.
+    private val durableCertificatesFlow = roomRepository?.getDurableCertificatesFlow()
+        ?: kotlinx.coroutines.flow.flowOf(emptyList<Certificate>())
+    val certificates: kotlinx.coroutines.flow.Flow<List<Certificate>> =
+        kotlinx.coroutines.flow.combine(OrbitRepository.certificates, durableCertificatesFlow) { seeded, durable ->
+            val seen = durable.map { it.verificationCode.uppercase() }.toSet()
+            durable + seeded.filter { it.verificationCode.uppercase() !in seen }
+        }
     val enrollments get() = OrbitRepository.enrollments
     val progressMap get() = OrbitRepository.progressMap
     val auditLogs get() = OrbitRepository.auditLogs
