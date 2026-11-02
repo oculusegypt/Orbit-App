@@ -56,13 +56,23 @@ object OrbitNotificationManager {
         OrbitFirebaseMessagingService.createNotificationChannels(context)
 
         try {
-            if (FirebaseApp.getApps(context).isEmpty()) {
+            val app = if (FirebaseApp.getApps(context).isEmpty()) {
                 FirebaseApp.initializeApp(context)
+            } else {
+                FirebaseApp.getInstance()
+            }
+
+            val apiKey = app?.options?.apiKey ?: ""
+            val isRemoteProvisioned = apiKey.isNotBlank() && !apiKey.contains("Fake", ignoreCase = true)
+
+            if (!isRemoteProvisioned) {
+                Log.i(TAG, "Stand-alone configuration detected. Bypassing remote FIS RPC and enabling local FCM notification dispatch.")
+                _fcmToken.value = "FCM_LOCAL_ACTIVE"
+                _subscribedTopics.value = setOf("live_classes", "module_reminders", "all_students")
+                return
             }
 
             val fcm = FirebaseMessaging.getInstance()
-            // Disable aggressive auto-init if installations service is not provisioned
-            // to avoid background WorkManager looping on FirebaseInstallationsException
             fcm.isAutoInitEnabled = false
 
             fcm.token.addOnCompleteListener { task ->

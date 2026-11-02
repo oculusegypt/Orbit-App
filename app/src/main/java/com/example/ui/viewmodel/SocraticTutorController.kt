@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.example.core.OrbitTimeFormatter
+import com.example.data.models.TutorMessage
+import com.example.data.models.TutorCitation
 
 /**
  * Owns the Socratic AI Tutor conversation state and reply generation.
