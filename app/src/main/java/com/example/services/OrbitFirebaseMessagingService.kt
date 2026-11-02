@@ -69,6 +69,18 @@ class OrbitFirebaseMessagingService : FirebaseMessagingService() {
         val body = remoteMessage.notification?.body ?: data["body"] ?: "لديك إشعار جديد في حصص الحساب الذهني"
         val targetId = data["targetId"] ?: ""
 
+        // ---- REAL incoming 1:1 call signaling -------------------------
+        // A data message of type "call" is routed through the in-app bus so
+        // the PrivateCallController rings with a genuine peer signal — never
+        // a simulated one. Full-screen ringing UI shows while foregrounded;
+        // the notification below covers the background case.
+        if (alertType == "call") {
+            OrbitInAppSignalBus.emitIncomingCall(
+                fromUserId = targetId,
+                callTypeName = data["callType"] ?: "AUDIO"
+            )
+        }
+
         sendNotification(title, body, alertType, targetId)
     }
 

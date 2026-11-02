@@ -79,19 +79,28 @@ class OrbitViewModel : ViewModel() {
     private val _currentAccount = MutableStateFlow<UserAccount?>(null)
     val currentAccount: StateFlow<UserAccount?> = _currentAccount.asStateFlow()
 
+    // Real presence registry (heartbeat-based availability for 1:1 calls)
+    private var presenceRegistry: com.example.core.OrbitPresenceRegistry? = null
+
     // 1-on-1 Private Call & Screen Sharing State (delegated controller)
     private val callController = PrivateCallController(
         scope = viewModelScope,
         currentUserProvider = { _currentAccount.value },
         fallbackUserProvider = { _allRegisteredUsers.value.firstOrNull() },
-        onCallRecorded = { session -> roomRepository?.recordCallSession(session) }
+        onCallRecorded = { session -> roomRepository?.recordCallSession(session) },
+        presenceRegistryProvider = { presenceRegistry }
     )
     val activeCall: StateFlow<ActiveCallState?> = callController.activeCall
+    val callEvent: StateFlow<String?> = callController.callEvent
 
     private val _callHistory = MutableStateFlow<List<CallSessionEntity>>(emptyList())
     val callHistory: StateFlow<List<CallSessionEntity>> = _callHistory.asStateFlow()
 
     fun initializeServices(context: Context) {
+        // Real presence registry: heartbeat tracking for 1:1 call signaling.
+        val registry = com.example.core.OrbitPresenceRegistry.get(context)
+        presenceRegistry = registry
+
         // Wire the real Gemini client before any tutor query can be issued.
         val aiClient = com.example.core.GeminiClient(context.applicationContext)
         geminiClient = aiClient
@@ -114,8 +123,7 @@ class OrbitViewModel : ViewModel() {
                 _allRegisteredUsers.value = accounts
                 if (_currentAccount.value == null && accounts.isNotEmpty()) {
                     val defaultUser = accounts.firstOrNull { it.role == UserRole.LEARNER } ?: accounts.first()
-                    _currentAccount.value = defaultUser
-                    _currentUser.value = defaultUser.toUser()
+                    switchUserAccount(defaultUser)
                 }
             }
         }
@@ -125,6 +133,13 @@ class OrbitViewModel : ViewModel() {
             }
         }
         OrbitNotificationManager.initialize(context)
+
+        // Collect REAL incoming-call pushes routed from Firebase Messaging.
+        viewModelScope.launch {
+            com.example.services.OrbitInAppSignalBus.incomingCalls.collect { signal ->
+                onIncomingCallPush(signal.fromUserId, signal.callTypeName)
+            }
+        }
     }
 
     // Current User
@@ -641,10 +656,22 @@ class OrbitViewModel : ViewModel() {
     fun switchUserAccount(account: UserAccount) {
         _currentAccount.value = account
         _currentUser.value = account.toUser()
+        // Real presence: begin heartbeat so peers can genuinely detect that
+        // this account is available for 1:1 calls on this device.
+        presenceRegistry?.startHeartbeat(account.id)
         viewModelScope.launch {
             roomRepository?.setUserOnlineStatus(account.id, true)
         }
     }
+
+    /** Live presence of any directory user (drives the availability badges). */
+    fun presenceOf(userId: String): com.example.core.UserPresence =
+        callController.presenceOf(userId)
+
+    /** Reactive map of userId -> presence, refreshed by the heartbeat loop. */
+    val presenceRecords: StateFlow<Map<String, com.example.core.PresenceRecord>>
+        get() = presenceRegistry?.records
+            ?: MutableStateFlow(emptyMap())
 
     // -------------------------------------------------------------
     // 1-on-1 Private Video/Audio Calling & Screen Sharing
@@ -654,9 +681,17 @@ class OrbitViewModel : ViewModel() {
         callController.startOutgoingCall(targetUser, callType)
     }
 
-    fun simulateIncomingCall(fromUser: UserAccount, callType: CallType) {
-        callController.simulateIncomingCall(fromUser, callType)
+    /**
+     * Routes a REAL incoming-call push (FCM data message with type=call) into
+     * the ringing state machine. Invoked only from the notification layer.
+     */
+    fun onIncomingCallPush(fromUserId: String, callTypeName: String) {
+        val from = _allRegisteredUsers.value.firstOrNull { it.id == fromUserId } ?: return
+        val type = runCatching { CallType.valueOf(callTypeName) }.getOrDefault(CallType.AUDIO)
+        callController.deliverIncomingCall(from, type)
     }
+
+    fun consumeCallEventIfNeeded() = callController.consumeCallEvent()
 
     fun acceptCall() {
         callController.accept()

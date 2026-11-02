@@ -99,22 +99,30 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                             )
                         }
 
-                        // Simulation button to demonstrate incoming call from Miss Sara or Student
-                        OutlinedButton(
-                            onClick = {
-                                val other = users.firstOrNull { it.id != currentAccount?.id } ?: users.firstOrNull()
-                                if (other != null) {
-                                    viewModel.simulateIncomingCall(other, CallType.VIDEO_SCREEN)
-                                }
-                            },
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.4f)),
-                            shape = RoundedCornerShape(12.dp),
-                            modifier = Modifier.testTag("btn_simulate_incoming_call")
+                        // Real signaling status chip — incoming calls arrive only
+                        // through genuine FCM push messages (no simulation).
+                        Surface(
+                            color = Color.White.copy(alpha = 0.12f),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
-                            Icon(Icons.Default.PhoneCallback, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("تجربة مكالمة واردة 📲", fontSize = 11.sp)
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.PhoneCallback,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = OrbitGold
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "المكالمات الواردة تصل عبر إشعارات FCM الحقيقية فقط",
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
                         }
                     }
 
@@ -172,12 +180,19 @@ fun PrivateConnectScreen(viewModel: OrbitViewModel) {
                                     Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
                                 }
                             }
-                            // Online Dot
+                            // Real availability badge driven by the presence registry
+                            val saraPresence = viewModel.presenceOf(saraAccount.id)
                             Box(
                                 modifier = Modifier
                                     .size(14.dp)
                                     .clip(CircleShape)
-                                    .background(OrbitEmerald)
+                                    .background(
+                                        when (saraPresence) {
+                                            com.example.core.UserPresence.ONLINE -> OrbitEmerald
+                                            com.example.core.UserPresence.RECENTLY_ACTIVE -> OrbitGold
+                                            com.example.core.UserPresence.OFFLINE -> Color.Gray
+                                        }
+                                    )
                                     .border(2.dp, Color.White, CircleShape)
                                     .align(Alignment.BottomEnd)
                             )
