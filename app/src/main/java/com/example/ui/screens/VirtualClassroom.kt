@@ -44,24 +44,14 @@ import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.example.data.models.ClassroomMessage
 import com.example.data.repository.OrbitRepository
+import com.example.ui.screens.classroom.BreakoutGroupSession
+import com.example.ui.screens.classroom.BreakoutRoomPickerDialog
+import com.example.ui.screens.classroom.ClassroomStageTabs
+import com.example.ui.screens.classroom.ClassroomStageWindow
 import com.example.ui.screens.classroom.LiveAudioMonitor
-import com.example.ui.screens.classroom.LiveCameraPreview
-import com.example.ui.screens.classroom.LiveWebRTCMeetingRoom
+import com.example.ui.screens.classroom.setCurrentMeetingRoomName
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.OrbitViewModel
-
-data class BreakoutGroupSession(
-    val id: String,
-    val name: String,
-    val topic: String,
-    val activeStudents: Int,
-    val isPrimary: Boolean = false
-)
-
-data class DrawPoint(
-    val offset: Offset,
-    val color: Color
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -105,6 +95,27 @@ fun VirtualClassroom(
         }
     }
 
+    // Shared handler: launches the real Android MediaProjection system dialog
+    // or stops an active share. Used by the stage panel and the control bar.
+    val toggleRealScreenShare: () -> Unit = {
+        if (!isRealScreenSharingActive) {
+            if (mediaProjectionManager != null) {
+                screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
+            } else {
+                Toast.makeText(context, "خاصية مشاركة الشاشة غير مدعومة على هذا الجهاز", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            isRealScreenSharingActive = false
+            viewModel.setClassroomScreenShared(false)
+            Toast.makeText(context, "تم إيقاف مشاركة الشاشة", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Keep the extracted stage window in sync with the currently joined breakout room
+    LaunchedEffect(currentGroup.id) {
+        setCurrentMeetingRoomName("OrbitLearn2026_SaraElarby_${currentGroup.id}")
+    }
+
     // Breakout sessions
     val breakoutSessions = remember {
         listOf(
@@ -117,29 +128,8 @@ fun VirtualClassroom(
     var currentGroup by remember { mutableStateOf(breakoutSessions.first()) }
     var showBreakoutDialog by remember { mutableStateOf(false) }
 
-    // Interactive 3-Rod Soroban Abacus state
-    var rod1Upper by remember { mutableStateOf(false) }
-    var rod1Lower by remember { mutableStateOf(1) }
-    var rod2Upper by remember { mutableStateOf(true) }
-    var rod2Lower by remember { mutableStateOf(2) }
-    var rod3Upper by remember { mutableStateOf(false) }
-    var rod3Lower by remember { mutableStateOf(4) }
-    val hundredsVal = (if (rod1Upper) 5 else 0) + rod1Lower
-    val tensVal = (if (rod2Upper) 5 else 0) + rod2Lower
-    val onesVal = (if (rod3Upper) 5 else 0) + rod3Lower
-    val totalAbacusValue = hundredsVal * 100 + tensVal * 10 + onesVal
 
-    // Interactive Whiteboard drawing points
-    val drawPoints = remember { mutableStateListOf<DrawPoint>() }
 
-    // Video stream URI (local sample lesson)
-    val videoUri = remember {
-        val rawResId = context.resources.getIdentifier("sample_lesson", "raw", context.packageName)
-        if (rawResId != 0) {
-            Uri.parse("android.resource://${context.packageName}/$rawResId")
-        } else {
-            Uri.parse("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
-        }
     }
 
     val meetingRoomId = "OrbitLearn2026_SaraElarby_${currentGroup.id}"
@@ -293,48 +283,13 @@ fun VirtualClassroom(
 
         // Live Stage Mode Selector Tabs
         item {
-            Card(
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    val tabs = listOf(
-                        Pair("stream", "🎥 بث الحصة المباشر"),
-                        Pair("camera", "📸 كاميرا جهازي (CameraX)"),
-                        Pair("screen", "📱 شاشتي الحقيقية (Screen Capture)"),
-                        Pair("abacus", "🧮 العداد التفاعلي"),
-                        Pair("whiteboard", "✏️ سبورة الرسم"),
-                        Pair("webrtc", "🌐 المؤتمر الحي (WebRTC)")
-                    )
-
-                    items(tabs) { (mode, label) ->
-                        val isSelected = screenShareContent == mode
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = if (isSelected) OrbitIndigo else Color.Transparent,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable { screenShareContent = mode }
-                        ) {
-                            Text(
-                                text = label,
-                                fontSize = 11.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
-                            )
-                        }
-                    }
-                }
-            }
+            ClassroomStageTabs(
+                selectedMode = screenShareContent,
+                onModeSelected = { screenShareContent = it }
+            )
         }
 
-        // Main Stage / Live Conference Window
+        // Main Stage / Live Conference Window (extracted to ClassroomStageWindow)
         item {
             Card(
                 shape = RoundedCornerShape(20.dp),
@@ -342,374 +297,17 @@ fun VirtualClassroom(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(12.dp)) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(260.dp)
-                            .clip(RoundedCornerShape(14.dp))
-                            .background(Color(0xFF1E293B)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        if (!isMeetingConnected) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Icon(Icons.Default.CallEnd, contentDescription = null, tint = OrbitRose, modifier = Modifier.size(54.dp))
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text("تمت مغادرة الفصل الحي", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                Spacer(modifier = Modifier.height(10.dp))
-                                Button(
-                                    onClick = { isMeetingConnected = true },
-                                    colors = ButtonDefaults.buttonColors(containerColor = OrbitEmerald)
-                                ) {
-                                    Icon(Icons.Default.Call, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text("الانضمام مجدداً إلى الفصل")
-                                }
-                            }
-                        } else {
-                            when (screenShareContent) {
-                                "webrtc" -> {
-                                    // Real WebRTC live conference room where shared screens from any device are displayed!
-                                    LiveWebRTCMeetingRoom(
-                                        roomName = meetingRoomId,
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
+                    ClassroomStageWindow(
+                        stageMode = screenShareContent,
+                        isMeetingConnected = isMeetingConnected,
+                        onReconnect = { isMeetingConnected = true },
+                        isVideoOn = isVideoOn,
+                        onCameraToggle = { viewModel.setClassroomVideo(true) },
+                        isRealScreenSharingActive = isRealScreenSharingActive,
+                        onToggleRealScreenShare = toggleRealScreenShare,
+                        modifier = Modifier.padding(bottom = 0.dp)
+                    )
 
-                                "camera" -> {
-                                    // Real CameraX live preview from device front/back camera!
-                                    LiveCameraPreview(
-                                        isCameraEnabled = isVideoOn,
-                                        onCameraToggle = { viewModel.setClassroomVideo(true) },
-                                        modifier = Modifier.fillMaxSize()
-                                    )
-                                }
-
-                                "screen" -> {
-                                    // Real Android MediaProjection Screen Mirror / Capture status
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxSize()
-                                            .padding(16.dp),
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.ScreenShare,
-                                            contentDescription = null,
-                                            tint = if (isRealScreenSharingActive) OrbitEmerald else OrbitIndigo,
-                                            modifier = Modifier.size(52.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(10.dp))
-                                        Text(
-                                            text = if (isRealScreenSharingActive) "شاشة هاتفك تُشارك الآن للطلاب والمعلمة 🟢" else "مشاركة شاشة جهاز الأندرويد الحقيقية",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold,
-                                            fontSize = 14.sp,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        Spacer(modifier = Modifier.height(6.dp))
-                                        Text(
-                                            text = if (isRealScreenSharingActive)
-                                                "يتم بث شاشة الهاتف بدقة 1080p إلى غرفة الميتينج التفاعلية. يمكن لجميع الطلاب رؤية ما تفعله."
-                                            else
-                                                "اضغط على الزر أدناه لبدء مشاركة شاشة جهازك بالكامل عبر نظام Android MediaProjection.",
-                                            color = Color.White.copy(alpha = 0.75f),
-                                            fontSize = 11.sp,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        Spacer(modifier = Modifier.height(14.dp))
-                                        Button(
-                                            onClick = {
-                                                if (!isRealScreenSharingActive) {
-                                                    if (mediaProjectionManager != null) {
-                                                        screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
-                                                    } else {
-                                                        Toast.makeText(context, "خاصية مشاركة الشاشة غير مدعومة على هذا الجهاز", Toast.LENGTH_SHORT).show()
-                                                    }
-                                                } else {
-                                                    isRealScreenSharingActive = false
-                                                    viewModel.setClassroomScreenShared(false)
-                                                    Toast.makeText(context, "تم إيقاف مشاركة الشاشة", Toast.LENGTH_SHORT).show()
-                                                }
-                                            },
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = if (isRealScreenSharingActive) OrbitRose else OrbitEmerald
-                                            ),
-                                            shape = RoundedCornerShape(10.dp),
-                                            modifier = Modifier.testTag("launch_system_screen_share_btn")
-                                        ) {
-                                            Icon(
-                                                imageVector = if (isRealScreenSharingActive) Icons.Default.StopScreenShare else Icons.Default.ScreenShare,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(16.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text(if (isRealScreenSharingActive) "إيقاف مشاركة الشاشة" else "بدء مشاركة شاشة الجهاز الحقيقية")
-                                        }
-                                    }
-                                }
-
-                                "abacus" -> {
-                                    // 3-Rod Interactive Soroban Whiteboard
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.Center,
-                                        modifier = Modifier.fillMaxSize().padding(8.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                                Surface(color = OrbitEmerald, shape = CircleShape) {
-                                                    Box(modifier = Modifier.size(8.dp))
-                                                }
-                                                Spacer(modifier = Modifier.width(6.dp))
-                                                Text(
-                                                    text = "عداد السوروبان المشترك (الناتج: $totalAbacusValue)",
-                                                    color = OrbitGoldLight,
-                                                    fontSize = 12.sp,
-                                                    fontWeight = FontWeight.Bold
-                                                )
-                                            }
-
-                                            Surface(
-                                                color = Color.White.copy(alpha = 0.15f),
-                                                shape = RoundedCornerShape(8.dp),
-                                                modifier = Modifier.clickable {
-                                                    rod1Upper = false; rod1Lower = 0
-                                                    rod2Upper = false; rod2Lower = 0
-                                                    rod3Upper = false; rod3Lower = 0
-                                                }
-                                            ) {
-                                                Text(
-                                                    text = "تصفير ↺",
-                                                    color = Color.White,
-                                                    fontSize = 11.sp,
-                                                    fontWeight = FontWeight.Bold,
-                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                                                )
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(6.dp))
-
-                                        // Soroban Frame
-                                        Surface(
-                                            shape = RoundedCornerShape(12.dp),
-                                            color = Color(0xFF334155),
-                                            border = androidx.compose.foundation.BorderStroke(3.dp, OrbitGoldDark),
-                                            modifier = Modifier.fillMaxWidth().height(160.dp)
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 6.dp),
-                                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                // Rod 1: Hundreds
-                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("مئات", fontSize = 9.sp, color = OrbitGoldLight)
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(width = 38.dp, height = 18.dp)
-                                                            .clip(RoundedCornerShape(4.dp))
-                                                            .background(if (rod1Upper) OrbitGold else Color(0xFF64748B))
-                                                            .clickable { rod1Upper = !rod1Upper },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text("5", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                    }
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    Box(modifier = Modifier.width(44.dp).height(4.dp).background(Color.White))
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    (1..4).forEach { idx ->
-                                                        val active = rod1Lower >= idx
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .padding(vertical = 1.dp)
-                                                                .size(width = 36.dp, height = 16.dp)
-                                                                .clip(RoundedCornerShape(4.dp))
-                                                                .background(if (active) OrbitGold else Color(0xFF64748B))
-                                                                .clickable { rod1Lower = if (rod1Lower == idx) idx - 1 else idx },
-                                                            contentAlignment = Alignment.Center
-                                                        ) {
-                                                            Text("1", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                        }
-                                                    }
-                                                    Text("$hundredsVal", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                }
-
-                                                Box(modifier = Modifier.width(2.dp).fillMaxHeight(0.8f).background(Color.White.copy(alpha = 0.2f)))
-
-                                                // Rod 2: Tens
-                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("عشرات", fontSize = 9.sp, color = OrbitGoldLight)
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(width = 38.dp, height = 18.dp)
-                                                            .clip(RoundedCornerShape(4.dp))
-                                                            .background(if (rod2Upper) OrbitGold else Color(0xFF64748B))
-                                                            .clickable { rod2Upper = !rod2Upper },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text("5", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                    }
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    Box(modifier = Modifier.width(44.dp).height(4.dp).background(Color.White))
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    (1..4).forEach { idx ->
-                                                        val active = rod2Lower >= idx
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .padding(vertical = 1.dp)
-                                                                .size(width = 36.dp, height = 16.dp)
-                                                                .clip(RoundedCornerShape(4.dp))
-                                                                .background(if (active) OrbitGold else Color(0xFF64748B))
-                                                                .clickable { rod2Lower = if (rod2Lower == idx) idx - 1 else idx },
-                                                            contentAlignment = Alignment.Center
-                                                        ) {
-                                                            Text("1", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                        }
-                                                    }
-                                                    Text("$tensVal", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                }
-
-                                                Box(modifier = Modifier.width(2.dp).fillMaxHeight(0.8f).background(Color.White.copy(alpha = 0.2f)))
-
-                                                // Rod 3: Ones
-                                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                                    Text("آحاد", fontSize = 9.sp, color = OrbitGoldLight)
-                                                    Box(
-                                                        modifier = Modifier
-                                                            .size(width = 38.dp, height = 18.dp)
-                                                            .clip(RoundedCornerShape(4.dp))
-                                                            .background(if (rod3Upper) OrbitGold else Color(0xFF64748B))
-                                                            .clickable { rod3Upper = !rod3Upper },
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Text("5", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                    }
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    Box(modifier = Modifier.width(44.dp).height(4.dp).background(Color.White))
-                                                    Spacer(modifier = Modifier.height(2.dp))
-                                                    (1..4).forEach { idx ->
-                                                        val active = rod3Lower >= idx
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .padding(vertical = 1.dp)
-                                                                .size(width = 36.dp, height = 16.dp)
-                                                                .clip(RoundedCornerShape(4.dp))
-                                                                .background(if (active) OrbitGold else Color(0xFF64748B))
-                                                                .clickable { rod3Lower = if (rod3Lower == idx) idx - 1 else idx },
-                                                            contentAlignment = Alignment.Center
-                                                        ) {
-                                                            Text("1", color = OrbitNavyDark, fontWeight = FontWeight.Bold, fontSize = 9.sp)
-                                                        }
-                                                    }
-                                                    Text("$onesVal", color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                                                }
-                                            }
-                                        }
-
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                        Text("المس الخرزات العلوية والسفلية في أي عمود لتحريكها ورؤية الناتج فوراً!", color = Color.White.copy(alpha = 0.7f), fontSize = 10.sp)
-                                    }
-                                }
-
-                                "whiteboard" -> {
-                                    // Interactive Student Drawing Canvas
-                                    Box(modifier = Modifier.fillMaxSize()) {
-                                        Canvas(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .pointerInput(Unit) {
-                                                    detectDragGestures { change, _ ->
-                                                        change.consume()
-                                                        drawPoints.add(DrawPoint(change.position, OrbitGold))
-                                                    }
-                                                }
-                                        ) {
-                                            for (i in 0 until drawPoints.size - 1) {
-                                                val p1 = drawPoints[i]
-                                                val p2 = drawPoints[i + 1]
-                                                drawLine(
-                                                    color = p1.color,
-                                                    start = p1.offset,
-                                                    end = p2.offset,
-                                                    strokeWidth = 6f,
-                                                    cap = StrokeCap.Round
-                                                )
-                                            }
-                                        }
-
-                                        Row(
-                                            modifier = Modifier
-                                                .align(Alignment.TopStart)
-                                                .padding(8.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Surface(
-                                                color = Color.Black.copy(alpha = 0.6f),
-                                                shape = RoundedCornerShape(8.dp)
-                                            ) {
-                                                Text(
-                                                    text = "✏️ سبورة الرسم ومشاركة الحل (ارسم بيدك هنا)",
-                                                    color = Color.White,
-                                                    fontSize = 11.sp,
-                                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                                )
-                                            }
-                                        }
-
-                                        IconButton(
-                                            onClick = { drawPoints.clear() },
-                                            modifier = Modifier
-                                                .align(Alignment.TopEnd)
-                                                .padding(8.dp)
-                                                .size(32.dp)
-                                                .clip(CircleShape)
-                                                .background(Color.Black.copy(alpha = 0.6f))
-                                        ) {
-                                            Icon(Icons.Default.Delete, contentDescription = "مسح السبورة", tint = Color.White, modifier = Modifier.size(16.dp))
-                                        }
-                                    }
-                                }
-
-                                "stream" -> {
-                                    // Real Video Stream Player from Teacher
-                                    Box(modifier = Modifier.fillMaxSize()) {
-                                        AndroidView(
-                                            factory = { ctx ->
-                                                VideoView(ctx).apply {
-                                                    setVideoURI(videoUri)
-                                                    setOnPreparedListener { mp ->
-                                                        mp.isLooping = true
-                                                        start()
-                                                    }
-                                                }
-                                            },
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-
-                                        Surface(
-                                            color = OrbitRose,
-                                            shape = RoundedCornerShape(6.dp),
-                                            modifier = Modifier.align(Alignment.TopStart).padding(10.dp)
-                                        ) {
-                                            Row(modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-                                                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Color.White))
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                                Text("بث درس مس سارة 1080p HD", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
 
                     // Video Conference Controls Bar
                     Row(
@@ -764,9 +362,7 @@ fun VirtualClassroom(
                                         screenShareContent = "screen"
                                     }
                                 } else {
-                                    isRealScreenSharingActive = false
-                                    viewModel.setClassroomScreenShared(false)
-                                    Toast.makeText(context, "تم إيقاف مشاركة الشاشة", Toast.LENGTH_SHORT).show()
+                                    toggleRealScreenShare()
                                 }
                             },
                             modifier = Modifier
@@ -1034,60 +630,17 @@ fun VirtualClassroom(
     }
 
     // Breakout Session Picker Dialog
+    // Breakout Session Picker Dialog (extracted to classroom/BreakoutRoomPickerDialog.kt)
     if (showBreakoutDialog) {
-        Dialog(onDismissRequest = { showBreakoutDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
-            ) {
-                Column(modifier = Modifier.padding(18.dp)) {
-                    Text("الغرف التفاعلية ومجموعات العمل 👥", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text("اختر الغرفة المناسبة لمستوى طفلك للتدريب التفاعلي المباشر", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Divider(modifier = Modifier.padding(vertical = 10.dp))
-
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        breakoutSessions.forEach { session ->
-                            val isCurrent = session.id == currentGroup.id
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = if (isCurrent) OrbitIndigo.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        currentGroup = session
-                                        showBreakoutDialog = false
-                                        Toast.makeText(context, "انضممت إلى: ${session.name}", Toast.LENGTH_SHORT).show()
-                                    }
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column(modifier = Modifier.weight(1f)) {
-                                        Text(session.name, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                        Text(session.topic, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                    }
-                                    if (isCurrent) {
-                                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = OrbitIndigo)
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { showBreakoutDialog = false },
-                        colors = ButtonDefaults.buttonColors(containerColor = OrbitNavy),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("إغلاق")
-                    }
-                }
-            }
-        }
+        BreakoutRoomPickerDialog(
+            sessions = breakoutSessions,
+            currentGroup = currentGroup,
+            onJoin = { session ->
+                currentGroup = session
+                setCurrentMeetingRoomName("OrbitLearn2026_SaraElarby_${'$'}{session.id}")
+                Toast.makeText(context, "انضممت إلى: ${'$'}{session.name}", Toast.LENGTH_SHORT).show()
+            },
+            onDismiss = { showBreakoutDialog = false }
+        )
     }
 }
