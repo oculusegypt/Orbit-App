@@ -1,10 +1,10 @@
 package com.example.data.repository
+import com.example.core.OrbitTimeFormatter
 
 import com.example.data.models.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
@@ -677,7 +677,7 @@ object OrbitRepository {
             courseId = courseId,
             status = "active",
             source = source,
-            enrolledAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+            enrolledAt = OrbitTimeFormatter.currentDate()
         )
         _enrollments.value = listOf(newEnrollment) + _enrollments.value
 
@@ -693,7 +693,7 @@ object OrbitRepository {
     }
 
     fun completeLesson(userId: String, lessonId: String, courseId: String) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val updated = _progressMap.value.toMutableMap()
         updated[lessonId] = LessonProgress(
             userId = userId,
@@ -719,7 +719,7 @@ object OrbitRepository {
             userName = userName,
             instructorName = INSTRUCTOR_SARA.name,
             verificationCode = code,
-            issuedAt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+            issuedAt = OrbitTimeFormatter.currentDate(),
             gradePercentage = grade,
             skillsVerified = skills
         )
@@ -744,7 +744,7 @@ object OrbitRepository {
             assignmentTitle = assignmentTitle,
             studentId = studentId,
             studentName = studentName,
-            submittedAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date()),
+            submittedAt = OrbitTimeFormatter.currentDateTime(),
             textSubmission = text,
             repoUrl = repoUrl,
             status = "submitted"
@@ -780,7 +780,7 @@ object OrbitRepository {
     }
 
     fun sendClassroomMessage(senderId: String, senderName: String, role: String, text: String, isQuestion: Boolean = false) {
-        val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        val time = OrbitTimeFormatter.currentTime()
         val msg = ClassroomMessage(
             id = "msg-" + System.currentTimeMillis(),
             senderId = senderId,
@@ -809,7 +809,7 @@ object OrbitRepository {
             resourceId = resourceId,
             reason = reason,
             correlationId = correlationId,
-            createdAt = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+            createdAt = OrbitTimeFormatter.currentDateTime()
         )
         _auditLogs.value = listOf(event) + _auditLogs.value
     }

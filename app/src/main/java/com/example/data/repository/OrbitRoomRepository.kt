@@ -1,4 +1,5 @@
 package com.example.data.repository
+import com.example.core.OrbitTimeFormatter
 
 import android.content.Context
 import com.example.data.local.*
@@ -7,9 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 class OrbitRoomRepository(
     private val courseDao: CourseDao,
@@ -246,7 +245,7 @@ class OrbitRoomRepository(
      * Saves playback position locally in Room so the student can resume offline
      */
     suspend fun saveWatchProgress(userId: String, lessonId: String, courseId: String, seconds: Int) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val existing = lessonProgressDao.getProgressForLessonDirect(userId, lessonId)
         if (existing == null) {
             lessonProgressDao.upsertProgress(
@@ -268,7 +267,7 @@ class OrbitRoomRepository(
      * Marks a lesson completed in Room database
      */
     suspend fun markLessonCompleted(userId: String, lessonId: String, courseId: String) {
-        val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentDateTime()
         val existing = lessonProgressDao.getProgressForLessonDirect(userId, lessonId)
         if (existing == null) {
             lessonProgressDao.upsertProgress(

@@ -8,14 +8,12 @@ import com.example.data.repository.OrbitRepository
 import com.example.data.repository.OrbitRoomRepository
 import com.example.services.AlertNotificationItem
 import com.example.services.OrbitNotificationManager
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 import com.example.data.local.*
-import kotlinx.coroutines.Job
 
 enum class PortalTab(val labelAr: String) {
     HOME("الرئيسية"),
@@ -70,10 +68,14 @@ class OrbitViewModel : ViewModel() {
     private val _currentAccount = MutableStateFlow<UserAccount?>(null)
     val currentAccount: StateFlow<UserAccount?> = _currentAccount.asStateFlow()
 
-    // 1-on-1 Private Call & Screen Sharing State
-    private var callDurationJob: Job? = null
-    private val _activeCall = MutableStateFlow<ActiveCallState?>(null)
-    val activeCall: StateFlow<ActiveCallState?> = _activeCall.asStateFlow()
+    // 1-on-1 Private Call & Screen Sharing State (delegated controller)
+    private val callController = PrivateCallController(
+        scope = viewModelScope,
+        currentUserProvider = { _currentAccount.value },
+        fallbackUserProvider = { _allRegisteredUsers.value.firstOrNull() },
+        onCallRecorded = { session -> roomRepository?.recordCallSession(session) }
+    )
+    val activeCall: StateFlow<ActiveCallState?> = callController.activeCall
 
     private val _callHistory = MutableStateFlow<List<CallSessionEntity>>(emptyList())
     val callHistory: StateFlow<List<CallSessionEntity>> = _callHistory.asStateFlow()
@@ -152,41 +154,27 @@ class OrbitViewModel : ViewModel() {
     val showTutorSheet: StateFlow<Boolean> = _showTutorSheet.asStateFlow()
 
     // Repository Flows
-    val courses = OrbitRepository.courses
-    val books = OrbitRepository.books
-    val liveSessions = OrbitRepository.liveSessions
-    val assignments = OrbitRepository.assignments
-    val submissions = OrbitRepository.submissions
-    val certificates = OrbitRepository.certificates
-    val enrollments = OrbitRepository.enrollments
-    val progressMap = OrbitRepository.progressMap
-    val auditLogs = OrbitRepository.auditLogs
-    val classroomMessages = OrbitRepository.classroomMessages
+    val courses get() = OrbitRepository.courses
+    val books get() = OrbitRepository.books
+    val liveSessions get() = OrbitRepository.liveSessions
+    val assignments get() = OrbitRepository.assignments
+    val submissions get() = OrbitRepository.submissions
+    val certificates get() = OrbitRepository.certificates
+    val enrollments get() = OrbitRepository.enrollments
+    val progressMap get() = OrbitRepository.progressMap
+    val auditLogs get() = OrbitRepository.auditLogs
+    val classroomMessages get() = OrbitRepository.classroomMessages
 
-    // Mental Math Challenge State
-    private val _mentalMathDifficulty = MutableStateFlow(MentalMathDifficulty.BEGINNER)
-    val mentalMathDifficulty: StateFlow<MentalMathDifficulty> = _mentalMathDifficulty.asStateFlow()
-
-    private val _mentalMathGameState = MutableStateFlow(MentalMathGameState.IDLE)
-    val mentalMathGameState: StateFlow<MentalMathGameState> = _mentalMathGameState.asStateFlow()
-
-    private val _mentalMathSequence = MutableStateFlow<List<Int>>(emptyList())
-    val mentalMathSequence: StateFlow<List<Int>> = _mentalMathSequence.asStateFlow()
-
-    private val _mentalMathCurrentNumber = MutableStateFlow<Int?>(null)
-    val mentalMathCurrentNumber: StateFlow<Int?> = _mentalMathCurrentNumber.asStateFlow()
-
-    private val _mentalMathUserAnswer = MutableStateFlow("")
-    val mentalMathUserAnswer: StateFlow<String> = _mentalMathUserAnswer.asStateFlow()
-
-    private val _mentalMathIsCorrect = MutableStateFlow<Boolean?>(null)
-    val mentalMathIsCorrect: StateFlow<Boolean?> = _mentalMathIsCorrect.asStateFlow()
-
-    private val _mentalMathStreak = MutableStateFlow(0)
-    val mentalMathStreak: StateFlow<Int> = _mentalMathStreak.asStateFlow()
-
-    private val _mentalMathXp = MutableStateFlow(120)
-    val mentalMathXp: StateFlow<Int> = _mentalMathXp.asStateFlow()
+    // Mental Math Challenge State (delegated controller)
+    private val mentalMathController = MentalMathController()
+    val mentalMathDifficulty: StateFlow<MentalMathDifficulty> = mentalMathController.difficulty
+    val mentalMathGameState: StateFlow<MentalMathGameState> = mentalMathController.gameState
+    val mentalMathSequence: StateFlow<List<Int>> = mentalMathController.sequence
+    val mentalMathCurrentNumber: StateFlow<Int?> = mentalMathController.currentNumber
+    val mentalMathUserAnswer: StateFlow<String> = mentalMathController.userAnswer
+    val mentalMathIsCorrect: StateFlow<Boolean?> = mentalMathController.isCorrect
+    val mentalMathStreak: StateFlow<Int> = mentalMathController.streak
+    val mentalMathXp: StateFlow<Int> = mentalMathController.xp
 
     // Quiz State
     private val _currentQuizIndex = MutableStateFlow(0)
@@ -220,21 +208,11 @@ class OrbitViewModel : ViewModel() {
     private val _classroomChatText = MutableStateFlow("")
     val classroomChatText: StateFlow<String> = _classroomChatText.asStateFlow()
 
-    // Socratic AI Tutor Messages
-    private val _tutorMessages = MutableStateFlow(listOf(
-        TutorMessage(
-            id = "msg-welcome",
-            role = "assistant",
-            content = "أهلاً بك يا بطل! 🌟\nأنا المساعد السقراطي الذكي لمس سارة العربي 💡\nهنا بنتعلم سوا بطريقة ممتعة: \"تأسيس أطفال . حساب ذهني\"! لو في خطوة أو مسألة مش واضحة، اسألني وهفكر معاك ونديك تلميحات حلوة توصلك للحل بنفسك! 🧠✨"
-        )
-    ))
-    val tutorMessages: StateFlow<List<TutorMessage>> = _tutorMessages.asStateFlow()
-
-    private val _tutorInput = MutableStateFlow("")
-    val tutorInput: StateFlow<String> = _tutorInput.asStateFlow()
-
-    private val _tutorLoading = MutableStateFlow(false)
-    val tutorLoading: StateFlow<Boolean> = _tutorLoading.asStateFlow()
+    // Socratic AI Tutor (delegated controller)
+    private val tutorController = SocraticTutorController()
+    val tutorMessages: StateFlow<List<TutorMessage>> = tutorController.messages
+    val tutorInput: StateFlow<String> = tutorController.input
+    val tutorLoading: StateFlow<Boolean> = tutorController.loading
 
     // Navigation methods
     fun setPortal(portal: PortalTab) {
@@ -470,52 +448,17 @@ class OrbitViewModel : ViewModel() {
         _verifiedCertificate.value = OrbitRepository.verifyCertificate(code)
     }
 
-    // Mental Math Game Logic
+    // Mental Math Game Logic (delegates to MentalMathController)
     fun setMentalMathDifficulty(difficulty: MentalMathDifficulty) {
-        _mentalMathDifficulty.value = difficulty
-        _mentalMathGameState.value = MentalMathGameState.IDLE
+        mentalMathController.setDifficulty(difficulty)
     }
 
     fun startMentalMathChallenge() {
-        val diff = _mentalMathDifficulty.value
-        val seq = mutableListOf<Int>()
-        var runningSum = 0
-        for (i in 0 until diff.count) {
-            var num = (diff.min..diff.max).random()
-            if (i > 0 && Math.random() > 0.5 && runningSum - num >= 0) {
-                num = -num
-            }
-            runningSum += num
-            seq.add(num)
-        }
-        _mentalMathSequence.value = seq
-        _mentalMathUserAnswer.value = ""
-        _mentalMathIsCorrect.value = null
-        _mentalMathGameState.value = MentalMathGameState.PLAYING
-
-        viewModelScope.launch {
-            for (num in seq) {
-                _mentalMathCurrentNumber.value = num
-                delay(diff.delayMs)
-                _mentalMathCurrentNumber.value = null
-                delay(200L)
-            }
-            _mentalMathGameState.value = MentalMathGameState.ANSWERING
-        }
+        mentalMathController.startChallenge(viewModelScope)
     }
 
     fun submitMentalMathAnswer(answerStr: String) {
-        val expected = _mentalMathSequence.value.sum()
-        val parsed = answerStr.toIntOrNull()
-        val correct = (parsed == expected)
-        _mentalMathIsCorrect.value = correct
-        _mentalMathGameState.value = MentalMathGameState.RESULT
-        if (correct) {
-            _mentalMathStreak.value += 1
-            _mentalMathXp.value += 20 * _mentalMathDifficulty.value.stars
-        } else {
-            _mentalMathStreak.value = 0
-        }
+        mentalMathController.submitAnswer(answerStr)
     }
 
     // Classroom
@@ -569,56 +512,19 @@ class OrbitViewModel : ViewModel() {
         OrbitRepository.upvoteQuestion(msgId)
     }
 
-    // Socratic AI Tutor Logic
+    // Socratic AI Tutor Logic (delegates to SocraticTutorController)
     fun setTutorInput(text: String) {
-        _tutorInput.value = text
+        tutorController.setInput(text)
     }
 
     fun sendTutorQuery(queryText: String? = null) {
-        val query = (queryText ?: _tutorInput.value).trim()
-        if (query.isBlank()) return
-
-        val userMsg = TutorMessage(
-            id = "usr-" + System.currentTimeMillis(),
-            role = "user",
-            content = query
-        )
-        _tutorMessages.value = _tutorMessages.value + listOf(userMsg)
-        _tutorInput.value = ""
-        _tutorLoading.value = true
-
-        viewModelScope.launch {
-            delay(800L) // Socratic thinking animation
-            val currentLesson = _selectedLesson.value
-            val lessonTitle = currentLesson?.title ?: "الحساب الذهني والسوروبان"
-
-            val reply = when {
-                query.contains("أصدقاء") || query.contains("5") -> {
-                    "أحسنت السؤال يا بطل! 💡\nفي قاعدة أصدقاء العدد 5، لو عندنا 4 وعاوزين نضيف 1، إيه أقرب رقم صديق للـ 5 نقدر نستخدمه؟\nالمفتاح السقراطي: الخرزة العلوية بتساوي 5، يبقى بننزل الـ 5 ونطرح كام؟ شاطر، بنطرح 4! (+1 = +5 - 4). جربها بإيدك على العداد وشوف!"
-                }
-                query.contains("خرزة") || query.contains("خرزات") -> {
-                    "سؤال ذكي جداً! 🧮\nافتكر دايماً: خرزة السماء العلوية فوق العارضة بتساوي 5، والأربع خرزات الأرضيات تحت كل واحدة بتساوي 1.\nأي خرزة بتلمس العارضة الفاصلة، بيتم حسابها فوراً. جرب تحرك خرزة السماء مع خرزتين تحت وشوف الناتج هيكون 7!"
-                }
-                query.contains("تلميح") || query.contains("حل") -> {
-                    "أنا معاك خطوة بخطوة! 🌟\nالتلميح الذهبي لمس سارة: اتخيل العداد قدامك وافتكر حركة الأصابع.. الجمع بإصبع الإبهام نحو العارضة، والطرح بالسبابة! جرب تحسبها الأول بعينك وبعدين بإيدك."
-                }
-                query.contains("لغز") || query.contains("سؤال") -> {
-                    "جاهز للتحدي يا عبقري؟ 🎯\nلو عندك 3 خرزات لامسين العارضة، ونزلت خرزة السماء (5)، وبعدين طرحت 2.. الناتج النهائي في عقلك هيكون كام؟ فكر وقولي!"
-                }
-                else -> {
-                    "فكرة ممتازة وتفكير رائع يا بطل! 💡\nفي منهج مدار لتأسيس الأطفال والحساب الذهني، السر كله في 'الفهم مش الحفظ'.. اتخيل حركة الخرزات السحرية في عقلك وخلّي أصابعك خفيفة وسريعة. إيه الجزء اللي حابب نجربه سوا دلوقتي؟"
-                }
+        tutorController.sendQuery(
+            scope = viewModelScope,
+            queryText = queryText,
+            lessonTitleProvider = {
+                _selectedLesson.value?.title ?: "الحساب الذهني والسوروبان"
             }
-
-            val assistantMsg = TutorMessage(
-                id = "tutor-" + System.currentTimeMillis(),
-                role = "assistant",
-                content = reply,
-                citations = listOf(TutorCitation(lessonTitle, "مرجع من منهج مس سارة العربي 2026"))
-            )
-            _tutorMessages.value = _tutorMessages.value + listOf(assistantMsg)
-            _tutorLoading.value = false
-        }
+        )
     }
 
     // Submissions
@@ -689,161 +595,57 @@ class OrbitViewModel : ViewModel() {
 
     // -------------------------------------------------------------
     // 1-on-1 Private Video/Audio Calling & Screen Sharing
+    // (delegates to PrivateCallController)
     // -------------------------------------------------------------
     fun startPrivateCall(targetUser: UserAccount, callType: CallType) {
-        val caller = _currentAccount.value ?: _allRegisteredUsers.value.firstOrNull() ?: return
-        val newCallId = "call_" + java.util.UUID.randomUUID().toString().take(8)
-
-        _activeCall.value = ActiveCallState(
-            callId = newCallId,
-            otherUser = targetUser,
-            isOutgoing = true,
-            callType = callType,
-            status = CallStatus.OUTGOING_RINGING,
-            isScreenSharing = (callType == CallType.VIDEO_SCREEN)
-        )
-
-        // Realistic outgoing ring delay, then connect
-        viewModelScope.launch {
-            delay(2200L)
-            if (_activeCall.value?.callId == newCallId && _activeCall.value?.status == CallStatus.OUTGOING_RINGING) {
-                _activeCall.value = _activeCall.value?.copy(status = CallStatus.CONNECTED)
-                startCallTimer()
-            }
-        }
+        callController.startOutgoingCall(targetUser, callType)
     }
 
     fun simulateIncomingCall(fromUser: UserAccount, callType: CallType) {
-        val newCallId = "call_" + java.util.UUID.randomUUID().toString().take(8)
-        _activeCall.value = ActiveCallState(
-            callId = newCallId,
-            otherUser = fromUser,
-            isOutgoing = false,
-            callType = callType,
-            status = CallStatus.INCOMING_RINGING,
-            isScreenSharing = (callType == CallType.VIDEO_SCREEN)
-        )
+        callController.simulateIncomingCall(fromUser, callType)
     }
 
     fun acceptCall() {
-        val current = _activeCall.value ?: return
-        _activeCall.value = current.copy(status = CallStatus.CONNECTED)
-        startCallTimer()
+        callController.accept()
     }
 
     fun rejectCall() {
-        val current = _activeCall.value ?: return
-        val caller = _currentAccount.value
-        viewModelScope.launch {
-            roomRepository?.recordCallSession(
-                CallSessionEntity(
-                    callId = current.callId,
-                    callerId = current.otherUser.id,
-                    callerName = current.otherUser.displayName,
-                    callerRole = current.otherUser.role.name,
-                    callerAvatar = current.otherUser.avatarUrl,
-                    receiverId = caller?.id ?: "current",
-                    receiverName = caller?.displayName ?: "المستخدم",
-                    receiverRole = caller?.role?.name ?: "LEARNER",
-                    receiverAvatar = caller?.avatarUrl ?: "",
-                    callType = current.callType.name,
-                    durationSeconds = 0,
-                    hadScreenShare = false,
-                    status = "REJECTED"
-                )
-            )
-        }
-        _activeCall.value = current.copy(status = CallStatus.ENDED)
-        viewModelScope.launch {
-            delay(900L)
-            _activeCall.value = null
-        }
-    }
-
-    private fun startCallTimer() {
-        callDurationJob?.cancel()
-        callDurationJob = viewModelScope.launch {
-            while (true) {
-                delay(1000L)
-                val call = _activeCall.value
-                if (call != null && call.status == CallStatus.CONNECTED) {
-                    _activeCall.value = call.copy(durationSeconds = call.durationSeconds + 1)
-                } else {
-                    break
-                }
-            }
-        }
+        callController.reject()
     }
 
     fun toggleMute() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isMuted = !call.isMuted)
+        callController.toggleMute()
     }
 
     fun toggleCamera() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isCameraOff = !call.isCameraOff)
+        callController.toggleCamera()
     }
 
     fun flipCamera() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isFrontCamera = !call.isFrontCamera)
+        callController.flipCamera()
     }
 
     fun toggleSpeaker() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isSpeakerOn = !call.isSpeakerOn)
+        callController.toggleSpeaker()
     }
 
     fun toggleScreenShare() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(isScreenSharing = !call.isScreenSharing)
+        callController.toggleScreenShare()
     }
 
     fun setScreenShareContent(content: ScreenShareContent) {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(screenShareContent = content, isScreenSharing = true)
+        callController.setScreenShareContent(content)
     }
 
     fun toggleSorobanUpperBead() {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(sorobanUpperBeadActive = !call.sorobanUpperBeadActive)
+        callController.toggleSorobanUpperBead()
     }
 
     fun setSorobanLowerBeads(count: Int) {
-        val call = _activeCall.value ?: return
-        _activeCall.value = call.copy(sorobanLowerBeadsCount = count.coerceIn(0, 4))
+        callController.setSorobanLowerBeads(count)
     }
 
     fun endCall() {
-        callDurationJob?.cancel()
-        val current = _activeCall.value ?: return
-        val caller = _currentAccount.value
-
-        viewModelScope.launch {
-            roomRepository?.recordCallSession(
-                CallSessionEntity(
-                    callId = current.callId,
-                    callerId = if (current.isOutgoing) (caller?.id ?: "current") else current.otherUser.id,
-                    callerName = if (current.isOutgoing) (caller?.displayName ?: "أنا") else current.otherUser.displayName,
-                    callerRole = if (current.isOutgoing) (caller?.role?.name ?: "LEARNER") else current.otherUser.role.name,
-                    callerAvatar = if (current.isOutgoing) (caller?.avatarUrl ?: "") else current.otherUser.avatarUrl,
-                    receiverId = if (current.isOutgoing) current.otherUser.id else (caller?.id ?: "current"),
-                    receiverName = if (current.isOutgoing) current.otherUser.displayName else (caller?.displayName ?: "أنا"),
-                    receiverRole = if (current.isOutgoing) current.otherUser.role.name else (caller?.role?.name ?: "LEARNER"),
-                    receiverAvatar = if (current.isOutgoing) current.otherUser.avatarUrl else (caller?.avatarUrl ?: ""),
-                    callType = current.callType.name,
-                    durationSeconds = current.durationSeconds,
-                    hadScreenShare = current.isScreenSharing,
-                    status = "COMPLETED"
-                )
-            )
-        }
-
-        _activeCall.value = current.copy(status = CallStatus.ENDED)
-        viewModelScope.launch {
-            delay(1200L)
-            _activeCall.value = null
-        }
+        callController.end()
     }
 }

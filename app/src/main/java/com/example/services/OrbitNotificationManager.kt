@@ -1,4 +1,5 @@
 package com.example.services
+import com.example.core.OrbitTimeFormatter
 
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -13,9 +14,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 data class AlertNotificationItem(
     val id: String,
@@ -121,7 +119,7 @@ object OrbitNotificationManager {
     }
 
     fun recordReceivedAlert(title: String, body: String, type: String) {
-        val now = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+        val now = OrbitTimeFormatter.currentTime()
         val item = AlertNotificationItem(
             id = "alert-" + System.currentTimeMillis(),
             title = title,
