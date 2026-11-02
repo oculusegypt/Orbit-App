@@ -706,6 +706,17 @@ object OrbitRepository {
         return booking
     }
 
+    /**
+     * Merges bookings rehydrated from the durable Room store into the live
+     * pipeline (e.g. after process death), preserving status transitions.
+     */
+    fun mergePersistedBookings(persisted: List<ConsultationBooking>) {
+        val current = _consultationBookings.value.associateBy { it.id }
+        val merged = persisted.map { p -> current[p.id] ?: p } +
+            current.values.filter { c -> persisted.none { it.id == c.id } }
+        _consultationBookings.value = merged.sortedByDescending { it.createdAt }
+    }
+
     /** Instructor-side workflow: advance a booking's status with an audit record. */
     fun updateBookingStatus(bookingId: String, newStatus: String, actorName: String) {
         if (_consultationBookings.value.none { it.id == bookingId }) return

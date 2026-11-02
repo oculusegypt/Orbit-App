@@ -56,10 +56,17 @@ class OrbitViewModel : ViewModel() {
     // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = null
 
+    /** Direct handle on the durable Room database for DAO-level features. */
+    private var db: com.example.data.local.OrbitDatabase? = null
+
     // Persistent checkout ledger (coupon redemptions + receipts), initialized in initializeServices
     private var checkoutLedger: com.example.core.OrbitLedger? = null
 
-    private val checkoutController = CheckoutController(ledgerProvider = { checkoutLedger })
+    private val checkoutController = CheckoutController(
+        ledgerProvider = { checkoutLedger },
+        roomReceiptDaoProvider = { db?.purchaseReceiptDao() },
+        scopeProvider = { viewModelScope },
+    )
     val checkoutPricing: StateFlow<CheckoutPricing?> = checkoutController.pricing
     val couponFeedback: StateFlow<String?> = checkoutController.couponFeedback
     val lastReceipt: StateFlow<PurchaseReceipt?> = checkoutController.lastReceipt
@@ -113,6 +120,14 @@ class OrbitViewModel : ViewModel() {
 
         val repo = OrbitRoomRepository.getInstance(context)
         roomRepository = repo
+        db = com.example.data.local.OrbitDatabase.getDatabase(context)
+
+        // Rehydrate the durable booking pipeline (survives process death).
+        viewModelScope.launch {
+            repo.getBookingsFlow().collect { persisted ->
+                if (persisted.isNotEmpty()) OrbitRepository.mergePersistedBookings(persisted)
+            }
+        }
         viewModelScope.launch {
             repo.isOfflineReady.collect { ready ->
                 _isOfflineCached.value = ready
@@ -424,6 +439,11 @@ class OrbitViewModel : ViewModel() {
             actorUserId = user?.id ?: "guest",
             actorName = user?.displayName ?: "زائر"
         )
+        // Durable persistence: the lead survives restarts and feeds the
+        // instructor/admin pipelines from any future session.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            roomRepository?.persistBooking(booking)
+        }
         // Real FCM notification so the instructor's device is alerted of the new lead.
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             runCatching {
@@ -441,6 +461,9 @@ class OrbitViewModel : ViewModel() {
     fun updateBookingStatus(bookingId: String, newStatus: String) {
         val actor = _currentAccount.value?.displayName ?: _currentUser.value?.displayName ?: "المعلمة"
         OrbitRepository.updateBookingStatus(bookingId, newStatus, actor)
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            roomRepository?.updatePersistedBookingStatus(bookingId, newStatus)
+        }
     }
 
     // Lesson completion & Room Database Offline Caching

@@ -38,10 +38,15 @@ data class PurchaseReceipt(
 /**
  * Owns the checkout funnel: real signed-coupon validation against expiry and
  * per-user quota, price computation in minor units, and durable receipts.
- * All state is persisted through [OrbitLedger] (SharedPreferences-backed), so
- * discounts cannot be re-redeemed across app restarts.
+ * All state is persisted through [OrbitLedger] (SharedPreferences-backed) AND
+ * mirrored into Room via [roomReceiptDaoProvider], so discounts cannot be
+ * re-redeemed across app restarts and revenue KPIs are queryable offline.
  */
-class CheckoutController(private val ledgerProvider: () -> OrbitLedger?) {
+class CheckoutController(
+    private val ledgerProvider: () -> OrbitLedger?,
+    private val roomReceiptDaoProvider: () -> com.example.data.local.PurchaseReceiptDao? = { null },
+    private val scopeProvider: () -> kotlinx.coroutines.CoroutineScope? = { null },
+) {
 
     private val _pricing = MutableStateFlow<CheckoutPricing?>(null)
     val pricing: StateFlow<CheckoutPricing?> = _pricing.asStateFlow()
@@ -126,8 +131,31 @@ class CheckoutController(private val ledgerProvider: () -> OrbitLedger?) {
             createdAt = com.example.core.OrbitTimeFormatter.currentDateTime(),
         )
         persistReceipt(ledger, receipt)
+        persistReceiptToRoom(receipt)
         _lastReceipt.value = receipt
         return receipt
+    }
+
+    /** Mirrors the receipt into Room so revenue KPIs are durable & queryable. */
+    private fun persistReceiptToRoom(receipt: PurchaseReceipt) {
+        val dao = roomReceiptDaoProvider() ?: return
+        scopeProvider()?.launch(kotlinx.coroutines.Dispatchers.IO) {
+            dao.insertReceipt(
+                com.example.data.local.PurchaseReceiptEntity(
+                    orderId = receipt.orderId,
+                    userId = receipt.userId,
+                    courseId = receipt.courseId,
+                    courseTitle = receipt.courseTitle,
+                    paidAmountMinor = receipt.paidAmountMinor,
+                    currency = receipt.currency,
+                    paymentMethod = receipt.paymentMethod,
+                    campaignId = receipt.campaignId,
+                    discountPercent = receipt.discountPercent,
+                    referenceCode = receipt.referenceCode,
+                    createdAt = receipt.createdAt,
+                )
+            )
+        }
     }
 
     fun currentQuote(): CheckoutPricing? = _pricing.value

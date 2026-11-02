@@ -14,7 +14,11 @@ class OrbitRoomRepository(
     private val courseDao: CourseDao,
     private val lessonProgressDao: LessonProgressDao,
     private val userAccountDao: UserAccountDao? = null,
-    private val callSessionDao: CallSessionDao? = null
+    private val callSessionDao: CallSessionDao? = null,
+    private val consultationBookingDao: ConsultationBookingDao? = null,
+    private val purchaseReceiptDao: PurchaseReceiptDao? = null,
+    private val learnerAchievementDao: LearnerAchievementDao? = null,
+    private val tutorMessageDao: TutorMessageDao? = null
 ) {
     private val repositoryScope = CoroutineScope(Dispatchers.IO)
 
@@ -444,6 +448,56 @@ class OrbitRoomRepository(
         return callSessionDao?.getAllCallsFlow() ?: flowOf(emptyList())
     }
 
+    // ---- Durable consultation bookings (lead funnel) ----------------------
+
+    suspend fun persistBooking(booking: ConsultationBooking) {
+        consultationBookingDao?.insertBooking(booking.toEntity())
+    }
+
+    suspend fun updatePersistedBookingStatus(bookingId: String, newStatus: String) {
+        consultationBookingDao?.updateStatus(bookingId, newStatus)
+    }
+
+    fun getBookingsFlow(): Flow<List<ConsultationBooking>> =
+        consultationBookingDao?.getAllBookingsFlow()?.map { list -> list.map { it.toModel() } }
+            ?: flowOf(emptyList())
+
+    // ---- Durable purchase receipts & real revenue -------------------------
+
+    suspend fun persistReceipt(receipt: PurchaseReceiptEntity) {
+        purchaseReceiptDao?.insertReceipt(receipt)
+    }
+
+    fun getTotalRevenueMinorFlow(): Flow<Int> =
+        purchaseReceiptDao?.getTotalRevenueMinorFlow() ?: flowOf(0)
+
+    fun getReceiptsFlow(): Flow<List<PurchaseReceiptEntity>> =
+        purchaseReceiptDao?.getAllReceiptsFlow() ?: flowOf(emptyList())
+
+    // ---- Durable learner achievements (mental math XP / streak) -----------
+
+    suspend fun accumulateAchievement(userId: String, xpDelta: Int, streak: Int, correct: Int) {
+        learnerAchievementDao?.accumulate(userId, xpDelta, streak, correct)
+    }
+
+    fun getAchievementFlow(userId: String): Flow<LearnerAchievementEntity?> =
+        learnerAchievementDao?.getAchievementFlow(userId) ?: flowOf(null)
+
+    fun getLeaderboardFlow(): Flow<List<LearnerAchievementEntity>> =
+        learnerAchievementDao?.getLeaderboardFlow() ?: flowOf(emptyList())
+
+    // ---- Durable AI tutor conversation ------------------------------------
+
+    suspend fun persistTutorTurn(turn: TutorMessageEntity) {
+        tutorMessageDao?.insert(turn)
+    }
+
+    suspend fun getRecentTutorTurns(userId: String, limit: Int): List<TutorMessageEntity> =
+        tutorMessageDao?.getRecentTurns(userId, limit) ?: emptyList()
+
+    fun getTutorConversationFlow(userId: String): Flow<List<TutorMessageEntity>> =
+        tutorMessageDao?.getConversationFlow(userId) ?: flowOf(emptyList())
+
     companion object {
         @Volatile
         private var INSTANCE: OrbitRoomRepository? = null
@@ -455,7 +509,11 @@ class OrbitRoomRepository(
                     courseDao = db.courseDao(),
                     lessonProgressDao = db.lessonProgressDao(),
                     userAccountDao = db.userAccountDao(),
-                    callSessionDao = db.callSessionDao()
+                    callSessionDao = db.callSessionDao(),
+                    consultationBookingDao = db.consultationBookingDao(),
+                    purchaseReceiptDao = db.purchaseReceiptDao(),
+                    learnerAchievementDao = db.learnerAchievementDao(),
+                    tutorMessageDao = db.tutorMessageDao()
                 )
                 INSTANCE = repo
                 repo

@@ -94,6 +94,17 @@ class MentalMathController {
         }
     }
 
+    /**
+     * Called by the ViewModel when a round finishes, so the earned XP and best
+     * streak are accumulated into the durable per-user achievement store.
+     */
+    fun recordRoundOutcome(scope: CoroutineScope, userId: String, persist: suspend (Int, Int, Int) -> Unit) {
+        val earnedXp = if (_isCorrect.value == true) XP_PER_CORRECT * _difficulty.value.stars else 0
+        val correct = if (_isCorrect.value == true) 1 else 0
+        val streak = _streak.value
+        scope.launch { persist(earnedXp, streak, correct) }
+    }
+
     private companion object {
         const val FLASH_GAP_MS = 200L
         const val XP_PER_CORRECT = 20
