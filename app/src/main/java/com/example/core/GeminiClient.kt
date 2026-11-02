@@ -60,6 +60,40 @@ class GeminiClient(private val appContext: Context) {
         }
     }
 
+    /**
+     * Streams the model reply token-by-token via the SDK's real
+     * `generateContentStream` channel, invoking [onToken] on every chunk.
+     * Returns the concatenated text, or null when streaming is unavailable
+     * (falls back internally to a single-shot request first).
+     */
+    suspend fun generateTextStreaming(
+        prompt: String,
+        onToken: (String) -> Unit,
+    ): String? {
+        val m = obtainModel() ?: return null
+        return try {
+            val channel = m.generateContentStream(prompt)
+            val sb = StringBuilder()
+            channel.collect { chunk ->
+                val piece = chunk.text
+                if (!piece.isNullOrEmpty()) {
+                    sb.append(piece)
+                    onToken(piece)
+                }
+            }
+            sb.toString().trim().ifBlank { null }
+        } catch (ce: CancellationException) {
+            throw ce
+        } catch (_: Throwable) {
+            // Streaming failed — one non-streaming retry before giving up.
+            runCatching {
+                val full = generateText(prompt)
+                if (!full.isNullOrEmpty()) onToken(full)
+                full
+            }.getOrNull()
+        }
+    }
+
     private fun resolveApiKey(): String? {
         val fromBuildConfig = runCatching {
             com.example.BuildConfig.GEMINI_API_KEY

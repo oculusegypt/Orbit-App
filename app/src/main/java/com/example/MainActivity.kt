@@ -74,6 +74,8 @@ fun OrbitApp(viewModel: OrbitViewModel) {
     val tutorLoading by viewModel.tutorLoading.collectAsState()
     val activeCall by viewModel.activeCall.collectAsState()
     val allRegisteredUsers by viewModel.allRegisteredUsers.collectAsState()
+    val checkoutPricing by viewModel.checkoutPricing.collectAsState()
+    val couponFeedback by viewModel.couponFeedback.collectAsState()
 
     // BackHandler for smooth nested navigation & in-call handling
     BackHandler(enabled = true) {
@@ -276,7 +278,10 @@ fun OrbitApp(viewModel: OrbitViewModel) {
     if (showCheckoutDialog && selectedCourse != null) {
         CheckoutDialog(
             course = selectedCourse!!,
-            onConfirm = { viewModel.completeCheckout(it) },
+            pricing = checkoutPricing,
+            couponFeedback = couponFeedback,
+            onApplyCoupon = { viewModel.applyCouponCode(it) },
+            onConfirm = { course, method -> viewModel.completeCheckout(course, method) },
             onDismiss = { viewModel.setShowCheckoutDialog(false) }
         )
     }

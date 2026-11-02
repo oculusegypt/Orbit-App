@@ -306,6 +306,15 @@ class OrbitRoomRepository(
      */
     suspend fun seedRealUserAccounts() {
         val dao = userAccountDao ?: return
+        // Transparent security upgrade: rehash any legacy plaintext passwords
+        // written by older builds into salted PBKDF2 specs on first launch.
+        dao.getAllUsers().forEach { entity ->
+            if (com.example.core.PasswordHasher.needsRehash(entity.passwordHash)) {
+                dao.updateUser(
+                    entity.copy(passwordHash = com.example.core.PasswordHasher.hash(entity.passwordHash))
+                )
+            }
+        }
         if (dao.getUsersCount() == 0) {
             val initialAccounts = listOf(
                 UserAccountEntity(
@@ -392,7 +401,7 @@ class OrbitRoomRepository(
         val entity = UserAccountEntity(
             id = newId,
             email = email.trim().lowercase(),
-            passwordHash = password,
+            passwordHash = com.example.core.PasswordHasher.hash(password),
             displayName = name.trim(),
             role = role.name,
             phone = phone.trim(),
@@ -405,14 +414,22 @@ class OrbitRoomRepository(
         return Result.success(entity.toUserAccount())
     }
 
+    /**
+     * Real credential verification against salted PBKDF2 hashes stored in Room.
+     * Handles legacy plaintext rows transparently and upgrades them on success.
+     */
     suspend fun authenticateUser(email: String, password: String): UserAccount? {
         val dao = userAccountDao ?: return null
-        val user = dao.authenticate(email.trim().lowercase(), password)
-        if (user != null) {
-            dao.setOnlineStatus(user.id, true)
-            return user.toUserAccount()
+        val stored = dao.getUserByEmail(email.trim().lowercase()) ?: return null
+        if (!com.example.core.PasswordHasher.verify(password, stored.passwordHash)) return null
+
+        if (com.example.core.PasswordHasher.needsRehash(stored.passwordHash)) {
+            dao.updateUser(
+                stored.copy(passwordHash = com.example.core.PasswordHasher.hash(password))
+            )
         }
-        return null
+        dao.setOnlineStatus(stored.id, true)
+        return stored.toUserAccount()
     }
 
     suspend fun setUserOnlineStatus(userId: String, isOnline: Boolean) {

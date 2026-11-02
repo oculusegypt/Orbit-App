@@ -56,6 +56,14 @@ class OrbitViewModel : ViewModel() {
     // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = null
 
+    // Persistent checkout ledger (coupon redemptions + receipts), initialized in initializeServices
+    private var checkoutLedger: com.example.core.OrbitLedger? = null
+
+    private val checkoutController = CheckoutController(ledgerProvider = { checkoutLedger })
+    val checkoutPricing: StateFlow<CheckoutPricing?> = checkoutController.pricing
+    val couponFeedback: StateFlow<String?> = checkoutController.couponFeedback
+    val lastReceipt: StateFlow<PurchaseReceipt?> = checkoutController.lastReceipt
+
     private val _isOfflineCached = MutableStateFlow(false)
     val isOfflineCached: StateFlow<Boolean> = _isOfflineCached.asStateFlow()
 
@@ -88,6 +96,11 @@ class OrbitViewModel : ViewModel() {
         val aiClient = com.example.core.GeminiClient(context.applicationContext)
         geminiClient = aiClient
         tutorController.attachGeminiClient(aiClient)
+
+        // Persistent coupon/receipt ledger for the checkout funnel.
+        if (checkoutLedger == null) {
+            checkoutLedger = SharedPrefsLedger(context)
+        }
 
         val repo = OrbitRoomRepository.getInstance(context)
         roomRepository = repo
@@ -338,13 +351,42 @@ class OrbitViewModel : ViewModel() {
             openCourseDetail(course)
         } else {
             _selectedCourse.value = course
+            checkoutController.openForCourse(course.priceMinor)
             _showCheckoutDialog.value = true
         }
     }
 
-    fun completeCheckout(course: Course) {
+    /** Real coupon validation through the signed-campaign engine + persistent quota ledger. */
+    fun applyCouponCode(code: String) {
+        val userId = _currentUser.value?.id ?: return
+        val basePrice = checkoutController.currentQuote()?.basePriceMinor ?: return
+        checkoutController.applyCoupon(code, userId, basePrice)
+    }
+
+    fun completeCheckout(course: Course, paymentMethod: String = "vodafone") {
         val user = _currentUser.value ?: return
+        val receipt = checkoutController.commitPurchase(
+            userId = user.id,
+            courseId = course.id,
+            courseTitle = course.title,
+            currency = course.currency,
+            paymentMethod = paymentMethod,
+        )
         OrbitRepository.enrollCourse(user.id, course.id, "purchase")
+        OrbitRepository.addAudit(
+            actorUserId = user.id,
+            actorName = user.displayName,
+            action = "SUBSCRIPTION_PURCHASED",
+            resourceType = "course",
+            resourceId = course.id,
+            reason = receipt?.let {
+                "دفع ${it.paidAmountMinor / 100} ${it.currency} عبر $paymentMethod" +
+                    (if (it.discountPercent > 0) " بخصم ${it.discountPercent}% [${it.campaignId}]" else "") +
+                    " | رقم العملية ${it.orderId}"
+            } ?: "شراء بدون فاتورة محفوظة",
+            correlationId = receipt?.orderId ?: ""
+        )
+        checkoutController.close()
         _showCheckoutDialog.value = false
         openCourseDetail(course)
     }
