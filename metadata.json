@@ -1,0 +1,6 @@
+{
+  "name": "ORBIT Learn 2026 | مدار للتعلم الرقمي",
+  "description": "منصة مدار التعليمية الرقمية المعتمدة لعام 2026: استكشاف الدورات، مشغل الدروس الذكي، مساعد الذكاء الاصطناعي السقراطي، الفصول الافتراضية، والشهادات المعتمدة.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
