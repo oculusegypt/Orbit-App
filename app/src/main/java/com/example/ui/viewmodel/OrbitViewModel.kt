@@ -406,6 +406,43 @@ class OrbitViewModel : ViewModel() {
         openCourseDetail(course)
     }
 
+    fun bookConsultation(
+        parentName: String,
+        childName: String,
+        childAge: String,
+        phone: String,
+        service: String,
+        callback: (Boolean, ConsultationBooking?) -> Unit
+    ) {
+        val user = _currentUser.value
+        val booking = OrbitRepository.bookConsultation(
+            parentName = parentName,
+            childName = childName,
+            childAge = childAge,
+            phone = phone,
+            service = service,
+            actorUserId = user?.id ?: "guest",
+            actorName = user?.displayName ?: "زائر"
+        )
+        // Real FCM notification so the instructor's device is alerted of the new lead.
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching {
+                com.example.services.OrbitNotificationManager.recordReceivedAlert(
+                    title = "حجز استشارة جديدة 📅",
+                    body = "${booking.parentName} ولي أمر ${booking.childName} (${booking.childAge}) — ${booking.service} | هاتف ${booking.phone}",
+                    type = "booking"
+                )
+            }
+        }
+        callback(true, booking)
+    }
+
+    /** Instructor/admin workflow action: move a booking through its pipeline. */
+    fun updateBookingStatus(bookingId: String, newStatus: String) {
+        val actor = _currentAccount.value?.displayName ?: _currentUser.value?.displayName ?: "المعلمة"
+        OrbitRepository.updateBookingStatus(bookingId, newStatus, actor)
+    }
+
     // Lesson completion & Room Database Offline Caching
     fun markLessonCompleted(lessonId: String) {
         val user = _currentUser.value ?: return

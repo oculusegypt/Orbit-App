@@ -271,6 +271,9 @@ fun OrbitApp(viewModel: OrbitViewModel) {
 
     if (showBookingDialog) {
         BookingConsultationDialog(
+            currentUserId = currentUser?.id ?: "guest",
+            currentUserName = currentUser?.displayName ?: "زائر",
+            onBookingSaved = { /* booking already persisted via repository + audit log */ },
             onDismiss = { viewModel.setShowBookingDialog(false) }
         )
     }
@@ -292,6 +295,7 @@ fun OrbitApp(viewModel: OrbitViewModel) {
             messages = tutorMessages,
             inputText = tutorInput,
             isLoading = tutorLoading,
+            isAiEngineLive = viewModel.isAiTutorLive,
             onInputChanged = { viewModel.setTutorInput(it) },
             onSendMessage = { viewModel.sendTutorQuery(it) },
             onDismiss = { viewModel.setShowTutorSheet(false) }

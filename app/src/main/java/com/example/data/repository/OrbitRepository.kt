@@ -666,6 +666,62 @@ object OrbitRepository {
     private val _classroomMessages = MutableStateFlow<List<ClassroomMessage>>(initialClassroomMessages)
     val classroomMessages: StateFlow<List<ClassroomMessage>> = _classroomMessages.asStateFlow()
 
+    private val _consultationBookings = MutableStateFlow<List<ConsultationBooking>>(emptyList())
+    val consultationBookings: StateFlow<List<ConsultationBooking>> = _consultationBookings.asStateFlow()
+
+    /**
+     * Persists a real consultation booking request submitted from the booking
+     * funnel, records an audit trail event, and returns the stored booking so
+     * callers can display its reference id. Surfaced to instructor/admin portals.
+     */
+    fun bookConsultation(
+        parentName: String,
+        childName: String,
+        childAge: String,
+        phone: String,
+        service: String,
+        actorUserId: String = "guest",
+        actorName: String = "زائر"
+    ): ConsultationBooking {
+        val booking = ConsultationBooking(
+            id = "bkg-" + System.currentTimeMillis(),
+            parentName = parentName.trim(),
+            childName = childName.trim(),
+            childAge = childAge.trim(),
+            phone = phone.trim(),
+            service = service,
+            status = "PENDING",
+            createdAt = OrbitTimeFormatter.currentDateTime()
+        )
+        _consultationBookings.value = listOf(booking) + _consultationBookings.value
+        addAudit(
+            actorUserId = actorUserId,
+            actorName = actorName,
+            action = "CONSULTATION_BOOKED",
+            resourceType = "booking",
+            resourceId = booking.id,
+            reason = "ولي أمر: ${booking.parentName} | طفل: ${booking.childName} (${booking.childAge}) | هاتف: ${booking.phone} | برنامج: ${booking.service}",
+            correlationId = booking.id
+        )
+        return booking
+    }
+
+    /** Instructor-side workflow: advance a booking's status with an audit record. */
+    fun updateBookingStatus(bookingId: String, newStatus: String, actorName: String) {
+        if (_consultationBookings.value.none { it.id == bookingId }) return
+        _consultationBookings.value = _consultationBookings.value.map {
+            if (it.id == bookingId) it.copy(status = newStatus) else it
+        }
+        addAudit(
+            actorUserId = "inst-sara-elarby",
+            actorName = actorName,
+            action = "BOOKING_STATUS_$newStatus",
+            resourceType = "booking",
+            resourceId = bookingId,
+            correlationId = bookingId
+        )
+    }
+
     // Helper functions
     fun enrollCourse(userId: String, courseId: String, source: String): Enrollment {
         val existing = _enrollments.value.find { it.userId == userId && it.courseId == courseId }
