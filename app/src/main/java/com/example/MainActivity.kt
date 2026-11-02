@@ -273,7 +273,10 @@ fun OrbitApp(viewModel: OrbitViewModel) {
         BookingConsultationDialog(
             currentUserId = currentUser?.id ?: "guest",
             currentUserName = currentUser?.displayName ?: "زائر",
-            onBookingSaved = { /* booking already persisted via repository + audit log */ },
+            onSubmit = { parent, child, age, tel, service, cb ->
+                viewModel.bookConsultation(parent, child, age, tel, service, cb)
+            },
+            onBookingSaved = { /* booking persisted via ViewModel: repository + Room + FCM + audit */ },
             onDismiss = { viewModel.setShowBookingDialog(false) }
         )
     }

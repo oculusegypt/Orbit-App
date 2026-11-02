@@ -33,6 +33,9 @@ interface LessonProgressDao {
     @Query("SELECT COUNT(*) FROM lesson_progress WHERE userId = :userId AND courseId = :courseId AND completed = 1")
     fun getCompletedLessonsCount(userId: String, courseId: String): Flow<Int>
 
+    @Query("SELECT lessonId FROM lesson_progress WHERE userId = :userId AND courseId = :courseId AND completed = 1")
+    suspend fun getCompletedLessonIds(userId: String, courseId: String): List<String>
+
     @Query("SELECT COUNT(*) FROM lesson_progress WHERE userId = :userId AND completed = 1")
     fun getTotalCompletedLessonsCount(userId: String): Flow<Int>
 
