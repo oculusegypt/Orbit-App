@@ -102,7 +102,7 @@ com/example/
 | R3 | ربط MainActivity بمعالجات دفع حقيقية | إزالة mock checkout |
 | R4 | تحويل الاستشارة إلى مسار حقيقي: حفظ DB + FCM فوري + رقم مرجعي + لوحة إدارة بأرقام فعلية | |
 | R5 | إصلاح فقدان البيانات عند إعادة التشغيل (حجوزات/إيصالات/XP/محادثات) → Room | |
-| R6 | تقسيم الشاشات الضخمة: `VirtualClassroom` (1093→646)، `PrivateCallScreen`، `CoursesScreen`، `PrivateConnectScreen` إلى حزم فرعية | -41% للملف الأكبر |
+| R6 | تقسيم الشاشات الضخمة: `VirtualClassroom` (1093→643)، `PrivateCallScreen`، `CoursesScreen`، `PrivateConnectScreen` إلى حزم فرعية | -41% للملف الأكبر |
 | R7 | عزل `OrbitSeedData.kt` عن `OrbitRepository.kt` + استعادة الدورة الرابعة المفقودة من سجل Git | |
 | R8 | نقل 439 نصاً عربياً إلى `strings.xml` في 37 ملف UI (commit `9c190fd`) | |
 | R9 | signaling حقيقي للاتصال outbound عبر FCM topics | |
