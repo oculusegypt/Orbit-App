@@ -886,6 +886,20 @@ object OrbitRepository {
         return _certificates.value.find { it.verificationCode.equals(clean, ignoreCase = true) }
     }
 
+    /**
+     * Average quiz score (percent) a user achieved across all completed
+     * lessons of a course — used as the grade printed on auto-issued
+     * graduation certificates. Returns 0 when no graded quiz was recorded.
+     */
+    fun courseQuizAveragePercent(userId: String, courseId: String): Int {
+        val course = allCourses.find { it.id == courseId } ?: return 0
+        val lessonIds = course.sections.flatMap { it.lessons }.map { it.id }
+        val grades = lessonIds.mapNotNull { lid ->
+            _progressMap.value["$userId:$lid"]?.quizGradePercent
+        }
+        return if (grades.isEmpty()) 0 else grades.sum() / grades.size
+    }
+
     private fun getUserName(userId: String): String {
         return PRESET_USERS.find { it.id == userId }?.displayName ?: "مستخدم"
     }

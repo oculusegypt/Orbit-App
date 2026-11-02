@@ -542,6 +542,10 @@ class OrbitRoomRepository(
     suspend fun hasDurableCertificate(courseId: String, userId: String): Boolean =
         (certificateDao?.countFor(courseId, userId) ?: 0) > 0
 
+    /** Completed lesson ids for a user in a course — drives auto-certification. */
+    suspend fun getCompletedLessonIds(userId: String, courseId: String): List<String> =
+        lessonProgressDao.getCompletedLessonIds(userId, courseId)
+
     /** All durable certificates, newest first — feeds the learner/admin lists. */
     fun getDurableCertificatesFlow(): Flow<List<com.example.data.models.Certificate>> =
         (certificateDao?.getAllCertificatesFlow() ?: flowOf(emptyList())).map { list ->

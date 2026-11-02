@@ -316,10 +316,24 @@ class OrbitViewModel : ViewModel() {
 
     fun openVerifier(code: String = "") {
         _verifierCode.value = code
-        if (code.isNotBlank()) {
-            _verifiedCertificate.value = OrbitRepository.verifyCertificate(code)
-        } else {
+        if (code.isBlank()) {
             _verifiedCertificate.value = null
+        } else {
+            // Same two-tier lookup as verifyCertificateInput: seeded catalog,
+            // then the durable Room store so restart-issued codes still resolve.
+            val seeded = OrbitRepository.verifyCertificate(code)
+            if (seeded != null) {
+                _verifiedCertificate.value = seeded
+            } else {
+                viewModelScope.launch {
+                    _verifiedCertificate.value =
+                        try {
+                            roomRepository?.findDurableCertificate(code)
+                        } catch (_: Exception) {
+                            null
+                        }
+                }
+            }
         }
         _courseView.value = CourseSubView.VERIFY
         _activePortal.value = PortalTab.COURSES
@@ -480,6 +494,29 @@ class OrbitViewModel : ViewModel() {
         OrbitRepository.completeLesson(user.id, lessonId, course.id)
         viewModelScope.launch {
             roomRepository?.markLessonCompleted(user.id, lessonId, course.id)
+
+            // Logical integration: when every lesson in the course is done,
+            // issue the graduation certificate automatically (grade = average
+            // of durable quiz scores; full completion with no quiz attempts
+            // still certifies at 100%). Deduplicated by (courseId, userId),
+            // so re-marking a lesson never double-issues.
+            try {
+                val allLessonIds = course.sections.flatMap { it.lessons }.map { it.id }
+                if (allLessonIds.isNotEmpty()) {
+                    val completedIds = roomRepository
+                        ?.getCompletedLessonIds(user.id, course.id)
+                        ?.toSet() ?: emptySet()
+                    if (completedIds.containsAll(allLessonIds) &&
+                        !roomRepository.hasDurableCertificate(course.id, user.id)
+                    ) {
+                        val grade = OrbitRepository.courseQuizAveragePercent(user.id, course.id)
+                            .takeIf { it > 0 } ?: 100
+                        issueCourseCertificate(user, course, grade)
+                    }
+                }
+            } catch (_: Exception) {
+                // Non-fatal: manual quiz issuance path remains available.
+            }
         }
     }
 
@@ -563,24 +600,59 @@ class OrbitViewModel : ViewModel() {
                 val user = _currentUser.value
                 val course = _selectedCourse.value
                 if (user != null && course != null) {
-                    val cert = OrbitRepository.issueCertificate(
-                        courseId = course.id,
-                        courseTitle = course.title,
-                        userId = user.id,
-                        userName = user.displayName,
-                        grade = percent,
-                        skills = course.outcomes.take(4)
-                    )
-                    _selectedCertificate.value = cert
+                    issueCourseCertificate(user, course, percent)
                 }
             }
         }
     }
 
-    // Certificate verification
+    /**
+     * Issues (or re-opens) a course certificate for [user], persisting it in
+     * the durable Room store. Safe to call from any completion path — the
+     * repository deduplicates by (courseId, userId) and the Room upsert keeps
+     * the verification code stable across restarts.
+     */
+    fun issueCourseCertificate(
+        user: User,
+        course: Course,
+        gradePercent: Int
+    ) {
+        val cert = OrbitRepository.issueCertificate(
+            courseId = course.id,
+            courseTitle = course.title,
+            userId = user.id,
+            userName = user.displayName,
+            grade = gradePercent,
+            skills = course.outcomes.take(4)
+        )
+        _selectedCertificate.value = cert
+        // Persist the issued certificate in Room so its verification
+        // code survives app restarts (durable, not just in-memory).
+        viewModelScope.launch {
+            try {
+                roomRepository?.persistCertificate(cert)
+            } catch (_: Exception) {
+                // Non-fatal: in-memory copy still valid this session.
+            }
+        }
+    }
+
+    // Certificate verification — checks seeded catalog first, then durable Room store.
     fun verifyCertificateInput(code: String) {
         _verifierCode.value = code
-        _verifiedCertificate.value = OrbitRepository.verifyCertificate(code)
+        val seeded = OrbitRepository.verifyCertificate(code)
+        if (seeded != null) {
+            _verifiedCertificate.value = seeded
+        } else {
+            viewModelScope.launch {
+                _verifiedCertificate.value =
+                    try {
+                        roomRepository?.findDurableCertificate(code)
+                    } catch (_: Exception) {
+                        null
+                    }
+            }
+        }
     }
 
     // Mental Math Game Logic (delegates to MentalMathController)
