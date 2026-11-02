@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 import com.example.data.local.*
 
@@ -48,13 +50,17 @@ enum class MentalMathGameState {
     RESULT
 }
 
-class OrbitViewModel : ViewModel() {
+@HiltViewModel
+class OrbitViewModel @Inject constructor(
+    private val injectedRoomRepository: OrbitRoomRepository
+) : ViewModel() {
 
     // Real Gemini AI engine (falls back to offline rule-based replies when no key is configured)
     private var geminiClient: com.example.core.GeminiClient? = null
 
-    // Room Database Repository & Offline Cache State
-    private var roomRepository: OrbitRoomRepository? = null
+    // Room Database Repository & Offline Cache State (constructor-injected via Hilt;
+    // nullable legacy field kept for pre-initialization code paths — same singleton instance)
+    private var roomRepository: OrbitRoomRepository? = injectedRoomRepository
 
     /** Application context captured at init; powers real push signaling. */
     private var appContext: Context? = null
@@ -123,7 +129,9 @@ class OrbitViewModel : ViewModel() {
             checkoutLedger = SharedPrefsLedger(context)
         }
 
-        val repo = OrbitRoomRepository.getInstance(context)
+        // Already injected through the Hilt graph; re-assign defensively so both
+        // references point at the identical SingletonComponent instance.
+        val repo = injectedRoomRepository
         roomRepository = repo
         db = com.example.data.local.OrbitDatabase.getDatabase(context)
 
