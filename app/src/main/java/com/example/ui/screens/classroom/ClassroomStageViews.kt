@@ -475,16 +475,14 @@ fun ClassroomStageTabs(
     onModeSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val tabs = remember {
-        listOf(
-            Pair("stream", stringResource(R.string.ui_d6e5c07)),
-            Pair("camera", stringResource(R.string.ui_2b7b49e)),
-            Pair("screen", stringResource(R.string.ui_1686653)),
-            Pair("abacus", stringResource(R.string.ui_57df5ed)),
-            Pair("whiteboard", stringResource(R.string.ui_ea350b6)),
-            Pair("webrtc", stringResource(R.string.ui_d0a8c0d))
-        )
-    }
+    val tabs = listOf(
+        Pair("stream", stringResource(R.string.ui_d6e5c07)),
+        Pair("camera", stringResource(R.string.ui_2b7b49e)),
+        Pair("screen", stringResource(R.string.ui_1686653)),
+        Pair("abacus", stringResource(R.string.ui_57df5ed)),
+        Pair("whiteboard", stringResource(R.string.ui_ea350b6)),
+        Pair("webrtc", stringResource(R.string.ui_d0a8c0d))
+    )
 
     androidx.compose.material3.Card(
         shape = RoundedCornerShape(14.dp),

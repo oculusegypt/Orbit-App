@@ -146,16 +146,16 @@ fun ClassroomScreen(
                         IconButton(
                             onClick = {
                                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                val clip = ClipData.newPlainText(stringResource(R.string.ui_6ebe7f1), meetingDeepLink)
+                                val clip = ClipData.newPlainText(context.getString(R.string.ui_6ebe7f1), meetingDeepLink)
                                 clipboard.setPrimaryClip(clip)
-                                Toast.makeText(context, stringResource(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
 
                                 val sendIntent: Intent = Intent().apply {
                                     action = Intent.ACTION_SEND
                                     putExtra(Intent.EXTRA_TEXT, "انضم الآن إلى حصة العداد الصيني المباشرة مع مس سارة العربي 🧮💡:\n$meetingDeepLink")
                                     type = "text/plain"
                                 }
-                                context.startActivity(Intent.createChooser(sendIntent, stringResource(R.string.ui_8782f38)))
+                                context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.ui_8782f38)))
                             },
                             modifier = Modifier
                                 .size(36.dp)
@@ -557,7 +557,7 @@ fun ClassroomScreen(
                                 viewModel.toggleClassroomScreenShare()
                                 Toast.makeText(
                                     context,
-                                    if (isScreenShared) stringResource(R.string.ui_c5dc7f0) else stringResource(R.string.ui_9e8640e),
+                                    if (isScreenShared) context.getString(R.string.ui_c5dc7f0) else context.getString(R.string.ui_9e8640e),
                                     Toast.LENGTH_SHORT
                                 ).show()
                             },

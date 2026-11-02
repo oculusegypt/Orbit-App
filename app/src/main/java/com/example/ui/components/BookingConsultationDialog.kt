@@ -46,7 +46,7 @@ fun BookingConsultationDialog(
     var childName by remember { mutableStateOf("") }
     var childAge by remember { mutableStateOf("7") }
     var phone by remember { mutableStateOf("") }
-    var selectedService by remember { mutableStateOf(stringResource(R.string.ui_1270492)) }
+    var selectedService by remember { mutableStateOf(context.getString(R.string.ui_1270492)) }
     var bookedSuccess by remember { mutableStateOf(false) }
     var savedBooking by remember { mutableStateOf<ConsultationBooking?>(null) }
     var validationError by remember { mutableStateOf<String?>(null) }
@@ -211,11 +211,11 @@ fun BookingConsultationDialog(
                             val trimmedPhone = phone.filter { it.isDigit() }
                             when {
                                 parentName.isBlank() ->
-                                    validationError = stringResource(R.string.ui_3d3a3d9)
+                                    validationError = context.getString(R.string.ui_3d3a3d9)
                                 childName.isBlank() ->
-                                    validationError = stringResource(R.string.ui_2d3b926)
+                                    validationError = context.getString(R.string.ui_2d3b926)
                                 trimmedPhone.length < 11 || !trimmedPhone.startsWith("01") ->
-                                    validationError = stringResource(R.string.ui_7a6714d)
+                                    validationError = context.getString(R.string.ui_7a6714d)
                                 else -> {
                                     validationError = null
                                     // Persist the booking through the ViewModel when wired
@@ -227,7 +227,7 @@ fun BookingConsultationDialog(
                                             bookedSuccess = true
                                             onBookingSaved(booking)
                                         } else {
-                                            validationError = stringResource(R.string.ui_7d6d010)
+                                            validationError = context.getString(R.string.ui_7d6d010)
                                         }
                                     }
                                     val submit = onSubmit

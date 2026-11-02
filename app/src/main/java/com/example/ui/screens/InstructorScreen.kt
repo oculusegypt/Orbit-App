@@ -45,7 +45,9 @@ fun InstructorScreen(
 
     var activeGradingSub by remember { mutableStateOf<StudentSubmission?>(null) }
     var gradeInput by remember { mutableStateOf("95") }
-    var feedbackInput by remember { mutableStateOf(stringResource(R.string.ui_372887e)) }
+    val initialFeedback = stringResource(R.string.ui_372887e)
+    val fallbackFeedback = stringResource(R.string.ui_94f96b5)
+    var feedbackInput by remember { mutableStateOf(initialFeedback) }
 
     LazyColumn(
         modifier = modifier
@@ -264,7 +266,7 @@ fun InstructorScreen(
                         onClick = {
                             activeGradingSub = sub
                             gradeInput = (sub.grade ?: 95).toString()
-                            feedbackInput = sub.feedback ?: stringResource(R.string.ui_94f96b5)
+                            feedbackInput = sub.feedback ?: fallbackFeedback
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo),
                         shape = RoundedCornerShape(8.dp),

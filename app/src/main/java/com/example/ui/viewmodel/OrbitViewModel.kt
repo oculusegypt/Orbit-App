@@ -9,12 +9,9 @@ import com.example.data.repository.OrbitRepository
 import com.example.data.repository.OrbitRoomRepository
 import com.example.services.AlertNotificationItem
 import com.example.services.OrbitNotificationManager
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
 import com.example.data.local.*
 
@@ -51,17 +48,16 @@ enum class MentalMathGameState {
     RESULT
 }
 
-@HiltViewModel
-class OrbitViewModel @Inject constructor(
-    private val injectedRoomRepository: OrbitRoomRepository
+class OrbitViewModel(
+    private val injectedRoomRepository: OrbitRoomRepository? = null
 ) : ViewModel() {
 
     // Real Gemini AI engine (falls back to offline rule-based replies when no key is configured)
     private var geminiClient: com.example.core.GeminiClient? = null
 
-    // Room Database Repository & Offline Cache State (constructor-injected via Hilt;
-    // nullable legacy field kept for pre-initialization code paths — same singleton instance)
+    // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = injectedRoomRepository
+    private val _roomRepoState = MutableStateFlow<OrbitRoomRepository?>(injectedRoomRepository)
 
     /** Application context captured at init; powers real push signaling. */
     private var appContext: Context? = null
@@ -130,10 +126,10 @@ class OrbitViewModel @Inject constructor(
             checkoutLedger = SharedPrefsLedger(context)
         }
 
-        // Already injected through the Hilt graph; re-assign defensively so both
-        // references point at the identical SingletonComponent instance.
-        val repo = injectedRoomRepository
+        // Use injected repository or singleton instance
+        val repo = injectedRoomRepository ?: OrbitRoomRepository.getInstance(context)
         roomRepository = repo
+        _roomRepoState.value = repo
         db = com.example.data.local.OrbitDatabase.getDatabase(context)
 
         // Rehydrate the durable booking pipeline (survives process death).
@@ -225,13 +221,19 @@ class OrbitViewModel @Inject constructor(
     val assignments get() = OrbitRepository.assignments
     // Durable certificates: Room-issued certs (survive restarts) merged with
     // the in-memory catalog; newest first, deduplicated by verification code.
-    private val durableCertificatesFlow = roomRepository?.getDurableCertificatesFlow()
-        ?: kotlinx.coroutines.flow.flowOf(emptyList<Certificate>())
-    val certificates: kotlinx.coroutines.flow.Flow<List<Certificate>> =
-        kotlinx.coroutines.flow.combine(OrbitRepository.certificates, durableCertificatesFlow) { seeded, durable ->
-            val seen = durable.map { it.verificationCode.uppercase() }.toSet()
-            durable + seeded.filter { it.verificationCode.uppercase() !in seen }
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val certificates: StateFlow<List<Certificate>> = _roomRepoState
+        .flatMapLatest { repo ->
+            val durableFlow = repo?.getDurableCertificatesFlow() ?: flowOf(emptyList())
+            combine(OrbitRepository.certificates, durableFlow) { seeded, durable ->
+                val seen = durable.map { it.verificationCode.uppercase() }.toSet()
+                durable + seeded.filter { it.verificationCode.uppercase() !in seen }
+            }
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            OrbitRepository.certificates.value
+        )
     val submissions get() = OrbitRepository.submissions
     val enrollments get() = OrbitRepository.enrollments
     val progressMap get() = OrbitRepository.progressMap
@@ -522,7 +524,7 @@ class OrbitViewModel @Inject constructor(
                         ?.getCompletedLessonIds(user.id, course.id)
                         ?.toSet() ?: emptySet()
                     if (completedIds.containsAll(allLessonIds) &&
-                        !roomRepository.hasDurableCertificate(course.id, user.id)
+                        roomRepository?.hasDurableCertificate(course.id, user.id) != true
                     ) {
                         val grade = OrbitRepository.courseQuizAveragePercent(user.id, course.id)
                             .takeIf { it > 0 } ?: 100

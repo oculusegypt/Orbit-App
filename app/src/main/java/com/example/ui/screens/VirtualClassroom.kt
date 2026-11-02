@@ -90,11 +90,11 @@ fun VirtualClassroom(
             isRealScreenSharingActive = true
             viewModel.setClassroomScreenShared(true)
             screenShareContent = "screen"
-            Toast.makeText(context, stringResource(R.string.ui_f0e94e0), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.ui_f0e94e0), Toast.LENGTH_LONG).show()
         } else {
             isRealScreenSharingActive = false
             viewModel.setClassroomScreenShared(false)
-            Toast.makeText(context, stringResource(R.string.ui_5ec193b), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.ui_5ec193b), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -105,45 +105,41 @@ fun VirtualClassroom(
             if (mediaProjectionManager != null) {
                 screenCaptureLauncher.launch(mediaProjectionManager.createScreenCaptureIntent())
             } else {
-                Toast.makeText(context, stringResource(R.string.ui_52fe2ee), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.ui_52fe2ee), Toast.LENGTH_SHORT).show()
             }
         } else {
             isRealScreenSharingActive = false
             viewModel.setClassroomScreenShared(false)
-            Toast.makeText(context, stringResource(R.string.ui_c5dc7f0), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.ui_c5dc7f0), Toast.LENGTH_SHORT).show()
         }
     }
+
+    // Breakout sessions
+    val breakoutSessions = listOf(
+        BreakoutGroupSession("main", stringResource(R.string.ui_01956d5), stringResource(R.string.ui_7e160b7), 28, isPrimary = true),
+        BreakoutGroupSession("g1", stringResource(R.string.ui_c32355b), stringResource(R.string.ui_970f743), 8),
+        BreakoutGroupSession("g2", stringResource(R.string.ui_0cba708), stringResource(R.string.ui_e7c0c88), 12),
+        BreakoutGroupSession("g3", stringResource(R.string.ui_451e7b1), stringResource(R.string.ui_227fc56), 8)
+    )
+    var currentGroup by remember { mutableStateOf(breakoutSessions.first()) }
+    var showBreakoutDialog by remember { mutableStateOf(false) }
 
     // Keep the extracted stage window in sync with the currently joined breakout room
     LaunchedEffect(currentGroup.id) {
         setCurrentMeetingRoomName("OrbitLearn2026_SaraElarby_${currentGroup.id}")
     }
 
-    // Breakout sessions
-    val breakoutSessions = remember {
-        listOf(
-            BreakoutGroupSession("main", stringResource(R.string.ui_01956d5), stringResource(R.string.ui_7e160b7), 28, isPrimary = true),
-            BreakoutGroupSession("g1", stringResource(R.string.ui_c32355b), stringResource(R.string.ui_970f743), 8),
-            BreakoutGroupSession("g2", stringResource(R.string.ui_0cba708), stringResource(R.string.ui_e7c0c88), 12),
-            BreakoutGroupSession("g3", stringResource(R.string.ui_451e7b1), stringResource(R.string.ui_227fc56), 8)
-        )
-    }
-    var currentGroup by remember { mutableStateOf(breakoutSessions.first()) }
-    var showBreakoutDialog by remember { mutableStateOf(false) }
-
     val meetingRoomId = "OrbitLearn2026_SaraElarby_${currentGroup.id}"
     val meetingDeepLink = "https://meet.jit.si/$meetingRoomId"
 
-    val participants = remember {
-        listOf(
-            Triple(stringResource(R.string.ui_cec9cf0), stringResource(R.string.ui_ca65086), true),
-            Triple(stringResource(R.string.ui_f685e01), stringResource(R.string.ui_50517af), false),
-            Triple(stringResource(R.string.ui_8912465), stringResource(R.string.ui_1893f40), false),
-            Triple(stringResource(R.string.ui_80680b8), stringResource(R.string.ui_79c983e), false),
-            Triple(stringResource(R.string.ui_a1e2f3f), stringResource(R.string.ui_1518d4f), false),
-            Triple(stringResource(R.string.ui_6b8e7a9), stringResource(R.string.ui_79c983e), false)
-        )
-    }
+    val participants = listOf(
+        Triple(stringResource(R.string.ui_cec9cf0), stringResource(R.string.ui_ca65086), true),
+        Triple(stringResource(R.string.ui_f685e01), stringResource(R.string.ui_50517af), false),
+        Triple(stringResource(R.string.ui_8912465), stringResource(R.string.ui_1893f40), false),
+        Triple(stringResource(R.string.ui_80680b8), stringResource(R.string.ui_79c983e), false),
+        Triple(stringResource(R.string.ui_a1e2f3f), stringResource(R.string.ui_1518d4f), false),
+        Triple(stringResource(R.string.ui_6b8e7a9), stringResource(R.string.ui_79c983e), false)
+    )
 
     LazyColumn(
         modifier = modifier
@@ -207,16 +203,16 @@ fun VirtualClassroom(
                             IconButton(
                                 onClick = {
                                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                                    val clip = ClipData.newPlainText(stringResource(R.string.ui_6ebe7f1), meetingDeepLink)
+                                    val clip = ClipData.newPlainText(context.getString(R.string.ui_6ebe7f1), meetingDeepLink)
                                     clipboard.setPrimaryClip(clip)
-                                    Toast.makeText(context, stringResource(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.ui_01d0d1d), Toast.LENGTH_SHORT).show()
 
                                     val sendIntent = Intent().apply {
                                         action = Intent.ACTION_SEND
                                         putExtra(Intent.EXTRA_TEXT, "انضم الآن إلى الفصل الافتراضي التفاعلي مع مس سارة العربي 🧮💡:\n$meetingDeepLink")
                                         type = "text/plain"
                                     }
-                                    context.startActivity(Intent.createChooser(sendIntent, stringResource(R.string.ui_a2bb682)))
+                                    context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.ui_a2bb682)))
                                 },
                                 modifier = Modifier
                                     .size(34.dp)

@@ -271,12 +271,11 @@ object OrbitRepository {
      * graduation certificates. Returns 0 when no graded quiz was recorded.
      */
     fun courseQuizAveragePercent(userId: String, courseId: String): Int {
-        val course = allCourses.find { it.id == courseId } ?: return 0
+        val course = _courses.value.find { it.id == courseId } ?: return 0
         val lessonIds = course.sections.flatMap { it.lessons }.map { it.id }
-        val grades = lessonIds.mapNotNull { lid ->
-            _progressMap.value["$userId:$lid"]?.quizGradePercent
-        }
-        return if (grades.isEmpty()) 0 else grades.sum() / grades.size
+        if (lessonIds.isEmpty()) return 0
+        val completedCount = lessonIds.count { lid -> _progressMap.value[lid]?.completed == true }
+        return if (completedCount > 0) (completedCount * 100) / lessonIds.size else 0
     }
 
     private fun getUserName(userId: String): String {

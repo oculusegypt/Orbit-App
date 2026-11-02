@@ -319,7 +319,7 @@ fun HomeScreen(
                     ) {
                         Button(
                             onClick = {
-                                val url = "https://wa.me/201028340042?text=" + Uri.encode(stringResource(R.string.ui_b3deaa7))
+                                val url = "https://wa.me/201028340042?text=" + Uri.encode(context.getString(R.string.ui_b3deaa7))
                                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                                 context.startActivity(intent)
                             },

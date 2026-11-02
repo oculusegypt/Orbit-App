@@ -42,7 +42,8 @@ fun LibraryScreen(
     val context = LocalContext.current
     val books by viewModel.books.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf(stringResource(R.string.ui_6d08f19)) }
+    val allCategory = stringResource(R.string.ui_6d08f19)
+    var selectedCategory by remember { mutableStateOf(allCategory) }
     var selectedBookForChapters by remember { mutableStateOf<LibraryBook?>(null) }
 
     val categories = listOf(stringResource(R.string.ui_6d08f19), stringResource(R.string.ui_80ea32b), stringResource(R.string.ui_95a2f1b), stringResource(R.string.ui_f88ce8f), stringResource(R.string.ui_8978d2e))

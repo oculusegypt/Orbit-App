@@ -4,7 +4,6 @@ plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.google.devtools.ksp)
-  alias(libs.plugins.hilt.android)
   alias(libs.plugins.secrets)
   alias(libs.plugins.google.services)
 }
@@ -110,10 +109,10 @@ dependencies {
   implementation(libs.converter.moshi)
   implementation(libs.firebase.ai)
   implementation(libs.firebase.messaging)
-  // Hilt dependency injection (see com.example.di.OrbitModule)
-  implementation(libs.hilt.android)
-  ksp(libs.hilt.compiler)
-  implementation(libs.androidx.hilt.navigation.compose)
+  // Hilt dependency injection not needed (standard constructor / factory injection used)
+  // implementation(libs.hilt.android)
+  // ksp(libs.hilt.compiler)
+  // implementation(libs.androidx.hilt.navigation.compose)
   // Uncomment to use Firestore:
   // implementation(libs.firebase.firestore)
 

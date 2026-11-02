@@ -131,7 +131,7 @@ class SocraticTutorController(private var geminiClient: GeminiClient? = null) {
     private fun welcomeMessage() = TutorMessage(
         id = "msg-welcome",
         role = "assistant",
-        content = "أهلاً بك يا بطل! 🌟\nأنا المساعد السقراطي الذكي لمس سارة العربي 💡\nهنا بنتعلم سوا بطريقة ممتعة: \\"تأسيس أطفال . حساب ذهني\\"! لو في خطوة أو مسألة مش واضحة، اسألني وهفكر معاك ونديك تلميحات حلوة توصلك للحل بنفسك! 🧠✨"
+        content = "أهلاً بك يا بطل! 🌟\nأنا المساعد السقراطي الذكي لمس سارة العربي 💡\nهنا بنتعلم سوا بطريقة ممتعة: 'تأسيس أطفال . حساب ذهني'! لو في خطوة أو مسألة مش واضحة، اسألني وهفكر معاك ونديك تلميحات حلوة توصلك للحل بنفسك! 🧠✨"
     )
 
     private fun nextId(prefix: String): String = "$prefix-${System.currentTimeMillis()}"

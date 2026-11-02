@@ -47,6 +47,7 @@ fun AuthDialog(
     onDismiss: () -> Unit
 ) {
     var selectedTab by remember { mutableStateOf(0) } // 0: Login, 1: Signup, 2: Quick Switch
+    val context = androidx.compose.ui.platform.LocalContext.current
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
 
@@ -220,7 +221,7 @@ fun AuthDialog(
                                 Button(
                                     onClick = {
                                         if (loginEmail.isBlank() || loginPassword.isBlank()) {
-                                            errorMessage = stringResource(R.string.ui_ccf9734)
+                                            errorMessage = context.getString(R.string.ui_ccf9734)
                                             return@Button
                                         }
                                         onLogin(loginEmail, loginPassword) { success, msg ->
@@ -362,12 +363,12 @@ fun AuthDialog(
                                 Button(
                                     onClick = {
                                         if (signupName.isBlank() || signupEmail.isBlank() || signupPassword.isBlank()) {
-                                            errorMessage = stringResource(R.string.ui_10bc485)
+                                            errorMessage = context.getString(R.string.ui_10bc485)
                                             return@Button
                                         }
                                         onRegister(signupName, signupEmail, signupPassword, signupRole, signupPhone, signupBioOrGrade) { success, msg ->
                                             if (success) {
-                                                successMessage = stringResource(R.string.ui_ae7b64b)
+                                                successMessage = context.getString(R.string.ui_ae7b64b)
                                                 onDismiss()
                                             } else {
                                                 errorMessage = msg
