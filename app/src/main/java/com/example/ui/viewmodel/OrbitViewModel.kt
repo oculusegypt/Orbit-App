@@ -50,6 +50,9 @@ enum class MentalMathGameState {
 
 class OrbitViewModel : ViewModel() {
 
+    // Real Gemini AI engine (falls back to offline rule-based replies when no key is configured)
+    private var geminiClient: com.example.core.GeminiClient? = null
+
     // Room Database Repository & Offline Cache State
     private var roomRepository: OrbitRoomRepository? = null
 
@@ -81,6 +84,11 @@ class OrbitViewModel : ViewModel() {
     val callHistory: StateFlow<List<CallSessionEntity>> = _callHistory.asStateFlow()
 
     fun initializeServices(context: Context) {
+        // Wire the real Gemini client before any tutor query can be issued.
+        val aiClient = com.example.core.GeminiClient(context.applicationContext)
+        geminiClient = aiClient
+        tutorController.attachGeminiClient(aiClient)
+
         val repo = OrbitRoomRepository.getInstance(context)
         roomRepository = repo
         viewModelScope.launch {
@@ -208,11 +216,14 @@ class OrbitViewModel : ViewModel() {
     private val _classroomChatText = MutableStateFlow("")
     val classroomChatText: StateFlow<String> = _classroomChatText.asStateFlow()
 
-    // Socratic AI Tutor (delegated controller)
+    // Socratic AI Tutor (delegated controller; backed by real Gemini once initializeServices runs)
     private val tutorController = SocraticTutorController()
     val tutorMessages: StateFlow<List<TutorMessage>> = tutorController.messages
     val tutorInput: StateFlow<String> = tutorController.input
     val tutorLoading: StateFlow<Boolean> = tutorController.loading
+
+    /** Exposes whether the live AI engine (Gemini) or the offline fallback is answering. */
+    val isAiTutorLive: Boolean get() = tutorController.isAiEngineActive
 
     // Navigation methods
     fun setPortal(portal: PortalTab) {

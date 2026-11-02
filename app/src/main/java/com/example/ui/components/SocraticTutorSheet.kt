@@ -30,6 +30,7 @@ fun SocraticTutorSheet(
     messages: List<TutorMessage>,
     inputText: String,
     isLoading: Boolean,
+    isAiEngineLive: Boolean = false,
     onInputChanged: (String) -> Unit,
     onSendMessage: (String?) -> Unit,
     onDismiss: () -> Unit
@@ -85,6 +86,12 @@ fun SocraticTutorSheet(
                             text = "مرافقة ذكية لدرس: $lessonTitle",
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (isAiEngineLive) "🟡 محرك Gemini الذكي متصل" else "🟢 الوضع التعليمي دون اتصال",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = if (isAiEngineLive) OrbitGold else MaterialTheme.colorScheme.outline
                         )
                     }
                 }
