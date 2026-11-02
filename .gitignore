@@ -1,1 +1,29 @@
-(empty output)
+# Built-in Android/Gradle ignores
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+
+# Gradle caches & build outputs
+**/build/
+**/.gradle/
+*.lock
+*.bin
+!gradle/wrapper/gradle-wrapper.jar
+
+# Secrets — never commit (see .memory/PROJECT_MEMORY.md §6)
+.env
+.env.*
+!.env.example
+google-services.json
+*.keystore
+!debug.keystore
+
+# IDE / tooling
+.vscode/
+__pycache__/
