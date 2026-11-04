@@ -217,6 +217,110 @@ fun HomeScreen(
             }
         }
 
+        // Sara Al-Araby Ecosystem Portals Quick Hub
+        item {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+                modifier = Modifier.fillMaxWidth().testTag("sara_portals_hub")
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = "🏛️ بوابات منظومة سارة العربي التعليمية المتكاملة:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = OrbitNavy
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFEFF6FF),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.setPortal(PortalTab.PARENT) }
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("👨‍👧‍👦", fontSize = 24.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("بوابة ولي الأمر", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = OrbitIndigo)
+                                Text("الحجز والتعويضات", fontSize = 9.sp, color = Color.Gray)
+                            }
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFFEF3C7),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.setPortal(PortalTab.LEARNER) }
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("🧒", fontSize = 24.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("لوحة الطالب", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color(0xFF92400E))
+                                Text("متكيفة حسب العمر", fontSize = 9.sp, color = Color.Gray)
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFD1FAE5),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.setPortal(PortalTab.INSTRUCTOR) }
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("👩‍🏫", fontSize = 24.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("لوحة المعلمة سارة", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color(0xFF065F46))
+                                Text("الجداول والتقارير", fontSize = 9.sp, color = Color.Gray)
+                            }
+                        }
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0xFFFFE4E6),
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { viewModel.setPortal(PortalTab.CLASSROOM) }
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text("🎥", fontSize = 24.sp)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text("الفصل التفاعلي", fontWeight = FontWeight.Bold, fontSize = 11.sp, color = Color(0xFF9F1239))
+                                Text("مزامنة كتب PDF", fontSize = 9.sp, color = Color.Gray)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         // Offline Cache & Room Database Quick Action Card
         item {
             Card(

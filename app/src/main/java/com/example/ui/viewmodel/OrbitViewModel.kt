@@ -22,6 +22,7 @@ enum class PortalTab(val labelAr: String) {
     CLASSROOM("الفصل الحي"),
     CONNECT("اتصال خاص"),
     LEARNER("بوابتي"),
+    PARENT("ولي الأمر"),
     INSTRUCTOR("المعلمة"),
     ADMIN("الإدارة")
 }
@@ -146,10 +147,6 @@ class OrbitViewModel(
         viewModelScope.launch {
             repo.getAllUserAccountsFlow().collect { accounts ->
                 _allRegisteredUsers.value = accounts
-                if (_currentAccount.value == null && accounts.isNotEmpty()) {
-                    val defaultUser = accounts.firstOrNull { it.role == UserRole.LEARNER } ?: accounts.first()
-                    switchUserAccount(defaultUser)
-                }
             }
         }
         viewModelScope.launch {
@@ -167,8 +164,8 @@ class OrbitViewModel(
         }
     }
 
-    // Current User
-    private val _currentUser = MutableStateFlow<User?>(OrbitRepository.PRESET_USERS[0])
+    // Current User (null for guest, populated upon authentic login or registration)
+    private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser.asStateFlow()
 
     // Navigation state
@@ -239,6 +236,43 @@ class OrbitViewModel(
     val progressMap get() = OrbitRepository.progressMap
     val auditLogs get() = OrbitRepository.auditLogs
     val classroomMessages get() = OrbitRepository.classroomMessages
+    val groups get() = OrbitRepository.groups
+    val studentProfiles get() = OrbitRepository.studentProfiles
+    val absenceApologies get() = OrbitRepository.absenceApologies
+    val lateArrivals get() = OrbitRepository.lateArrivals
+    val pdfBookSyncState get() = OrbitRepository.pdfBookSyncState
+
+    fun addStudentProfile(parentId: String, parentName: String, name: String, birthDate: String, country: PlatformCountry): StudentProfile {
+        return OrbitRepository.addStudentProfile(parentId, parentName, name, birthDate, country)
+    }
+
+    fun enrollChildInGroup(studentId: String, groupId: String, actorName: String): Result<String> {
+        return OrbitRepository.enrollChildInGroup(studentId, groupId, actorName)
+    }
+
+    fun submitAbsenceApology(studentId: String, studentName: String, parentId: String, sessionId: String, sessionTitle: String, apologyReason: String): AbsenceApologyRecord {
+        return OrbitRepository.submitAbsenceApology(studentId, studentName, parentId, sessionId, sessionTitle, apologyReason)
+    }
+
+    fun offerCompensationSlot(apologyId: String, slots: List<CompensationSlot>) {
+        OrbitRepository.offerCompensationSlot(apologyId, slots)
+    }
+
+    fun confirmCompensationSlot(apologyId: String, selectedSlot: CompensationSlot) {
+        OrbitRepository.confirmCompensationSlot(apologyId, selectedSlot)
+    }
+
+    fun submitLateArrival(studentId: String, studentName: String, sessionId: String, sessionTitle: String): LateArrivalCheckIn {
+        return OrbitRepository.submitLateArrival(studentId, studentName, sessionId, sessionTitle)
+    }
+
+    fun respondToLateArrival(checkInId: String, accept: Boolean) {
+        OrbitRepository.respondToLateArrival(checkInId, accept)
+    }
+
+    fun updateTeacherBookPage(page: Int) {
+        OrbitRepository.updateTeacherBookPage(page)
+    }
 
     // Mental Math Challenge State (delegated controller)
     private val mentalMathController = MentalMathController()
@@ -400,7 +434,8 @@ class OrbitViewModel(
             when (user.role) {
                 UserRole.INSTRUCTOR -> _activePortal.value = PortalTab.INSTRUCTOR
                 UserRole.ADMIN -> _activePortal.value = PortalTab.ADMIN
-                UserRole.LEARNER -> _activePortal.value = PortalTab.LEARNER
+                UserRole.PARENT -> _activePortal.value = PortalTab.PARENT
+                UserRole.STUDENT -> _activePortal.value = PortalTab.LEARNER
             }
         } else {
             _activePortal.value = PortalTab.HOME

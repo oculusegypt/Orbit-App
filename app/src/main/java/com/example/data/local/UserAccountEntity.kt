@@ -35,7 +35,9 @@ fun UserAccountEntity.toUserAccount(): UserAccount {
     val userRole = when (role.uppercase()) {
         "INSTRUCTOR", "TEACHER" -> UserRole.INSTRUCTOR
         "ADMIN", "SUPERVISOR" -> UserRole.ADMIN
-        else -> UserRole.LEARNER
+        "PARENT", "GUARDIAN" -> UserRole.PARENT
+        "STUDENT", "LEARNER" -> UserRole.STUDENT
+        else -> UserRole.STUDENT
     }
     return UserAccount(
         id = id,
@@ -54,7 +56,9 @@ fun UserAccountEntity.toUser(): User {
     val userRole = when (role.uppercase()) {
         "INSTRUCTOR", "TEACHER" -> UserRole.INSTRUCTOR
         "ADMIN", "SUPERVISOR" -> UserRole.ADMIN
-        else -> UserRole.LEARNER
+        "PARENT", "GUARDIAN" -> UserRole.PARENT
+        "STUDENT", "LEARNER" -> UserRole.STUDENT
+        else -> UserRole.STUDENT
     }
     return User(
         id = id,

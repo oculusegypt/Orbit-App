@@ -78,7 +78,8 @@ fun UserContactCard(
                                     when (user.role) {
                                         UserRole.INSTRUCTOR -> OrbitGoldDark
                                         UserRole.ADMIN -> Color(0xFFDC2626)
-                                        UserRole.LEARNER -> OrbitIndigo
+                                        UserRole.PARENT -> OrbitEmerald
+                                        UserRole.STUDENT -> OrbitIndigo
                                     }
                                 ),
                             contentAlignment = Alignment.Center
@@ -121,7 +122,8 @@ fun UserContactCard(
                             color = when (user.role) {
                                 UserRole.INSTRUCTOR -> OrbitGold.copy(alpha = 0.2f)
                                 UserRole.ADMIN -> Color(0xFFFEE2E2)
-                                UserRole.LEARNER -> OrbitIndigo.copy(alpha = 0.15f)
+                                UserRole.PARENT -> OrbitEmerald.copy(alpha = 0.15f)
+                                UserRole.STUDENT -> OrbitIndigo.copy(alpha = 0.15f)
                             },
                             shape = RoundedCornerShape(6.dp)
                         ) {
@@ -132,7 +134,8 @@ fun UserContactCard(
                                 color = when (user.role) {
                                     UserRole.INSTRUCTOR -> OrbitGoldDark
                                     UserRole.ADMIN -> Color(0xFFDC2626)
-                                    UserRole.LEARNER -> OrbitIndigo
+                                    UserRole.PARENT -> OrbitEmerald
+                                    UserRole.STUDENT -> OrbitIndigo
                                 },
                                 modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                             )

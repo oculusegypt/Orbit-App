@@ -1,9 +1,14 @@
 package com.example.data.models
 
 enum class UserRole(val labelAr: String) {
-    LEARNER("طالب / ولي أمر"),
-    INSTRUCTOR("معلمة / مدربة"),
-    ADMIN("مدير النظام")
+    STUDENT("طالب"),
+    PARENT("ولي أمر"),
+    INSTRUCTOR("المعلمة سارة العربي"),
+    ADMIN("الإدارة المدرسية");
+
+    companion object {
+        val LEARNER get() = STUDENT
+    }
 }
 
 data class User(

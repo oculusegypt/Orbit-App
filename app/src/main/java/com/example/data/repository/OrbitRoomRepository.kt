@@ -323,58 +323,14 @@ class OrbitRoomRepository(
         if (dao.getUsersCount() == 0) {
             val initialAccounts = listOf(
                 UserAccountEntity(
-                    id = "usr_sara_alarabi",
-                    email = "sara.alarabi@orbitlearn.edu",
-                    passwordHash = "sara123",
-                    displayName = "مس سارة العربي",
+                    id = "inst-sara-elarby",
+                    email = "Saraelarby96@gmail.com".lowercase(),
+                    passwordHash = com.example.core.PasswordHasher.hash("sara1234"),
+                    displayName = "أ / سارة العربي",
                     role = "INSTRUCTOR",
-                    phone = "+20 10 9876 5432",
-                    avatarUrl = "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400",
-                    bioOrGrade = "كبير مدربي السوربان والحساب الذهني - مؤسس الأكاديمية",
-                    isOnline = true
-                ),
-                UserAccountEntity(
-                    id = "usr_hady_admin",
-                    email = "hadybash781@gmail.com",
-                    passwordHash = "admin123",
-                    displayName = "م. هادي باشا",
-                    role = "ADMIN",
-                    phone = "+20 12 3456 7890",
-                    avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400",
-                    bioOrGrade = "المشرف العام وإدارة منصة أوربت ليرن التعليمية",
-                    isOnline = true
-                ),
-                UserAccountEntity(
-                    id = "usr_ziad_ahmed",
-                    email = "ziad.ahmed@gmail.com",
-                    passwordHash = "ziad123",
-                    displayName = "زياد أحمد محمود",
-                    role = "LEARNER",
-                    phone = "+20 11 2233 4455",
-                    avatarUrl = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400",
-                    bioOrGrade = "الصف الرابع الابتدائي - بطل مسابقة السوربان السريعة",
-                    isOnline = true
-                ),
-                UserAccountEntity(
-                    id = "usr_mariam_kareem",
-                    email = "mariam.kareem@gmail.com",
-                    passwordHash = "mariam123",
-                    displayName = "مريم كريم الشريف",
-                    role = "LEARNER",
-                    phone = "+20 15 5566 7788",
-                    avatarUrl = "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
-                    bioOrGrade = "الصف السادس الابتدائي - المستوى المتقدم في الرياضيات الذهنية",
-                    isOnline = false
-                ),
-                UserAccountEntity(
-                    id = "usr_asmaa_tarek",
-                    email = "asmaa.tarek@orbitlearn.edu",
-                    passwordHash = "asmaa123",
-                    displayName = "أ. أسماء طارق",
-                    role = "INSTRUCTOR",
-                    phone = "+20 10 1122 3344",
-                    avatarUrl = "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400",
-                    bioOrGrade = "مدربة معتمدة لتنمية مهارات التفكير المنطقي للأطفال",
+                    phone = "+20 10 28340042",
+                    avatarUrl = "https://images.unsplash.com/photo-1544717305-2782549b5136?w=400",
+                    bioOrGrade = "مدربة مدربين معتمدة من برنامج العباقرة الصغار - تأسيس لغة عربية وحساب ذهني بالمنصورة",
                     isOnline = true
                 )
             )

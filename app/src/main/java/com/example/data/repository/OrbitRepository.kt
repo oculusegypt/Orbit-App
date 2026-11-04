@@ -48,6 +48,277 @@ object OrbitRepository {
     private val _consultationBookings = MutableStateFlow<List<ConsultationBooking>>(emptyList())
     val consultationBookings: StateFlow<List<ConsultationBooking>> = _consultationBookings.asStateFlow()
 
+    // ─── Real Sara Al-Araby Educational Ecosystem Flows ───
+    private val _groups = MutableStateFlow<List<GroupSchedule>>(
+        listOf(
+            GroupSchedule(
+                id = "grp-eg-arabic-foundations",
+                programId = "prog-arabic",
+                title = "مجموعة براعم نور البيان وتأسيس القراءة (مصر) 🌱",
+                country = PlatformCountry.EGYPT,
+                targetAgeTier = AgeTier.EARLY_CHILDHOOD,
+                maxCapacity = 8,
+                currentEnrolledCount = 3,
+                fixedDaysAr = "الأحد والأربعاء",
+                timeSlotUtc = "14:00 UTC",
+                localTimeDisplay = "04:00 م بتوقيت القاهرة",
+                monthlyPriceMinor = 45000,
+                currency = "EGP"
+            ),
+            GroupSchedule(
+                id = "grp-eg-soroban-junior",
+                programId = "prog-soroban-junior",
+                title = "مجموعة أبطال الحساب السريع والسوروبان (مصر) 🚀",
+                country = PlatformCountry.EGYPT,
+                targetAgeTier = AgeTier.JUNIOR_CHAMPIONS,
+                maxCapacity = 8,
+                currentEnrolledCount = 5,
+                fixedDaysAr = "السبت والثلاثاء",
+                timeSlotUtc = "15:00 UTC",
+                localTimeDisplay = "05:00 م بتوقيت القاهرة",
+                monthlyPriceMinor = 55000,
+                currency = "EGP"
+            ),
+            GroupSchedule(
+                id = "grp-eg-genius-math",
+                programId = "prog-soroban-genius",
+                title = "مجموعة دبلوم عباقرة السوروبان والتفكير الرياضي (مصر) 🧠",
+                country = PlatformCountry.EGYPT,
+                targetAgeTier = AgeTier.YOUNG_GENIUSES,
+                maxCapacity = 8,
+                currentEnrolledCount = 6,
+                fixedDaysAr = "الاثنين والخميس",
+                timeSlotUtc = "16:00 UTC",
+                localTimeDisplay = "06:00 م بتوقيت القاهرة",
+                monthlyPriceMinor = 65000,
+                currency = "EGP"
+            ),
+            GroupSchedule(
+                id = "grp-sa-arabic-foundations",
+                programId = "prog-arabic-sa",
+                title = "مجموعة تأسيس القراءة واللغة العربية بنور البيان (السعودية) 🌱",
+                country = PlatformCountry.SAUDI_ARABIA,
+                targetAgeTier = AgeTier.EARLY_CHILDHOOD,
+                maxCapacity = 8,
+                currentEnrolledCount = 2,
+                fixedDaysAr = "الأحد والأربعاء",
+                timeSlotUtc = "15:00 UTC",
+                localTimeDisplay = "06:00 م بتوقيت مكة المكرمة",
+                monthlyPriceMinor = 15000,
+                currency = "SAR"
+            ),
+            GroupSchedule(
+                id = "grp-sa-soroban-junior",
+                programId = "prog-soroban-sa",
+                title = "مجموعة الحساب الذهني وتطوير الذكاء (السعودية) 🚀",
+                country = PlatformCountry.SAUDI_ARABIA,
+                targetAgeTier = AgeTier.JUNIOR_CHAMPIONS,
+                maxCapacity = 8,
+                currentEnrolledCount = 4,
+                fixedDaysAr = "السبت والثلاثاء",
+                timeSlotUtc = "16:00 UTC",
+                localTimeDisplay = "07:00 م بتوقيت مكة المكرمة",
+                monthlyPriceMinor = 18000,
+                currency = "SAR"
+            ),
+            GroupSchedule(
+                id = "grp-sa-genius-math",
+                programId = "prog-genius-sa",
+                title = "مجموعة عباقرة السوروبان التخيلي المتقدم (السعودية) 🧠",
+                country = PlatformCountry.SAUDI_ARABIA,
+                targetAgeTier = AgeTier.YOUNG_GENIUSES,
+                maxCapacity = 8,
+                currentEnrolledCount = 5,
+                fixedDaysAr = "الاثنين والخميس",
+                timeSlotUtc = "17:00 UTC",
+                localTimeDisplay = "08:00 م بتوقيت مكة المكرمة",
+                monthlyPriceMinor = 22000,
+                currency = "SAR"
+            )
+        )
+    )
+    val groups: StateFlow<List<GroupSchedule>> = _groups.asStateFlow()
+
+    private val _studentProfiles = MutableStateFlow<List<StudentProfile>>(emptyList())
+    val studentProfiles: StateFlow<List<StudentProfile>> = _studentProfiles.asStateFlow()
+
+    private val _absenceApologies = MutableStateFlow<List<AbsenceApologyRecord>>(emptyList())
+    val absenceApologies: StateFlow<List<AbsenceApologyRecord>> = _absenceApologies.asStateFlow()
+
+    private val _lateArrivals = MutableStateFlow<List<LateArrivalCheckIn>>(emptyList())
+    val lateArrivals: StateFlow<List<LateArrivalCheckIn>> = _lateArrivals.asStateFlow()
+
+    private val _pdfBookSyncState = MutableStateFlow(
+        PdfBookSyncState(
+            bookId = "book-soroban-1",
+            title = "كتاب السوروبان الذكي للأطفال",
+            totalPages = 24,
+            currentTeacherPage = 1,
+            lastCachedStudentPage = 1,
+            isStudentBookVisible = true
+        )
+    )
+    val pdfBookSyncState: StateFlow<PdfBookSyncState> = _pdfBookSyncState.asStateFlow()
+
+    fun addStudentProfile(
+        parentId: String,
+        parentName: String,
+        name: String,
+        birthDate: String,
+        country: PlatformCountry
+    ): StudentProfile {
+        val calculatedAge = calculateAge(birthDate)
+        val calculatedTier = AgeTier.fromAge(calculatedAge)
+        val profile = StudentProfile(
+            id = "std-" + System.currentTimeMillis(),
+            parentId = parentId,
+            parentName = parentName,
+            name = name.trim(),
+            birthDate = birthDate.trim(),
+            age = calculatedAge,
+            ageTier = calculatedTier,
+            country = country,
+            avatarEmoji = calculatedTier.badgeEmoji,
+            completedLessonsCount = 0,
+            currentStreakDays = 1,
+            totalXp = 100,
+            dailyAttendanceRatePercent = 100
+        )
+        _studentProfiles.value = listOf(profile) + _studentProfiles.value
+        addAudit(
+            actorUserId = parentId,
+            actorName = parentName,
+            action = "CHILD_PROFILE_CREATED",
+            resourceType = "student",
+            resourceId = profile.id,
+            reason = "إضافة الطفل: ${profile.name} ($calculatedAge سنوات) - ${calculatedTier.labelAr}"
+        )
+        return profile
+    }
+
+    private fun calculateAge(birthDate: String): Int {
+        return try {
+            val year = birthDate.trim().split("-")[0].toIntOrNull() ?: 2018
+            (2026 - year).coerceIn(3, 14)
+        } catch (_: Exception) {
+            7
+        }
+    }
+
+    fun enrollChildInGroup(studentId: String, groupId: String, actorName: String): Result<String> {
+        val group = _groups.value.find { it.id == groupId }
+            ?: return Result.failure(Exception("المجموعة غير موجودة"))
+        if (group.isFull) {
+            return Result.failure(Exception("المجموعة مكتملة العدد بالكامل (الحد الأقصى ${group.maxCapacity} طلاب)"))
+        }
+        val student = _studentProfiles.value.find { it.id == studentId }
+            ?: return Result.failure(Exception("ملف الطالب غير مسجل"))
+        if (student.enrolledGroupIds.contains(groupId)) {
+            return Result.failure(Exception("الطالب مسجل بالفعل في هذه المجموعة"))
+        }
+
+        _groups.value = _groups.value.map {
+            if (it.id == groupId) it.copy(currentEnrolledCount = it.currentEnrolledCount + 1) else it
+        }
+
+        _studentProfiles.value = _studentProfiles.value.map {
+            if (it.id == studentId) it.copy(enrolledGroupIds = it.enrolledGroupIds + groupId) else it
+        }
+
+        addAudit(
+            actorUserId = student.parentId,
+            actorName = actorName,
+            action = "GROUP_ENROLLMENT_CONFIRMED",
+            resourceType = "group",
+            resourceId = groupId,
+            reason = "اشتراك الطالب ${student.name} في ${group.title}"
+        )
+        return Result.success("تم الاشتراك بنجاح في ${group.title}")
+    }
+
+    fun submitAbsenceApology(
+        studentId: String,
+        studentName: String,
+        parentId: String,
+        sessionId: String,
+        sessionTitle: String,
+        apologyReason: String
+    ): AbsenceApologyRecord {
+        val record = AbsenceApologyRecord(
+            id = "apology-" + System.currentTimeMillis(),
+            studentId = studentId,
+            studentName = studentName,
+            parentId = parentId,
+            sessionId = sessionId,
+            sessionTitle = sessionTitle,
+            apologyReason = apologyReason,
+            submittedAt = OrbitTimeFormatter.currentDateTime(),
+            status = "PENDING"
+        )
+        _absenceApologies.value = listOf(record) + _absenceApologies.value
+        addAudit(
+            actorUserId = parentId,
+            actorName = studentName,
+            action = "ABSENCE_APOLOGY_SUBMITTED",
+            resourceType = "apology",
+            resourceId = record.id,
+            reason = "اعتذار عن $sessionTitle: $apologyReason"
+        )
+        return record
+    }
+
+    fun offerCompensationSlot(apologyId: String, slots: List<CompensationSlot>) {
+        _absenceApologies.value = _absenceApologies.value.map {
+            if (it.id == apologyId) it.copy(status = "OFFERED", offeredSlots = slots) else it
+        }
+        addAudit(
+            actorUserId = "inst-sara-elarby",
+            actorName = INSTRUCTOR_SARA.name,
+            action = "COMPENSATION_OFFERED",
+            resourceType = "apology",
+            resourceId = apologyId,
+            reason = "اقتراح مواعيد تعويض خالية من التعارضات"
+        )
+    }
+
+    fun confirmCompensationSlot(apologyId: String, selectedSlot: CompensationSlot) {
+        _absenceApologies.value = _absenceApologies.value.map {
+            if (it.id == apologyId) it.copy(status = "CONFIRMED", selectedSlot = selectedSlot) else it
+        }
+    }
+
+    fun submitLateArrival(
+        studentId: String,
+        studentName: String,
+        sessionId: String,
+        sessionTitle: String
+    ): LateArrivalCheckIn {
+        val checkIn = LateArrivalCheckIn(
+            id = "late-" + System.currentTimeMillis(),
+            studentId = studentId,
+            studentName = studentName,
+            sessionId = sessionId,
+            sessionTitle = sessionTitle,
+            arrivalTime = OrbitTimeFormatter.currentTime(),
+            status = "PENDING"
+        )
+        _lateArrivals.value = listOf(checkIn) + _lateArrivals.value
+        return checkIn
+    }
+
+    fun respondToLateArrival(checkInId: String, accept: Boolean) {
+        _lateArrivals.value = _lateArrivals.value.map {
+            if (it.id == checkInId) it.copy(status = if (accept) "ACCEPTED" else "REJECTED") else it
+        }
+    }
+
+    fun updateTeacherBookPage(page: Int) {
+        _pdfBookSyncState.value = _pdfBookSyncState.value.copy(
+            currentTeacherPage = page,
+            lastCachedStudentPage = page
+        )
+    }
+
     /**
      * Persists a real consultation booking request submitted from the booking
      * funnel, records an audit trail event, and returns the stored booking so

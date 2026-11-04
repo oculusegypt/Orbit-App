@@ -23,6 +23,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data.models.UserRole
 import com.example.ui.components.*
 import com.example.ui.screens.*
+import com.example.ui.screens.student.StudentAdaptiveDashboard
+import com.example.ui.screens.parent.ParentPortalScreen
+import com.example.ui.screens.instructor.SaraInstructorPortalScreen
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.CourseSubView
 import com.example.ui.viewmodel.OrbitViewModel
@@ -145,21 +148,35 @@ fun OrbitApp(viewModel: OrbitViewModel) {
                     modifier = Modifier.testTag("nav_item_courses")
                 )
 
-                // 3. Connect (1-on-1 Private Call & Screen Sharing)
+                // 3. Parent Portal (ولي الأمر)
                 NavigationBarItem(
-                    selected = activePortal == PortalTab.CONNECT,
-                    onClick = { viewModel.setPortal(PortalTab.CONNECT) },
-                    icon = { Icon(Icons.Default.PhoneInTalk, contentDescription = "اتصال خاص") },
-                    label = { Text("اتصال خاص 📞", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.CONNECT) FontWeight.Bold else FontWeight.Normal) },
+                    selected = activePortal == PortalTab.PARENT,
+                    onClick = { viewModel.setPortal(PortalTab.PARENT) },
+                    icon = { Icon(Icons.Default.FamilyRestroom, contentDescription = "ولي الأمر") },
+                    label = { Text("ولي الأمر", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.PARENT) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = OrbitGoldDark,
-                        selectedTextColor = OrbitGoldDark,
-                        indicatorColor = OrbitGold.copy(alpha = 0.2f)
+                        selectedIconColor = OrbitEmerald,
+                        selectedTextColor = OrbitEmerald,
+                        indicatorColor = OrbitEmerald.copy(alpha = 0.15f)
                     ),
-                    modifier = Modifier.testTag("nav_item_connect")
+                    modifier = Modifier.testTag("nav_item_parent")
                 )
 
-                // 4. Classroom
+                // 4. Student Adaptive Dashboard (لوحة الطالب)
+                NavigationBarItem(
+                    selected = activePortal == PortalTab.LEARNER,
+                    onClick = { viewModel.setPortal(PortalTab.LEARNER) },
+                    icon = { Icon(Icons.Default.AccountCircle, contentDescription = "الطالب") },
+                    label = { Text("الطالب", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.LEARNER) FontWeight.Bold else FontWeight.Normal) },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = OrbitIndigo,
+                        selectedTextColor = OrbitIndigo,
+                        indicatorColor = OrbitIndigo.copy(alpha = 0.15f)
+                    ),
+                    modifier = Modifier.testTag("nav_item_learner")
+                )
+
+                // 5. Classroom (الفصل الحي)
                 NavigationBarItem(
                     selected = activePortal == PortalTab.CLASSROOM,
                     onClick = { viewModel.setPortal(PortalTab.CLASSROOM) },
@@ -173,48 +190,19 @@ fun OrbitApp(viewModel: OrbitViewModel) {
                     modifier = Modifier.testTag("nav_item_classroom")
                 )
 
-                // 5. Learner Portal (بوابتي)
+                // 6. Instructor Portal (المعلمة سارة العربي)
                 NavigationBarItem(
-                    selected = activePortal == PortalTab.LEARNER,
-                    onClick = { viewModel.setPortal(PortalTab.LEARNER) },
-                    icon = { Icon(Icons.Default.AccountCircle, contentDescription = "بوابتي") },
-                    label = { Text("بوابتي", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.LEARNER) FontWeight.Bold else FontWeight.Normal) },
+                    selected = activePortal == PortalTab.INSTRUCTOR,
+                    onClick = { viewModel.setPortal(PortalTab.INSTRUCTOR) },
+                    icon = { Icon(Icons.Default.Psychology, contentDescription = "المعلمة") },
+                    label = { Text("المعلمة 💡", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.INSTRUCTOR) FontWeight.Bold else FontWeight.Normal) },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = OrbitIndigo,
-                        selectedTextColor = OrbitIndigo,
-                        indicatorColor = OrbitIndigo.copy(alpha = 0.15f)
+                        selectedIconColor = OrbitGoldDark,
+                        selectedTextColor = OrbitGoldDark,
+                        indicatorColor = OrbitGold.copy(alpha = 0.2f)
                     ),
-                    modifier = Modifier.testTag("nav_item_learner")
+                    modifier = Modifier.testTag("nav_item_instructor")
                 )
-
-                // 6. Role-dependent Portal (المعلمة أو الإدارة)
-                if (currentUser?.role == UserRole.INSTRUCTOR) {
-                    NavigationBarItem(
-                        selected = activePortal == PortalTab.INSTRUCTOR,
-                        onClick = { viewModel.setPortal(PortalTab.INSTRUCTOR) },
-                        icon = { Icon(Icons.Default.Psychology, contentDescription = "المعلمة") },
-                        label = { Text("المعلمة 💡", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.INSTRUCTOR) FontWeight.Bold else FontWeight.Normal) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = OrbitGoldDark,
-                            selectedTextColor = OrbitGoldDark,
-                            indicatorColor = OrbitGold.copy(alpha = 0.2f)
-                        ),
-                        modifier = Modifier.testTag("nav_item_instructor")
-                    )
-                } else if (currentUser?.role == UserRole.ADMIN) {
-                    NavigationBarItem(
-                        selected = activePortal == PortalTab.ADMIN,
-                        onClick = { viewModel.setPortal(PortalTab.ADMIN) },
-                        icon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = "الإدارة") },
-                        label = { Text("الإدارة", fontSize = 10.sp, fontWeight = if (activePortal == PortalTab.ADMIN) FontWeight.Bold else FontWeight.Normal) },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = Color(0xFFDC2626),
-                            selectedTextColor = Color(0xFFDC2626),
-                            indicatorColor = Color(0xFFFEE2E2)
-                        ),
-                        modifier = Modifier.testTag("nav_item_admin")
-                    )
-                }
             }
         },
         floatingActionButton = {
@@ -248,8 +236,16 @@ fun OrbitApp(viewModel: OrbitViewModel) {
                 PortalTab.LIBRARY -> LibraryScreen(viewModel = viewModel)
                 PortalTab.CONNECT -> PrivateConnectScreen(viewModel = viewModel)
                 PortalTab.CLASSROOM -> VirtualClassroom(viewModel = viewModel)
-                PortalTab.LEARNER -> LearnerScreen(viewModel = viewModel)
-                PortalTab.INSTRUCTOR -> InstructorScreen(viewModel = viewModel)
+                PortalTab.LEARNER -> StudentAdaptiveDashboard(
+                    viewModel = viewModel,
+                    onNavigateToClassroom = { viewModel.setPortal(PortalTab.CLASSROOM) },
+                    onOpenBookPdf = { /* open book */ }
+                )
+                PortalTab.PARENT -> ParentPortalScreen(viewModel = viewModel)
+                PortalTab.INSTRUCTOR -> SaraInstructorPortalScreen(
+                    viewModel = viewModel,
+                    onLaunchLiveClassroom = { viewModel.setPortal(PortalTab.CLASSROOM) }
+                )
                 PortalTab.ADMIN -> AdminScreen(viewModel = viewModel)
             }
         }

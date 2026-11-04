@@ -26,25 +26,12 @@ object OrbitSeedData {
 
     val PRESET_USERS = listOf(
         User(
-            id = "usr-student-1",
-            email = "yassine.ahmed@orbit.edu",
-            displayName = "ياسين أحمد (بطل العباقرة)",
-            role = UserRole.LEARNER,
-            avatarUrl = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
-        ),
-        User(
             id = "inst-sara-elarby",
             email = "Saraelarby96@gmail.com",
             displayName = "أ / سارة العربي",
             role = UserRole.INSTRUCTOR,
-            avatarUrl = "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80"
-        ),
-        User(
-            id = "usr-admin-1",
-            email = "admin@orbit2026.edu",
-            displayName = "م. عمر المنصوري (إدارة المنصة)",
-            role = UserRole.ADMIN,
-            avatarUrl = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
+            avatarUrl = "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
+            organization = "أكاديمية مس سارة العربي بالمنصورة"
         )
     )
 

@@ -46,7 +46,7 @@ fun AuthDialog(
     onRegister: (name: String, email: String, pass: String, role: UserRole, phone: String, bio: String, callback: (Boolean, String) -> Unit) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var selectedTab by remember { mutableStateOf(0) } // 0: Login, 1: Signup, 2: Quick Switch
+    var selectedTab by remember { mutableStateOf(if (currentUser != null) 0 else 0) } // 0: Login, 1: Signup
     val context = androidx.compose.ui.platform.LocalContext.current
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var successMessage by remember { mutableStateOf<String?>(null) }
@@ -60,8 +60,9 @@ fun AuthDialog(
     var signupEmail by remember { mutableStateOf("") }
     var signupPhone by remember { mutableStateOf("") }
     var signupPassword by remember { mutableStateOf("") }
-    var signupRole by remember { mutableStateOf(UserRole.LEARNER) }
-    var signupBioOrGrade by remember { mutableStateOf("") }
+    var signupRole by remember { mutableStateOf(UserRole.PARENT) }
+    var signupCountry by remember { mutableStateOf("مصر (EGP)") }
+    var signupExtraInfo by remember { mutableStateOf("") }
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -89,16 +90,12 @@ fun AuthDialog(
                 ) {
                     Column {
                         Text(
-                            text = when (selectedTab) {
-                                0 -> stringResource(R.string.ui_cf06700)
-                                1 -> stringResource(R.string.ui_6246c22)
-                                else -> stringResource(R.string.ui_ac4aa45)
-                            },
+                            text = if (selectedTab == 0) "تسجيل الدخول الفعلي" else "إنشاء حساب جديد بالمنصة",
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         )
                         Text(
-                            text = stringResource(R.string.ui_8cacfdd),
+                            text = "منظومة سارة العربي للتعليم الإلكتروني — حسابات حقيقية وفصل للأدوار",
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -124,7 +121,7 @@ fun AuthDialog(
                             errorMessage = null
                             successMessage = null
                         },
-                        text = { Text(stringResource(R.string.ui_269168c), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                        text = { Text("تسجيل الدخول", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                     )
                     Tab(
                         selected = selectedTab == 1,
@@ -133,16 +130,7 @@ fun AuthDialog(
                             errorMessage = null
                             successMessage = null
                         },
-                        text = { Text(stringResource(R.string.ui_31c5d1a), fontSize = 12.sp, fontWeight = FontWeight.Bold) }
-                    )
-                    Tab(
-                        selected = selectedTab == 2,
-                        onClick = {
-                            selectedTab = 2
-                            errorMessage = null
-                            successMessage = null
-                        },
-                        text = { Text("الحسابات (${allRegisteredUsers.size})", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
+                        text = { Text("إنشاء حساب", fontSize = 12.sp, fontWeight = FontWeight.Bold) }
                     )
                 }
 
@@ -189,15 +177,63 @@ fun AuthDialog(
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
+                    if (currentUser != null) {
+                        // Current Active Session banner
+                        Surface(
+                            shape = RoundedCornerShape(14.dp),
+                            color = OrbitIndigo.copy(alpha = 0.08f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, OrbitIndigo.copy(alpha = 0.3f)),
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier.size(42.dp).clip(CircleShape).background(OrbitIndigo),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text("أنت مسجل حالياً باسم:", fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(currentUser.displayName, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                                    Text("${currentUser.role.labelAr} • ${currentUser.email}", fontSize = 10.sp, color = OrbitIndigo, fontWeight = FontWeight.SemiBold)
+                                }
+                                OutlinedButton(
+                                    onClick = {
+                                        onSelectUser(null)
+                                        successMessage = "تم تسجيل الخروج بنجاح"
+                                    },
+                                    shape = RoundedCornerShape(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                                    modifier = Modifier.testTag("auth_logout_btn")
+                                ) {
+                                    Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(14.dp))
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("تسجيل خروج", fontSize = 10.sp)
+                                }
+                            }
+                        }
+                    }
+
                     when (selectedTab) {
                         0 -> {
-                            // LOGIN TAB
+                            // REAL CREDENTIALS LOGIN TAB
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                                Text(
+                                    text = "أدخل بيانات حسابك المعتمد:",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
                                 OutlinedTextField(
                                     value = loginEmail,
                                     onValueChange = { loginEmail = it },
-                                    label = { Text(stringResource(R.string.ui_2436aac)) },
-                                    placeholder = { Text("example@orbitlearn.edu") },
+                                    label = { Text("البريد الإلكتروني") },
+                                    placeholder = { Text("Saraelarby96@gmail.com أو بريدك المسجل") },
                                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                     singleLine = true,
@@ -209,7 +245,7 @@ fun AuthDialog(
                                     value = loginPassword,
                                     onValueChange = { loginPassword = it },
                                     label = { Text(stringResource(R.string.ui_bcb75ee)) },
-                                    placeholder = { Text("••••••••") },
+                                    placeholder = { Text("كلمة المرور المشفرة") },
                                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                                     visualTransformation = PasswordVisualTransformation(),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -221,7 +257,7 @@ fun AuthDialog(
                                 Button(
                                     onClick = {
                                         if (loginEmail.isBlank() || loginPassword.isBlank()) {
-                                            errorMessage = context.getString(R.string.ui_ccf9734)
+                                            errorMessage = "يرجى كتابة البريد الإلكتروني وكلمة المرور للتحقق"
                                             return@Button
                                         }
                                         onLogin(loginEmail, loginPassword) { success, msg ->
@@ -238,52 +274,46 @@ fun AuthDialog(
                                 ) {
                                     Icon(Icons.Default.Login, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.ui_83ed06b), fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                                    Text("تسجيل الدخول والتحقق", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 }
 
-                                Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-                                Text(stringResource(R.string.ui_a2e8ac6), fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-
-                                allRegisteredUsers.take(3).forEach { user ->
-                                    ElevatedCard(
-                                        onClick = {
-                                            onSelectUser(user.toUser())
-                                            onDismiss()
-                                        },
-                                        shape = RoundedCornerShape(12.dp),
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(10.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(Icons.Default.AccountCircle, contentDescription = null, tint = OrbitIndigo)
-                                            Spacer(modifier = Modifier.width(10.dp))
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(user.displayName, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                                Text(user.role.labelAr + " • " + user.email, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                            }
-                                            Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(16.dp))
-                                        }
+                                Surface(
+                                    shape = RoundedCornerShape(10.dp),
+                                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+                                ) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
+                                        Text(
+                                            text = "معلومات الحسابات الرسمية بالمنظومة:",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            text = "• حساب المعلمة سارة العربي: Saraelarby96@gmail.com\n• أولياء الأمور والطلاب: يتم التسجيل من تبويب (إنشاء حساب) لحفظ بيانات حقيقية.",
+                                            fontSize = 10.sp,
+                                            lineHeight = 15.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
                                 }
                             }
                         }
 
                         1 -> {
-                            // SIGN UP TAB (Real Accounts)
+                            // REAL USER REGISTRATION TAB
                             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                                Text(stringResource(R.string.ui_98fd1d4), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                Text("اختر نوع الحساب المطلوب إنشاؤه:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
 
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     listOf(
-                                        UserRole.LEARNER to stringResource(R.string.ui_c1c4111),
-                                        UserRole.INSTRUCTOR to stringResource(R.string.ui_80900fd),
-                                        UserRole.ADMIN to stringResource(R.string.ui_f0976b3)
+                                        UserRole.PARENT to "ولي أمر 👨‍👩‍👧",
+                                        UserRole.STUDENT to "طالب 🧒",
+                                        UserRole.INSTRUCTOR to "معلمة 👩‍🏫"
                                     ).forEach { (role, label) ->
                                         FilterChip(
                                             selected = signupRole == role,
@@ -292,8 +322,9 @@ fun AuthDialog(
                                             colors = FilterChipDefaults.filterChipColors(
                                                 selectedContainerColor = when (role) {
                                                     UserRole.INSTRUCTOR -> OrbitGold.copy(alpha = 0.3f)
-                                                    UserRole.ADMIN -> Color(0xFFFEE2E2)
-                                                    UserRole.LEARNER -> OrbitIndigo.copy(alpha = 0.2f)
+                                                    UserRole.PARENT -> OrbitEmerald.copy(alpha = 0.25f)
+                                                    UserRole.STUDENT -> OrbitIndigo.copy(alpha = 0.25f)
+                                                    else -> OrbitIndigo.copy(alpha = 0.2f)
                                                 }
                                             ),
                                             modifier = Modifier.weight(1f)
@@ -304,8 +335,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupName,
                                     onValueChange = { signupName = it },
-                                    label = { Text(stringResource(R.string.ui_a92ebc2)) },
-                                    placeholder = { Text(stringResource(R.string.ui_445f3f1)) },
+                                    label = { Text(if (signupRole == UserRole.PARENT) "اسم ولي الأمر كاملاً" else "الاسم الكامل") },
+                                    placeholder = { Text(if (signupRole == UserRole.PARENT) "أحمد محمد محمود" else "ياسين أحمد") },
                                     leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
@@ -315,8 +346,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupEmail,
                                     onValueChange = { signupEmail = it },
-                                    label = { Text(stringResource(R.string.ui_b09228f)) },
-                                    placeholder = { Text("ahmed@example.com") },
+                                    label = { Text("البريد الإلكتروني الحقيقي") },
+                                    placeholder = { Text("example@gmail.com") },
                                     leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                                     singleLine = true,
@@ -327,8 +358,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupPhone,
                                     onValueChange = { signupPhone = it },
-                                    label = { Text(stringResource(R.string.ui_18bd813)) },
-                                    placeholder = { Text("+20 10 1234 5678") },
+                                    label = { Text("رقم الهاتف / واتساب") },
+                                    placeholder = { Text("+20 10 2834 0042") },
                                     leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                                     singleLine = true,
@@ -339,8 +370,8 @@ fun AuthDialog(
                                 OutlinedTextField(
                                     value = signupPassword,
                                     onValueChange = { signupPassword = it },
-                                    label = { Text(stringResource(R.string.ui_bcb75ee)) },
-                                    placeholder = { Text(stringResource(R.string.ui_5c83dee)) },
+                                    label = { Text("كلمة المرور (تُحفظ مشفرة في SQLite)") },
+                                    placeholder = { Text("6 أحرف أو أرقام على الأقل") },
                                     leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                                     visualTransformation = PasswordVisualTransformation(),
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -350,11 +381,19 @@ fun AuthDialog(
                                 )
 
                                 OutlinedTextField(
-                                    value = signupBioOrGrade,
-                                    onValueChange = { signupBioOrGrade = it },
-                                    label = { Text(if (signupRole == UserRole.LEARNER) stringResource(R.string.ui_aad225d) else stringResource(R.string.ui_2c83545)) },
-                                    placeholder = { Text(if (signupRole == UserRole.LEARNER) stringResource(R.string.ui_77bd4f8) else stringResource(R.string.ui_a231de9)) },
-                                    leadingIcon = { Icon(Icons.Default.Info, contentDescription = null) },
+                                    value = signupExtraInfo,
+                                    onValueChange = { signupExtraInfo = it },
+                                    label = {
+                                        Text(
+                                            when (signupRole) {
+                                                UserRole.PARENT -> "الدولة والمدينة (مثال: مصر - المنصورة)"
+                                                UserRole.STUDENT -> "العمر أو المرحلة الدراسية (مثال: 8 سنوات - أبطال سارة)"
+                                                else -> "المؤهل والتخصص"
+                                            }
+                                        )
+                                    },
+                                    placeholder = { Text("بيانات لتحديد البرنامج والعملة المناسبة") },
+                                    leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
                                     singleLine = true,
                                     shape = RoundedCornerShape(12.dp),
                                     modifier = Modifier.fillMaxWidth().testTag("input_signup_bio")
@@ -362,13 +401,17 @@ fun AuthDialog(
 
                                 Button(
                                     onClick = {
-                                        if (signupName.isBlank() || signupEmail.isBlank() || signupPassword.isBlank()) {
-                                            errorMessage = context.getString(R.string.ui_10bc485)
+                                        if (signupName.isBlank() || signupEmail.isBlank() || signupPassword.isBlank() || signupPhone.isBlank()) {
+                                            errorMessage = "يرجى تعبئة كافة الحقول الأساسية للتسجيل الفعلي"
                                             return@Button
                                         }
-                                        onRegister(signupName, signupEmail, signupPassword, signupRole, signupPhone, signupBioOrGrade) { success, msg ->
+                                        if (signupPassword.length < 5) {
+                                            errorMessage = "كلمة المرور يجب ألا تقل عن 5 خانات"
+                                            return@Button
+                                        }
+                                        onRegister(signupName, signupEmail, signupPassword, signupRole, signupPhone, signupExtraInfo) { success, msg ->
                                             if (success) {
-                                                successMessage = context.getString(R.string.ui_ae7b64b)
+                                                successMessage = "تم إنشاء الحساب وحفظه في قاعدة البيانات بنجاح"
                                                 onDismiss()
                                             } else {
                                                 errorMessage = msg
@@ -381,103 +424,7 @@ fun AuthDialog(
                                 ) {
                                     Icon(Icons.Default.PersonAdd, contentDescription = null, modifier = Modifier.size(18.dp))
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text(stringResource(R.string.ui_b597ead), fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                                }
-                            }
-                        }
-
-                        2 -> {
-                            // REGISTERED ACCOUNTS LIST
-                            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text(stringResource(R.string.ui_526c07b), fontSize = 12.sp, fontWeight = FontWeight.Bold)
-
-                                allRegisteredUsers.forEach { user ->
-                                    val isSelected = currentUser?.id == user.id
-                                    Surface(
-                                        shape = RoundedCornerShape(14.dp),
-                                        color = if (isSelected) OrbitIndigo.copy(alpha = 0.12f) else MaterialTheme.colorScheme.surfaceVariant,
-                                        border = if (isSelected) androidx.compose.foundation.BorderStroke(2.dp, OrbitIndigo) else null,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                onSelectUser(user.toUser())
-                                                onDismiss()
-                                            }
-                                            .padding(vertical = 2.dp)
-                                            .testTag("auth_account_${user.id}")
-                                    ) {
-                                        Row(
-                                            modifier = Modifier.padding(12.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            if (user.avatarUrl.isNotBlank()) {
-                                                AsyncImage(
-                                                    model = user.avatarUrl,
-                                                    contentDescription = user.displayName,
-                                                    modifier = Modifier.size(40.dp).clip(CircleShape)
-                                                )
-                                            } else {
-                                                Box(
-                                                    modifier = Modifier.size(40.dp).clip(CircleShape).background(OrbitIndigo),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Icon(Icons.Default.Person, contentDescription = null, tint = Color.White)
-                                                }
-                                            }
-
-                                            Spacer(modifier = Modifier.width(12.dp))
-
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                                    Text(user.displayName, fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                                                    Spacer(modifier = Modifier.width(6.dp))
-                                                    Surface(
-                                                        color = when (user.role) {
-                                                            UserRole.INSTRUCTOR -> OrbitGold.copy(alpha = 0.2f)
-                                                            UserRole.ADMIN -> Color(0xFFFEE2E2)
-                                                            UserRole.LEARNER -> OrbitEmerald.copy(alpha = 0.2f)
-                                                        },
-                                                        shape = RoundedCornerShape(6.dp)
-                                                    ) {
-                                                        Text(
-                                                            text = user.role.labelAr,
-                                                            fontSize = 9.sp,
-                                                            fontWeight = FontWeight.Bold,
-                                                            color = when (user.role) {
-                                                                UserRole.INSTRUCTOR -> OrbitGold
-                                                                UserRole.ADMIN -> Color(0xFFDC2626)
-                                                                UserRole.LEARNER -> OrbitEmerald
-                                                            },
-                                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                                        )
-                                                    }
-                                                }
-                                                Text(user.email, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                if (user.bioOrGrade.isNotBlank()) {
-                                                    Text(user.bioOrGrade, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                                }
-                                            }
-
-                                            if (isSelected) {
-                                                Icon(Icons.Default.CheckCircle, contentDescription = null, tint = OrbitIndigo)
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.height(10.dp))
-
-                                OutlinedButton(
-                                    onClick = {
-                                        onSelectUser(null)
-                                        onDismiss()
-                                    },
-                                    shape = RoundedCornerShape(12.dp),
-                                    modifier = Modifier.fillMaxWidth().testTag("auth_logout_btn")
-                                ) {
-                                    Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                    Text(stringResource(R.string.ui_e8e2498), fontSize = 12.sp)
+                                    Text("إنشاء الحساب وحفظه", fontSize = 14.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }

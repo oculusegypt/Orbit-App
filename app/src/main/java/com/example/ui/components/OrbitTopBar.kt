@@ -149,31 +149,30 @@ fun OrbitTopBar(
                     )
                 }
 
-                // User profile avatar / switch button
-                Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable(onClick = onOpenAuth)
-                        .padding(4.dp)
-                        .testTag("user_profile_chip")
+                // User profile avatar / Login button
+                FilledTonalButton(
+                    onClick = onOpenAuth,
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.filledTonalButtonColors(
+                        containerColor = if (currentUser != null) OrbitIndigo.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = if (currentUser != null) OrbitIndigo else MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.testTag("user_profile_chip")
                 ) {
-                    if (currentUser?.avatarUrl.isNullOrBlank()) {
-                        Icon(
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = stringResource(R.string.ui_0869f7a),
-                            tint = OrbitIndigo,
-                            modifier = Modifier.size(28.dp)
-                        )
-                    } else {
-                        AsyncImage(
-                            model = currentUser?.avatarUrl,
-                            contentDescription = currentUser?.displayName,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                        )
-                    }
+                    Icon(
+                        imageVector = if (currentUser != null) Icons.Default.AccountCircle else Icons.Default.Login,
+                        contentDescription = stringResource(R.string.ui_0869f7a),
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = currentUser?.let { "${it.displayName.take(12)} (${it.role.labelAr.take(5)})" } ?: "دخول / حساب",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

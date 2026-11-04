@@ -30,12 +30,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -135,6 +138,7 @@ fun ClassroomStageWindow(
                 )
                 "abacus" -> InteractiveSorobanStage(modifier = Modifier.fillMaxSize())
                 "whiteboard" -> InteractiveWhiteboardStage(modifier = Modifier.fillMaxSize())
+                "pdf_book" -> SynchronizedPdfBookStage(modifier = Modifier.fillMaxSize())
                 else -> TeacherLiveStreamStage(modifier = Modifier.fillMaxSize())
             }
         }
@@ -476,6 +480,7 @@ fun ClassroomStageTabs(
     modifier: Modifier = Modifier
 ) {
     val tabs = listOf(
+        Pair("pdf_book", "مزامنة الكتاب 📖"),
         Pair("stream", stringResource(R.string.ui_d6e5c07)),
         Pair("camera", stringResource(R.string.ui_2b7b49e)),
         Pair("screen", stringResource(R.string.ui_1686653)),
@@ -510,6 +515,156 @@ fun ClassroomStageTabs(
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)
                     )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Synchronized PDF Book Stage with resilient page caching and independent student visibility control.
+ */
+@Composable
+fun SynchronizedPdfBookStage(
+    modifier: Modifier = Modifier
+) {
+    var teacherPage by remember { mutableStateOf(1) }
+    var cachedStudentPage by remember { mutableStateOf(1) }
+    var isStudentBookVisible by remember { mutableStateOf(true) }
+    var isConnectionWeak by remember { mutableStateOf(false) }
+    val totalPages = 24
+
+    Box(modifier = modifier.fillMaxSize().background(Color(0xFF0F172A))) {
+        if (!isStudentBookVisible) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text("👁️ تم إخفاء عرض الكتاب مؤقتاً لمتابعة فيديو المعلمة", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(6.dp))
+                Text("بقية الطلاب يشاهدون الكتاب بشكل متزامن دون أي تأثير على حصتهم", color = Color.Gray, fontSize = 11.sp)
+                Spacer(modifier = Modifier.height(12.dp))
+                Button(
+                    onClick = { isStudentBookVisible = true },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = OrbitIndigo)
+                ) {
+                    Text("إظهار الكتاب المتزامن مجدداً 📖")
+                }
+            }
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(shape = RoundedCornerShape(4.dp), color = OrbitGold.copy(alpha = 0.2f)) {
+                            Text("كتاب نور البيان وسوروبان 🧮", color = OrbitGold, fontSize = 10.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = if (isConnectionWeak) "صفحة $cachedStudentPage (محفوظة محلياً 📶)" else "صفحة المعلمة: $teacherPage / $totalPages",
+                            color = if (isConnectionWeak) Color(0xFFF59E0B) else Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { isStudentBookVisible = false },
+                        modifier = Modifier.size(28.dp).clip(CircleShape).background(Color.White.copy(alpha = 0.2f))
+                    ) {
+                        Icon(Icons.Default.VisibilityOff, contentDescription = "إخفاء الكتاب", tint = Color.White, modifier = Modifier.size(16.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color(0xFFFEF3C7),
+                    modifier = Modifier.fillMaxWidth().weight(1f).border(BorderStroke(1.dp, Color(0xFFF59E0B)), RoundedCornerShape(10.dp))
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(12.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "منهج مس سارة العربي 2026",
+                            color = Color(0xFF92400E),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = when (teacherPage) {
+                                1 -> "الدرس الأول: حركة الفتح ونطق الحروف المتشابهة (قَ - كَ - تَ - طَ)"
+                                2 -> "الدرس الثاني: العداد الصيني — تمثيل الأرقام من 1 إلى 9 بالخرزات"
+                                3 -> "الدرس الثالث: الجمع التخيلي السريع — مسائل مستوى الأبطال"
+                                else -> "تمرين وتطبيق صفحة $teacherPage من كتاب الحساب الذهني"
+                            },
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = Color(0xFF78350F)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = {
+                            if (teacherPage > 1) {
+                                teacherPage--
+                                cachedStudentPage = teacherPage
+                            }
+                        },
+                        enabled = teacherPage > 1,
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        Text("الصفحة السابقة", fontSize = 10.sp)
+                    }
+
+                    TextButton(
+                        onClick = { isConnectionWeak = !isConnectionWeak },
+                        contentPadding = PaddingValues(horizontal = 4.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        Text(
+                            text = if (isConnectionWeak) "📶 كاش الصفحة فعال" else "🟢 اتصال مباشر",
+                            fontSize = 9.sp,
+                            color = if (isConnectionWeak) Color(0xFFF59E0B) else OrbitEmerald
+                        )
+                    }
+
+                    Button(
+                        onClick = {
+                            if (teacherPage < totalPages) {
+                                teacherPage++
+                                cachedStudentPage = teacherPage
+                            }
+                        },
+                        enabled = teacherPage < totalPages,
+                        shape = RoundedCornerShape(6.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 2.dp),
+                        modifier = Modifier.height(30.dp)
+                    ) {
+                        Text("الصفحة التالية", fontSize = 10.sp)
+                    }
                 }
             }
         }
